@@ -23,6 +23,7 @@ import Feedback from './pages/Feedback';
 import Sales from './pages/Sales';
 import AICoach from './pages/AICoach';
 import Profile from './pages/Profile';
+import Controladoria from './pages/Controladoria';
 import Auth from './pages/Auth';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
@@ -125,6 +126,24 @@ function AppContent() {
     return <Onboarding onComplete={() => setShowOnboarding(false)} />;
   }
 
+  // Usuário da Controladoria → tela própria, sem nav nem header do app
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  if (profile.isControladoria) {
+    return (
+      <BrowserRouter>
+        <div className="app">
+          <Header />
+          <main className="app-content">
+            <Routes>
+              <Route path="*" element={<Controladoria />} />
+              <Route path="/perfil" element={<Profile />} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    );
+  }
+
   return (
     <BrowserRouter>
       <div className="app">
@@ -151,6 +170,7 @@ function AppContent() {
             <Route path="/vendas" element={<Sales />} />
             <Route path="/ia-coach" element={<AICoach />} />
             <Route path="/perfil" element={<Profile />} />
+            <Route path="/controladoria" element={<Controladoria />} />
           </Routes>
         </main>
         <BottomNav />

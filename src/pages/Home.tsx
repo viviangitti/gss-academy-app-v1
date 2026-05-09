@@ -17,11 +17,11 @@ import type { GoalStats } from '../services/goal';
 import './Home.css';
 
 const TIPS = [
-  'Comece cada dia revisando suas metas de comissão.',
+  'Comece cada dia revisando suas metas de vendas.',
   'Escute mais do que fala. O cliente que fala, compra.',
   'Faça o acompanhamento em até 24h. Velocidade fecha negócios.',
   'Prepare pelo menos 3 respostas para cada objeção comum.',
-  'Rituais diários criam consistência. Consistência gera comissão.',
+  'Rituais diários criam consistência. Consistência gera resultados.',
   'Pergunte "O que te impede de fechar hoje?" para acelerar decisões.',
   'Comemore cada pequena vitória — celebrar faz parte do processo.',
   'Revise seus números toda sexta-feira para ajustar a rota.',
@@ -169,11 +169,11 @@ export default function Home() {
         <span>Vou entrar numa reunião</span>
       </button>
 
-      {/* Meta de comissão */}
+      {/* Meta de vendas */}
       {stats && goal > 0 && (
         <div className="day-section">
           <div className="day-section-header">
-            <h3 className="section-title"><Award size={16} /> Meta de comissão do mês</h3>
+            <h3 className="section-title"><Award size={16} /> Meta de vendas do mês</h3>
             <div style={{ display: 'flex', gap: 6 }}>
               <button className="btn btn-outline btn-sm" onClick={() => navigate('/vendas')}>
                 Ver extrato
@@ -202,7 +202,7 @@ export default function Home() {
               />
               <input
                 type="number"
-                placeholder="Comissão R$"
+                placeholder="Vendas R$"
                 value={saleForm.commission}
                 onChange={e => setSaleForm({ ...saleForm, commission: e.target.value })}
                 className="sale-amount-input"
@@ -216,8 +216,8 @@ export default function Home() {
           <div className="goal-card card">
             <div className="goal-numbers">
               <div>
-                <span className="goal-value">{formatBRL(stats.monthCommission)}</span>
-                <span className="goal-of">de {formatBRL(stats.goal)} em comissão</span>
+                <span className="goal-value">{formatBRL(stats.monthSales)}</span>
+                <span className="goal-of">de {formatBRL(stats.goal)} em vendas</span>
               </div>
               <span className={`goal-pace goal-pace-${stats.pace}`}>
                 {stats.pace === 'adiantado' && '🔥 Adiantado'}
@@ -262,7 +262,7 @@ export default function Home() {
                     stroke="var(--text-soft)" strokeWidth="1" strokeDasharray="3 3"
                   />
                 </svg>
-                <span className="goal-chart-label">Comissão acumulada no mês</span>
+                <span className="goal-chart-label">Vendas acumuladas no mês</span>
               </div>
             )}
           </div>
@@ -273,7 +273,7 @@ export default function Home() {
         <div className="goal-setup card" onClick={() => navigate('/perfil')}>
           <TrendingUp size={18} />
           <div>
-            <strong>Defina sua meta de comissão</strong>
+            <strong>Defina sua meta de vendas</strong>
             <p>Configure no perfil para acompanhar seu progresso.</p>
           </div>
           <ArrowRight size={14} />
@@ -438,7 +438,7 @@ export default function Home() {
             <h3 className="quick-sale-title"><TrendingUp size={18} /> Registrar venda</h3>
             <div className="quick-sale-fields">
               <div className="quick-sale-field">
-                <label>Comissão R$ <span className="required">*</span></label>
+                <label>Vendas R$ <span className="required">*</span></label>
                 <input
                   type="number"
                   placeholder="Ex: 800"

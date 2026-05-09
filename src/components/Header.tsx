@@ -23,6 +23,7 @@ const titles: Record<string, string> = {
   '/vendas': 'Histórico de Vendas',
   '/ia-coach': 'Pergunte à IA',
   '/perfil': 'Perfil',
+  '/controladoria': 'Gestão de Metas',
 };
 
 const LIBRARY_SUB_PAGES = ['/objecoes', '/scripts', '/tecnicas', '/noticias', '/favoritos', '/historico'];

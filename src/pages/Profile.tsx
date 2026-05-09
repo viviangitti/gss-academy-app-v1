@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, CreditCard, Package, Car, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { SEGMENTS } from '../types';
+import { SEGMENTS, isAutomotive } from '../types';
 import type { UserProfile } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/auth';
@@ -93,15 +93,68 @@ export default function Profile() {
           <span className="form-hint">Personaliza objeções, roteiros e notícias do seu mercado</span>
         </div>
         <div className="form-group">
-          <label><Target size={14} /> Meta de comissão mensal (R$)</label>
+          <label><Target size={14} /> Meta de vendas mensal (R$)</label>
           <input
             type="number"
             value={profile.monthlyGoal || ''}
             onChange={e => setProfile({ ...profile, monthlyGoal: Number(e.target.value) || 0 })}
-            placeholder="Ex: 10000"
+            placeholder="Ex: 150000"
           />
-          <span className="form-hint">Quanto você quer ganhar de comissão este mês — acompanhe na Home</span>
+          <span className="form-hint">Sua meta de vendas do mês — acompanhe o progresso na Home</span>
         </div>
+
+        {isAutomotive(profile.segment) && (
+          <>
+            <div className="form-group form-group-auto">
+              <div className="form-auto-badge"><Car size={12} /> Metas automotivo</div>
+            </div>
+            <div className="form-group">
+              <label><CreditCard size={14} /> Meta de financiamento (R$)</label>
+              <input
+                type="number"
+                value={profile.monthlyGoalFinancing || ''}
+                onChange={e => setProfile({ ...profile, monthlyGoalFinancing: Number(e.target.value) || 0 })}
+                placeholder="Ex: 80000"
+              />
+            </div>
+            <div className="form-group">
+              <label><Package size={14} /> Meta de acessórios (R$)</label>
+              <input
+                type="number"
+                value={profile.monthlyGoalAccessories || ''}
+                onChange={e => setProfile({ ...profile, monthlyGoalAccessories: Number(e.target.value) || 0 })}
+                placeholder="Ex: 20000"
+              />
+            </div>
+          </>
+        )}
+        {/* Team ID */}
+        <div className="form-group">
+          <label><Users size={14} /> Team ID</label>
+          <input
+            value={profile.teamId || ''}
+            onChange={e => setProfile({ ...profile, teamId: e.target.value || null })}
+            placeholder="Código da equipe (ex: gss-sp-01)"
+          />
+          <span className="form-hint">Mesmo código para vendedor e controladoria da mesma equipe</span>
+        </div>
+
+        {/* Controladoria toggle */}
+        <div className="form-group form-toggle-row">
+          <div>
+            <strong>Acesso Controladoria</strong>
+            <p className="form-hint">Ativa a visão de gestão de metas — somente quem define metas da equipe</p>
+          </div>
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={!!profile.isControladoria}
+              onChange={e => setProfile({ ...profile, isControladoria: e.target.checked })}
+            />
+            <span className="toggle-track" />
+          </label>
+        </div>
+
         <button className={`btn btn-primary save-btn ${saved ? 'saved' : ''}`} onClick={handleSave}>
           <Save size={16} /> {saved ? 'Salvo!' : 'Salvar'}
         </button>

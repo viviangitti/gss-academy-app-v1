@@ -47,13 +47,20 @@ export interface UserProfile {
   role: string;
   company: string;
   segment: Segment;
-  monthlyGoal?: number;
+  monthlyGoal?: number;          // meta de vendas
+  monthlyGoalFinancing?: number; // meta de financiamento (só automotivo)
+  monthlyGoalAccessories?: number; // meta de acessórios (só automotivo)
   email?: string;
   teamId?: string | null;
   isAdmin?: boolean;
+  isControladoria?: boolean;     // acesso especial: só inputa metas
   uid?: string;
   createdAt?: number;
 }
+
+/** Segmentos automotivos que têm metas extras (financiamento + acessórios) */
+export const AUTOMOTIVE_SEGMENTS: Segment[] = ['automotivo', 'automotivo_luxo'];
+export const isAutomotive = (seg: Segment) => AUTOMOTIVE_SEGMENTS.includes(seg);
 
 export interface NewsItem {
   title: string;

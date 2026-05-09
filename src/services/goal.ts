@@ -18,7 +18,7 @@ export interface Sale {
 
 export interface GoalStats {
   goal: number;                // meta de comissão
-  monthCommission: number;     // comissão acumulada no mês
+  monthSales: number;     // comissão acumulada no mês
   monthTotal: number;          // valor vendido no mês (referência)
   monthCount: number;
   progress: number; // 0-100
@@ -75,16 +75,16 @@ export function getCurrentMonthSales(): Sale[] {
 }
 
 export function getStats(goal: number): GoalStats {
-  const monthSales = getCurrentMonthSales();
-  const monthCommission = monthSales.reduce((sum, s) => sum + (s.commission ?? 0), 0);
-  const monthTotal = monthSales.reduce((sum, s) => sum + s.amount, 0);
-  const progress = goal > 0 ? Math.min((monthCommission / goal) * 100, 100) : 0;
+  const rawSales = getCurrentMonthSales();
+  const monthSales = rawSales.reduce((sum, s) => sum + (s.commission ?? 0), 0);
+  const monthTotal = rawSales.reduce((sum, s) => sum + s.amount, 0);
+  const progress = goal > 0 ? Math.min((monthSales / goal) * 100, 100) : 0;
 
   const now = new Date();
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   const daysLeft = Math.max(0, lastDay.getDate() - now.getDate());
 
-  const remaining = Math.max(0, goal - monthCommission);
+  const remaining = Math.max(0, goal - monthSales);
   const dailyTarget = daysLeft > 0 ? remaining / daysLeft : remaining;
 
   let pace: GoalStats['pace'] = 'sem_meta';
@@ -99,9 +99,9 @@ export function getStats(goal: number): GoalStats {
 
   return {
     goal,
-    monthCommission,
+    monthSales,
     monthTotal,
-    monthCount: monthSales.length,
+    monthCount: rawSales.length,
     progress,
     daysLeft,
     pace,
