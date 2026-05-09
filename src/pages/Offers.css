@@ -1,0 +1,206 @@
+.offers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Hero */
+.offers-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa) !important;
+  color: white;
+  padding: 18px;
+  border: none;
+}
+.offers-hero svg { color: #fcd34d; flex-shrink: 0; }
+.offers-hero h2 { font-size: 18px; color: white; margin-bottom: 3px; }
+.offers-hero p  { font-size: 13px; opacity: 0.8; }
+
+/* Loading */
+.offers-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+.offers-spin { animation: offers-rotate 1s linear infinite; }
+@keyframes offers-rotate { to { transform: rotate(360deg); } }
+
+/* Empty */
+.offers-empty.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.offers-empty svg { color: var(--border-strong); }
+.offers-empty p { font-size: 14px; color: var(--text-light); }
+.offers-empty-hint { font-size: 12px !important; color: var(--text-soft) !important; }
+
+/* Offer card */
+.offer-card.card { padding: 0; overflow: hidden; }
+.offer-card.offer-expiring { border-left: 3px solid var(--danger); }
+
+/* Header (clickable) */
+.offer-header {
+  padding: 16px 18px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.offer-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.offer-title-row h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.offer-badge-soon {
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.offer-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.offer-highlights-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.offer-chip {
+  font-size: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.offer-chip-more {
+  font-size: 12px;
+  color: var(--text-soft);
+  padding: 3px 6px;
+}
+
+.offer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: fit-content;
+  transition: color 0.2s;
+}
+.offer-toggle:hover { color: var(--accent); }
+
+/* Body (expanded) */
+.offer-body {
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 0;
+  padding-top: 14px;
+}
+
+.offer-section label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  margin-bottom: 6px;
+}
+.offer-section p {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+}
+.offer-bullets {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.offer-bullets li {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Pitch box */
+.offer-pitch-box {
+  background: color-mix(in srgb, #7c3aed 8%, transparent);
+  border-left: 3px solid #7c3aed;
+  padding: 12px 14px;
+  border-radius: 10px;
+}
+.offer-pitch-text {
+  font-size: 14px;
+  color: var(--text);
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Actions */
+.offer-actions {
+  display: flex;
+  gap: 10px;
+}
+.offer-copy-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  font-size: 14px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.offer-copy-btn.copied { border-color: var(--success); color: var(--success); }
+.offer-ai-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  font-size: 14px;
+}

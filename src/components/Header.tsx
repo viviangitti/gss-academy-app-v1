@@ -24,6 +24,8 @@ const titles: Record<string, string> = {
   '/ia-coach': 'Pergunte à IA',
   '/perfil': 'Perfil',
   '/controladoria': 'Gestão de Metas',
+  '/ofertas': 'Ofertas do Mês',
+  '/ofertas-admin': 'Painel Marketing',
 };
 
 const LIBRARY_SUB_PAGES = ['/objecoes', '/scripts', '/tecnicas', '/noticias', '/favoritos', '/historico'];

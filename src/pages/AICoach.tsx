@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMessage, resetChat } from '../services/gemini';
 import { loadData, saveData, KEYS } from '../services/storage';
-import type { ChatMessage } from '../types';
+import type { ChatMessage, UserProfile } from '../types';
 import SpeakButton from '../components/SpeakButton';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
+import { getActiveOffers } from '../services/firestore/offers';
 import './AICoach.css';
 
 const QUICK_PROMPTS = [
@@ -46,6 +47,7 @@ const BAR_DURS   = [0.8, 1.1, 0.7, 0.95, 1.2, 0.85, 0.75, 1.05, 0.9, 1.15,
 
 export default function AICoach() {
   const navigate = useNavigate();
+  const location = useLocation();
   const isOnline = useOnline();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -53,6 +55,7 @@ export default function AICoach() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [autoSpeak, setAutoSpeak] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const offersContextRef = useRef<string>('');
 
   // Recorder
   const [isRecording, setIsRecording] = useState(false);
@@ -73,7 +76,27 @@ export default function AICoach() {
 
   useEffect(() => {
     setMessages(loadData(KEYS.CHAT_HISTORY, []));
-  }, []);
+
+    // Carrega ofertas ativas para retroalimentar a IA
+    const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+    getActiveOffers(profile.segment || undefined).then(offers => {
+      if (offers.length === 0) return;
+      const ctx = [
+        '📢 OFERTAS ATIVAS DO MÊS (use essas informações para ajudar o vendedor):',
+        ...offers.map(o => [
+          `• ${o.title} (válido até ${o.validTo})`,
+          `  ${o.description}`,
+          o.highlights.length ? `  Destaques: ${o.highlights.join(' | ')}` : '',
+          o.pitch ? `  Pitch sugerido: "${o.pitch}"` : '',
+        ].filter(Boolean).join('\n')),
+      ].join('\n');
+      offersContextRef.current = ctx;
+    }).catch(() => {});
+
+    // Prefill vindo da página de Ofertas ("Pedir à IA")
+    const prefill = (location.state as { prefill?: string } | null)?.prefill;
+    if (prefill) setInput(prefill);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -90,7 +113,12 @@ export default function AICoach() {
     setSuggestions([]);
     setLoading(true);
 
-    const withSuggestions = msg + '\n\n(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas que o vendedor poderia fazer ao cliente em seguida)';
+    // Injeta contexto das ofertas na primeira mensagem
+    const offerCtx = offersContextRef.current;
+    const withOffers = offerCtx && messages.length === 0
+      ? `${offerCtx}\n\n---\n${msg}`
+      : msg;
+    const withSuggestions = withOffers + '\n\n(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas que o vendedor poderia fazer ao cliente em seguida)';
 
     try {
       const response = await sendMessage(withSuggestions, API_KEY);

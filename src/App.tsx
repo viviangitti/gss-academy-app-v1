@@ -24,6 +24,8 @@ import Sales from './pages/Sales';
 import AICoach from './pages/AICoach';
 import Profile from './pages/Profile';
 import Controladoria from './pages/Controladoria';
+import Offers from './pages/Offers';
+import OffersAdmin from './pages/OffersAdmin';
 import Auth from './pages/Auth';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
@@ -126,8 +128,9 @@ function AppContent() {
     return <Onboarding onComplete={() => setShowOnboarding(false)} />;
   }
 
-  // Usuário da Controladoria → tela própria, sem nav nem header do app
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+
+  // Controladoria → só tela de metas
   if (profile.isControladoria) {
     return (
       <BrowserRouter>
@@ -136,6 +139,23 @@ function AppContent() {
           <main className="app-content">
             <Routes>
               <Route path="*" element={<Controladoria />} />
+              <Route path="/perfil" element={<Profile />} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    );
+  }
+
+  // Marketing → só painel de ofertas
+  if (profile.isMarketing) {
+    return (
+      <BrowserRouter>
+        <div className="app">
+          <Header />
+          <main className="app-content">
+            <Routes>
+              <Route path="*" element={<OffersAdmin />} />
               <Route path="/perfil" element={<Profile />} />
             </Routes>
           </main>
@@ -171,6 +191,8 @@ function AppContent() {
             <Route path="/ia-coach" element={<AICoach />} />
             <Route path="/perfil" element={<Profile />} />
             <Route path="/controladoria" element={<Controladoria />} />
+            <Route path="/ofertas" element={<Offers />} />
+            <Route path="/ofertas-admin" element={<OffersAdmin />} />
           </Routes>
         </main>
         <BottomNav />

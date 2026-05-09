@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, CreditCard, Package, Car, Users } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, CreditCard, Package, Car, Users, Megaphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
 import { SEGMENTS, isAutomotive } from '../types';
@@ -155,6 +155,22 @@ export default function Profile() {
           </label>
         </div>
 
+        {/* Marketing toggle */}
+        <div className="form-group form-toggle-row">
+          <div>
+            <strong>Acesso Marketing</strong>
+            <p className="form-hint">Ativa o painel para cadastrar ofertas e campanhas do mês</p>
+          </div>
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={!!profile.isMarketing}
+              onChange={e => setProfile({ ...profile, isMarketing: e.target.checked })}
+            />
+            <span className="toggle-track" />
+          </label>
+        </div>
+
         <button className={`btn btn-primary save-btn ${saved ? 'saved' : ''}`} onClick={handleSave}>
           <Save size={16} /> {saved ? 'Salvo!' : 'Salvar'}
         </button>
@@ -178,6 +194,13 @@ export default function Profile() {
 
       <div className="profile-links">
         <h3 className="section-title">MAESTR.IA em Vendas</h3>
+        <Link to="/ofertas" className="link-card card">
+          <div className="link-info">
+            <h4><Megaphone size={14} /> Ofertas do Mês</h4>
+            <p>Campanhas ativas para usar com clientes</p>
+          </div>
+          <ExternalLink size={16} />
+        </Link>
         <a href="https://gssacademy.vercel.app" target="_blank" rel="noopener noreferrer" className="link-card card">
           <div className="link-info">
             <h4>GSS Academy</h4>

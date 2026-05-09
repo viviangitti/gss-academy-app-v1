@@ -54,6 +54,7 @@ export interface UserProfile {
   teamId?: string | null;
   isAdmin?: boolean;
   isControladoria?: boolean;     // acesso especial: só inputa metas
+  isMarketing?: boolean;         // acesso especial: cadastra ofertas do mês
   uid?: string;
   createdAt?: number;
 }
@@ -67,4 +68,18 @@ export interface NewsItem {
   link: string;
   pubDate: string;
   description: string;
+}
+
+export interface Offer {
+  id?: string;
+  title: string;               // ex: "Feirão de Julho — Juros Zero"
+  description: string;         // texto completo para a IA e para o vendedor
+  highlights: string[];        // bullets: ["12x sem juros", "Frete grátis", ...]
+  pitch: string;               // argumento pronto para usar com o cliente
+  validFrom: string;           // "2026-07-01"
+  validTo: string;             // "2026-07-31"
+  segments: Segment[];         // quais segmentos (vazio = todos)
+  active: boolean;
+  createdAt?: number;
+  createdBy?: string;
 }
