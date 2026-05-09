@@ -1,0 +1,396 @@
+.lost-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Stats */
+.lost-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px 16px;
+  gap: 8px;
+}
+
+.lost-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.lost-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.lost-stat-value.lost-stat-small {
+  font-size: 15px;
+}
+
+.lost-stat-label {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.lost-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+}
+
+/* Insight */
+.lost-insight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.06) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lost-insight svg:first-child {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.lost-insight div {
+  flex: 1;
+}
+
+.lost-insight strong {
+  color: var(--text);
+}
+
+.lost-insight-arrow {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+/* Add button */
+.lost-add-btn {
+  width: 100%;
+  padding: 14px;
+}
+
+/* Overlay / Sheet */
+.lost-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+
+.lost-sheet {
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 12px 20px 40px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.25s var(--ease);
+}
+
+.lost-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.lost-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.lost-sheet-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.lost-close {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Form */
+.lost-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lost-field label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.lost-field .req {
+  color: var(--accent);
+}
+
+.lost-field input,
+.lost-field select,
+.lost-field textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.lost-field input:focus,
+.lost-field select:focus,
+.lost-field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.lost-field.highlight {
+  background: rgba(201, 168, 76, 0.06);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+.lost-field.highlight label {
+  color: var(--accent);
+}
+
+/* Stage chips */
+.lost-chips-select {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lost-chip {
+  padding: 7px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.lost-chip.active {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.lost-confirm {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+/* Empty state */
+.lost-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px;
+  gap: 12px;
+  color: var(--text-light);
+}
+
+.lost-empty svg {
+  opacity: 0.4;
+}
+
+.lost-empty h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.lost-empty p {
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 260px;
+  margin: 0;
+}
+
+/* List */
+.lost-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lost-item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.lost-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.lost-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lost-item-top {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.lost-item-reason {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.lost-item-stage {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+}
+
+.lost-item-opp {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lost-item-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.lost-item-actions {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+/* Expanded body */
+.lost-item-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 14px;
+}
+
+.lost-item-section label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.lost-item-section p {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.lost-item-section.learning {
+  background: rgba(201, 168, 76, 0.06);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.lost-item-section.learning label {
+  color: var(--accent);
+}
+
+.lost-item-footer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.lost-delete {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  margin-left: auto;
+}
+
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-light);
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: inherit;
+}

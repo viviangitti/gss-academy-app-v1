@@ -1,0 +1,233 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+/* Level card */
+.level-card {
+  border-left: 3px solid var(--accent);
+}
+
+.level-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.level-header svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.level-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.level-points {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.streak-badge {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.level-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.level-progress .progress-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.level-progress .progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.level-next {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: right;
+}
+
+.profile-form .form-group {
+  margin-bottom: 14px;
+}
+
+.profile-form .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-light);
+}
+
+.save-btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.save-btn.saved {
+  background: var(--success);
+  color: white;
+}
+
+.profile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.2s;
+}
+
+.link-card:active {
+  transform: scale(0.98);
+}
+
+.link-info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.link-info p {
+  font-size: 16px;
+  color: var(--text-light);
+}
+
+.link-card svg {
+  color: var(--accent);
+}
+
+/* Theme switcher */
+.theme-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.theme-options {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-opt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s var(--ease);
+}
+
+.theme-opt:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.theme-opt.active {
+  background: var(--accent);
+  color: var(--primary);
+  border-color: var(--accent);
+}
+
+.form-hint {
+  font-size: 15px;
+  color: var(--text-light);
+  margin-top: 4px;
+  display: block;
+}
+
+/* Backup */
+.backup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.backup-buttons .btn {
+  flex: 1;
+  font-size: 13px;
+}
+
+.backup-hint {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.import-status {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--success);
+  text-align: center;
+  padding: 8px;
+}
+
+.app-info {
+  text-align: center;
+  padding: 16px;
+}
+
+.app-info p {
+  font-size: 15px;
+  color: var(--text-light);
+}

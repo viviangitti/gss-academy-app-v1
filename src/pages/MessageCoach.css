@@ -1,0 +1,321 @@
+.msgcoach-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Hero */
+.msgcoach-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary) 50%, var(--primary-light) 100%) !important;
+  color: var(--white);
+  padding: 20px;
+  border: none;
+}
+
+.msgcoach-hero svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.msgcoach-hero h3 {
+  font-size: 18px;
+  margin-bottom: 2px;
+  color: var(--white);
+}
+
+.msgcoach-hero p {
+  font-size: 13px;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* Canal */
+.msgcoach-channels {
+  display: flex;
+  gap: 6px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  padding: 4px;
+}
+
+.channel-chip {
+  flex: 1;
+  padding: 9px 14px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s var(--ease);
+}
+
+.channel-chip.active {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form group */
+.msgcoach-page .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.msgcoach-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-light);
+}
+
+.msgcoach-textarea {
+  min-height: 140px;
+  resize: vertical;
+  font-size: 15px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.msgcoach-hint {
+  font-size: 11px;
+  color: var(--text-soft);
+  text-align: right;
+}
+
+/* Botão analisar */
+.msgcoach-analyze {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.msgcoach-example {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  align-self: center;
+  transition: all 0.2s var(--ease);
+}
+
+.msgcoach-example:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  border-style: solid;
+}
+
+.msgcoach-error {
+  padding: 14px;
+  border-left: 3px solid var(--danger);
+  color: var(--danger);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* === Resultado === */
+
+/* Score */
+.msgcoach-score.card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+
+.score-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.msgcoach-score.excellent .score-circle {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+.msgcoach-score.good .score-circle {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--primary);
+  box-shadow: var(--shadow-accent);
+}
+
+.msgcoach-score.ok .score-circle {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: white;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+}
+
+.msgcoach-score.bad .score-circle {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+}
+
+.score-value {
+  font-size: 32px;
+}
+
+.score-total {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.score-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.score-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.score-tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* Sections */
+.msgcoach-section {
+  padding: 16px 18px;
+}
+
+.msgcoach-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.msgcoach-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+}
+
+.msgcoach-list li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  padding-left: 22px;
+  position: relative;
+}
+
+.msgcoach-list li::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 700;
+}
+
+.msgcoach-list.strengths li::before {
+  content: '✓';
+  color: var(--success);
+}
+
+.msgcoach-list.problems li::before {
+  content: '!';
+  color: var(--danger);
+}
+
+/* Improved */
+.msgcoach-improved.card {
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.06), rgba(201, 168, 76, 0.02));
+  border: 1px solid rgba(201, 168, 76, 0.3);
+}
+
+.improved-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.improved-header svg {
+  color: var(--accent);
+}
+
+.improved-header h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.improved-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  padding: 12px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.improved-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.improved-why {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.4;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+
+.msgcoach-reset {
+  width: 100%;
+  margin-top: 4px;
+}

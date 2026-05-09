@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Ícones MAESTR.IA</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 40px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 { color: #c9a84c; margin-bottom: 8px; }
+    .instruction {
+      background: rgba(201, 168, 76, 0.1);
+      border-left: 3px solid #c9a84c;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .icon-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .icon-item canvas {
+      width: 100%;
+      max-width: 120px;
+      border-radius: 12px;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    button {
+      background: #c9a84c;
+      color: #1a1a2e;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+    }
+    button:hover { background: #d4b96a; }
+    .download-all {
+      background: linear-gradient(135deg, #c9a84c, #d4b96a);
+      padding: 16px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Gerador de Ícones MAESTR.IA</h1>
+  <p style="opacity: 0.7; margin-bottom: 20px;">Ícones PWA e Play Store gerados automaticamente</p>
+
+  <div class="instruction">
+    <strong>Como usar:</strong><br>
+    1. Clique em "Baixar TODOS os ícones"<br>
+    2. Os PNGs serão baixados para sua pasta Downloads<br>
+    3. Use no PWABuilder ou Play Store
+  </div>
+
+  <div id="previews" class="preview"></div>
+
+  <button class="download-all" onclick="downloadAll()">📥 Baixar TODOS os ícones</button>
+
+  <script>
+    const SIZES = [72, 96, 128, 144, 152, 192, 384, 512, 1024];
+
+    function drawIcon(ctx, size) {
+      // Background gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, size, size);
+      bgGrad.addColorStop(0, '#0f0f1e');
+      bgGrad.addColorStop(0.5, '#1a1a2e');
+      bgGrad.addColorStop(1, '#252547');
+      ctx.fillStyle = bgGrad;
+
+      // Rounded rect background
+      const radius = size * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Glow circle top-right
+      const glowGrad = ctx.createRadialGradient(size * 0.78, size * 0.22, 0, size * 0.78, size * 0.22, size * 0.35);
+      glowGrad.addColorStop(0, 'rgba(201, 168, 76, 0.3)');
+      glowGrad.addColorStop(1, 'rgba(201, 168, 76, 0)');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(0, 0, size, size);
+
+      // Big "GSS" letters
+      const goldGrad = ctx.createLinearGradient(0, 0, size, size);
+      goldGrad.addColorStop(0, '#d4b96a');
+      goldGrad.addColorStop(1, '#a88936');
+      ctx.fillStyle = goldGrad;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const fontSize = size * 0.38;
+      ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+      ctx.letterSpacing = `-${size * 0.008}px`;
+      ctx.fillText('GSS', size / 2, size * 0.50);
+
+      // Small dot (representando o .IA)
+      ctx.beginPath();
+      ctx.arc(size / 2, size * 0.68, size * 0.025, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Text "MAESTR.IA" bottom
+      if (size >= 192) {
+        const textSize = size * 0.09;
+        ctx.font = `700 ${textSize}px Georgia, serif`;
+        ctx.fillStyle = '#c9a84c';
+        ctx.fillText('MAESTR.IA', size / 2, size * 0.86);
+      }
+    }
+
+    function createIcon(size, label) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      drawIcon(ctx, size);
+
+      const div = document.createElement('div');
+      div.className = 'icon-item';
+      const cLabel = document.createElement('div');
+      cLabel.style.cssText = 'font-weight:700;margin-bottom:8px;color:#c9a84c';
+      cLabel.textContent = label;
+      div.appendChild(canvas);
+      div.appendChild(cLabel);
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Baixar';
+      btn.onclick = () => download(canvas, `icon-${size}.png`);
+      div.appendChild(btn);
+
+      document.getElementById('previews').appendChild(div);
+      return canvas;
+    }
+
+    function download(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function downloadAll() {
+      const canvases = document.querySelectorAll('canvas');
+      for (let i = 0; i < canvases.length; i++) {
+        const size = SIZES[i];
+        const name = `icon-${size}.png`;
+        download(canvases[i], name);
+        await new Promise(r => setTimeout(r, 200));
+      }
+    }
+
+    // Render all sizes
+    SIZES.forEach(size => {
+      createIcon(size, `${size}x${size}`);
+    });
+  </script>
+</body>
+</html>

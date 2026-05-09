@@ -1,0 +1,108 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  z-index: 100;
+  background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary) 50%, var(--primary-light) 100%);
+  padding: 0 16px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(15, 15, 30, 0.12);
+}
+
+.header-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-logo {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3);
+}
+
+.header-subtitle {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-back {
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease);
+}
+
+.header-back:hover {
+  background: rgba(201, 168, 76, 0.2);
+  transform: translateX(-2px);
+}
+
+.header-back:active {
+  transform: scale(0.9);
+}
+
+.header-title {
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header-profile {
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  color: var(--accent);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease);
+}
+
+.header-profile:hover {
+  background: rgba(201, 168, 76, 0.2);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.header-profile:active {
+  transform: scale(0.92);
+}

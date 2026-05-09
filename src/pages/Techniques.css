@@ -1,0 +1,124 @@
+.techniques-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.techniques-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.techniques-intro svg {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.techniques-intro p {
+  font-size: 15px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.techniques-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.technique-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.technique-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.technique-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.technique-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.technique-info h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.technique-info p {
+  font-size: 16px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.technique-details {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.technique-steps h5,
+.technique-when h5 {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.step-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.step-number {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-item p {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.technique-when {
+  background: var(--bg);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.technique-when p {
+  font-size: 15px;
+  line-height: 1.5;
+}

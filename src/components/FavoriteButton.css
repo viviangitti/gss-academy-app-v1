@@ -1,0 +1,33 @@
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-soft);
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease-bounce);
+}
+
+.fav-btn:hover {
+  color: var(--accent);
+  background: rgba(201, 168, 76, 0.1);
+}
+
+.fav-btn.active {
+  color: var(--accent);
+  animation: pop 0.4s var(--ease-bounce);
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.fav-btn:active {
+  transform: scale(0.9);
+}

@@ -1,0 +1,189 @@
+.scripts-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Tabs - estilo iOS/Nubank */
+.scripts-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  padding: 4px;
+}
+
+.scripts-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s var(--ease);
+}
+
+.scripts-tab.active {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Urgency (gatilhos) dentro de Roteiros */
+.urgency-category {
+  padding: 14px;
+}
+
+.urgency-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.urgency-icon {
+  font-size: 22px;
+}
+
+.urgency-cat-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.urgency-phrases {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.urgency-phrase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.urgency-phrase:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.urgency-phrase p {
+  font-size: 14px;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.urgency-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.urgency-actions .copy-mini {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.scripts-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.scripts-intro svg {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.scripts-intro p {
+  font-size: 15px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.scripts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.script-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.script-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.script-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.script-card.segment-specific {
+  border-left: 3px solid var(--info);
+}
+
+.script-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.script-context {
+  font-size: 16px;
+  color: var(--text-light);
+}
+
+.script-content {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.script-text {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.btn-copied {
+  background: var(--success);
+  color: white;
+}

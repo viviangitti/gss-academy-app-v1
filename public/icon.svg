@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0f1e" />
+      <stop offset="50%" stop-color="#1a1a2e" />
+      <stop offset="100%" stop-color="#252547" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4b96a" />
+      <stop offset="100%" stop-color="#a88936" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#bg)" />
+  <circle cx="400" cy="112" r="80" fill="rgba(201, 168, 76, 0.15)" />
+  <g transform="translate(256, 256)">
+    <text x="0" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="130" font-weight="900" fill="url(#gold)" text-anchor="middle" letter-spacing="-4" filter="url(#glow)">GSS</text>
+    <circle cx="0" cy="100" r="10" fill="url(#gold)" />
+  </g>
+  <text x="256" y="430" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="34" font-weight="700" fill="#c9a84c" text-anchor="middle" letter-spacing="2">MAESTR.IA</text>
+</svg>

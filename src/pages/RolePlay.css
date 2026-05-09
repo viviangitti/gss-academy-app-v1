@@ -1,0 +1,290 @@
+.roleplay-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: calc(100vh - 160px);
+}
+
+.roleplay-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+  color: var(--white);
+  padding: 20px;
+}
+
+.roleplay-hero svg {
+  color: var(--accent);
+}
+
+.roleplay-hero h3 {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.roleplay-hero p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.roleplay-objection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.roleplay-objection-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: left;
+  transition: transform 0.2s;
+}
+
+.roleplay-objection-btn:active {
+  transform: scale(0.98);
+}
+
+.roleplay-objection-btn svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Session */
+.roleplay-session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.roleplay-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.roleplay-selector {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.selector-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.selector-item:last-child {
+  border-bottom: none;
+}
+
+.selector-item:active {
+  background: var(--bg);
+}
+
+/* Progress */
+.roleplay-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.roleplay-progress .progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.roleplay-progress .progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+/* Messages */
+.roleplay-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 70px;
+}
+
+.roleplay-msg {
+  display: flex;
+  gap: 8px;
+  max-width: 88%;
+}
+
+.roleplay-msg.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.client-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.roleplay-msg .msg-content {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.roleplay-msg.client .msg-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top-left-radius: 4px;
+}
+
+.roleplay-msg.user .msg-content {
+  background: var(--primary);
+  color: var(--white);
+  border-bottom-right-radius: 4px;
+}
+
+.roleplay-msg .msg-content p {
+  margin: 0;
+}
+
+/* Evaluation */
+.evaluation-card {
+  border-left: 3px solid var(--accent);
+  margin-top: 8px;
+}
+
+.eval-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.eval-header svg {
+  color: var(--accent);
+}
+
+.eval-header h4 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.eval-content {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.evaluation-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  color: var(--accent);
+}
+
+.evaluation-loading svg {
+  animation: spin 2s linear infinite;
+}
+
+.evaluation-loading p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Reuse input area styles from AICoach */
+.roleplay-page .input-area {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  padding: 8px 16px;
+  background: var(--bg);
+}
+
+.roleplay-page .input-wrapper {
+  display: flex;
+  gap: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  padding: 4px 4px 4px 16px;
+  align-items: center;
+}
+
+.roleplay-page .input-wrapper input {
+  flex: 1;
+  border: none;
+  padding: 8px 0;
+  font-size: 15px;
+  outline: none;
+  background: transparent;
+}
+
+.roleplay-page .send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roleplay-page .send-btn:disabled {
+  opacity: 0.4;
+}

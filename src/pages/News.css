@@ -1,0 +1,240 @@
+.news-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.news-segment {
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Categorias */
+.news-categories {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.news-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.news-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: all 0.2s var(--ease);
+  flex-shrink: 0;
+}
+
+.news-cat-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.news-cat-chip.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--primary);
+  border-color: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3);
+}
+
+.news-cat-desc {
+  font-size: 13px;
+  color: var(--text-soft);
+  padding: 0 4px;
+}
+
+/* Groups */
+.news-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.news-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-group-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 0 2px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-card {
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.2s;
+  display: block;
+}
+
+.news-card:active {
+  transform: scale(0.98);
+}
+
+.news-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.news-desc {
+  font-size: 16px;
+  color: var(--text-light);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.news-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.news-date {
+  font-size: 15px;
+  color: var(--text-light);
+}
+
+.news-footer svg {
+  color: var(--accent);
+}
+
+.news-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-skeleton {
+  height: 80px;
+  background: linear-gradient(90deg, var(--white) 25%, var(--bg) 50%, var(--white) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.news-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: var(--text-light);
+}
+
+.news-empty h3 {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.news-empty p {
+  font-size: 15px;
+  max-width: 260px;
+}
+
+/* Busca */
+.news-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  transition: all 0.2s var(--ease);
+}
+
+.news-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+}
+
+.news-search-icon {
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
+.news-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  padding: 0;
+  min-width: 0;
+}
+
+.news-search input::placeholder {
+  color: var(--text-soft);
+}
+
+.news-search-clear {
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease);
+}
+
+.news-search-clear:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}

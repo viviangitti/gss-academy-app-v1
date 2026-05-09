@@ -1,0 +1,72 @@
+// Regras de segurança do Firestore — MAESTR.IA em Vendas
+// Para aplicar: Console Firebase → Firestore → Rules → cole este conteúdo → Publicar
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Função auxiliar: usuário autenticado?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Função auxiliar: é o dono do documento?
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Função auxiliar: é admin de um time específico?
+    function isTeamAdmin(teamId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/teams/$(teamId)).data.adminId == request.auth.uid;
+    }
+
+    // Função auxiliar: mesmo time?
+    function sameTeam(otherUid) {
+      let myProfile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      let otherProfile = get(/databases/$(database)/documents/users/$(otherUid)).data;
+      return myProfile.teamId != null && myProfile.teamId == otherProfile.teamId;
+    }
+
+    // /users/{uid}
+    // - O dono lê/escreve os próprios dados
+    // - Admin do time lê os dados dos membros do time
+    match /users/{uid} {
+      allow read: if isOwner(uid) ||
+        (isSignedIn() &&
+         resource.data.teamId != null &&
+         isTeamAdmin(resource.data.teamId));
+      allow write: if isOwner(uid);
+
+      // Subcoleções: vendas, dias, histórico, favoritos
+      match /sales/{saleId} {
+        allow read: if isOwner(uid) ||
+          (isSignedIn() && sameTeam(uid) &&
+           get(/databases/$(database)/documents/users/$(uid)).data.teamId != null &&
+           isTeamAdmin(get(/databases/$(database)/documents/users/$(uid)).data.teamId));
+        allow write: if isOwner(uid);
+      }
+      match /{subcollection}/{docId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // /teams/{teamId}
+    // - Qualquer um autenticado pode ler (pra validar código ao entrar)
+    // - Só o admin escreve (exceto memberIds que qualquer membro pode adicionar a si mesmo)
+    match /teams/{teamId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() &&
+        request.resource.data.adminId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        // Admin pode tudo
+        resource.data.adminId == request.auth.uid ||
+        // Qualquer usuário autenticado pode se adicionar à lista de membros
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds']) &&
+         request.resource.data.memberIds.hasAll(resource.data.memberIds) &&
+         request.auth.uid in request.resource.data.memberIds)
+      );
+      allow delete: if isSignedIn() && resource.data.adminId == request.auth.uid;
+    }
+  }
+}

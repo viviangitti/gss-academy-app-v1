@@ -1,0 +1,75 @@
+.privacy-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.privacy-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--primary-deep), var(--primary-light)) !important;
+  color: var(--white);
+  padding: 18px;
+  border: none;
+}
+
+.privacy-hero svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.privacy-hero h2 {
+  font-size: 18px;
+  margin-bottom: 2px;
+  color: var(--white);
+}
+
+.privacy-hero p {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.privacy-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 4px 20px;
+}
+
+.privacy-content section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.privacy-content h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
+.privacy-content p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.privacy-content ul {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.privacy-content li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.privacy-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}

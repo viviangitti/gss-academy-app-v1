@@ -1,0 +1,149 @@
+.feedback-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feedback-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--primary-deep), var(--primary-light)) !important;
+  color: var(--white);
+  padding: 18px;
+  border: none;
+}
+
+.feedback-hero svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.feedback-hero h2 {
+  font-size: 18px;
+  color: var(--white);
+  margin-bottom: 3px;
+}
+
+.feedback-hero p {
+  font-size: 13px;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+.feedback-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.feedback-section label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-light);
+}
+
+.feedback-section textarea {
+  resize: vertical;
+  min-height: 70px;
+  font-size: 14px;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.rating-star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--border-strong);
+  transition: all 0.2s var(--ease-bounce);
+}
+
+.rating-star.active {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+.rating-star:hover {
+  color: var(--accent-light);
+}
+
+.feedback-send {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+}
+
+.feedback-hint {
+  font-size: 12px;
+  color: var(--text-soft);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Success */
+.feedback-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 12px;
+}
+
+.feedback-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--success), #4ade80);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.rating-label {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  text-align: center;
+  margin-top: -4px;
+}
+
+.feedback-error {
+  color: var(--danger);
+  font-size: 13px;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.feedback-success h2 {
+  font-size: 20px;
+  color: var(--text);
+}
+
+.feedback-success p {
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.5;
+  max-width: 300px;
+  margin-bottom: 10px;
+}

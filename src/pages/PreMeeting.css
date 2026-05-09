@@ -1,0 +1,279 @@
+.premeeting-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.premeeting-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+  color: var(--white);
+  padding: 20px;
+}
+
+.premeeting-hero svg {
+  color: var(--accent);
+}
+
+.premeeting-hero h3 {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.premeeting-hero p {
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+.premeeting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.premeeting-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.premeeting-progress .progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.premeeting-progress .progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.quick-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quick-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.quick-check-item:last-child {
+  border-bottom: none;
+}
+
+.quick-check-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: white;
+}
+
+.quick-check-item.checked .quick-check-box {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.quick-check-item.checked span {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+.quick-check-item span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.section-toggle .section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.mini-objections,
+.mini-techniques {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mini-obj {
+  padding: 12px;
+}
+
+.mini-obj-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.mini-obj-header strong {
+  font-size: 15px;
+}
+
+.mini-obj-responses {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mini-obj-responses p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.mini-tech {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+}
+
+.mini-tech .technique-icon {
+  font-size: 24px;
+}
+
+.mini-tech strong {
+  font-size: 15px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.mini-tech p {
+  font-size: 16px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.premeeting-notes {
+  width: 100%;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* Client picker */
+.client-picker {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.picker-item {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  background: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.picker-item:last-child {
+  border-bottom: none;
+}
+
+.picker-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.picker-company {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* Briefing card */
+.briefing-card {
+  border-left: 3px solid var(--accent);
+}
+
+.briefing-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+.briefing-points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.briefing-point {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.briefing-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.briefing-point > span:last-child {
+  font-size: 14px;
+}
+
+.briefing-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.briefing-tag {
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #fef2f2;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.briefing-value {
+  font-weight: 700;
+  color: var(--success);
+}

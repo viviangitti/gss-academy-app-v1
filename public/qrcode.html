@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Code MAESTR.IA</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 40px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    h1 { color: #c9a84c; }
+    .qr-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      display: inline-block;
+      margin: 20px 0;
+    }
+    .url {
+      background: rgba(255,255,255,0.1);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      margin: 10px 0;
+    }
+    button {
+      background: #c9a84c;
+      color: #1a1a2e;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+      margin: 8px;
+    }
+    .option {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 10px 0;
+    }
+    input[type="text"] {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 QR Code MAESTR.IA</h1>
+  <p>Escaneie com o celular ou baixe para usar em slides, cartões, redes sociais.</p>
+
+  <div class="option">
+    <h3>URL do App</h3>
+    <input type="text" id="urlInput" value="https://gss-weld.vercel.app/instalar" />
+    <button onclick="generateQR()">Gerar QR Code</button>
+  </div>
+
+  <div class="qr-box">
+    <canvas id="qrcanvas"></canvas>
+  </div>
+
+  <div>
+    <button onclick="download('png')">📥 Baixar PNG (grande)</button>
+    <button onclick="download('small')">📥 Baixar PNG (pequeno)</button>
+  </div>
+
+  <p style="opacity:0.6;margin-top:30px;font-size:13px">
+    Para colocar nos slides do curso, em cartões de visita ou banners.
+  </p>
+
+  <script>
+    function generateQR() {
+      const url = document.getElementById('urlInput').value;
+      const canvas = document.getElementById('qrcanvas');
+      QRCode.toCanvas(canvas, url, {
+        width: 400,
+        margin: 2,
+        color: {
+          dark: '#1a1a2e',
+          light: '#ffffff'
+        }
+      });
+    }
+
+    function download(size) {
+      const url = document.getElementById('urlInput').value;
+      const width = size === 'small' ? 512 : 1024;
+      const tempCanvas = document.createElement('canvas');
+      QRCode.toCanvas(tempCanvas, url, {
+        width: width,
+        margin: 2,
+        color: { dark: '#1a1a2e', light: '#ffffff' }
+      }, () => {
+        const link = document.createElement('a');
+        link.download = `qrcode-maestria-${width}.png`;
+        link.href = tempCanvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    generateQR();
+  </script>
+</body>
+</html>

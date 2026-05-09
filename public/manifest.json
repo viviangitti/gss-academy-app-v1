@@ -1,0 +1,65 @@
+{
+  "name": "MAESTR.IA em Vendas",
+  "short_name": "MAESTR.IA",
+  "description": "App de bolso para vendedores de alta performance. Treine objeções, revise mensagens, analise reuniões e organize seu dia — tudo com IA. Complemento do curso MAESTR.IA em Vendas da GSS Academy.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "scope": "/",
+  "categories": ["business", "productivity", "education"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pergunte à IA",
+      "short_name": "IA",
+      "description": "Tire dúvidas com o consultor de vendas",
+      "url": "/ia-coach",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Revisar Mensagem",
+      "short_name": "Mensagem",
+      "description": "Reescreva seu WhatsApp antes de enviar",
+      "url": "/coach-mensagem",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Entrar em reunião",
+      "short_name": "Reunião",
+      "description": "Prepare-se antes de entrar",
+      "url": "/pre-reuniao",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Vendas Perdidas",
+      "short_name": "Perdidas",
+      "description": "Registre e aprenda com as perdas",
+      "url": "/vendas-perdidas",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    }
+  ],
+  "prefer_related_applications": false
+}

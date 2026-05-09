@@ -1,0 +1,120 @@
+.install-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.install-hero.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 28px 20px;
+  background: linear-gradient(135deg, var(--primary-deep), var(--primary-light)) !important;
+  color: var(--white);
+  border: none;
+}
+
+.install-hero svg {
+  color: var(--accent);
+}
+
+.install-hero h2 {
+  font-size: 22px;
+  color: var(--white);
+  letter-spacing: -0.02em;
+}
+
+.install-hero p {
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.5;
+  max-width: 300px;
+}
+
+.install-steps h3,
+.install-share h3,
+.install-benefits h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.install-steps {
+  padding: 18px;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.step:last-child {
+  border-bottom: none;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step strong {
+  display: block;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.step p {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.install-share {
+  padding: 16px 18px;
+}
+
+.install-url {
+  display: flex;
+  gap: 8px;
+}
+
+.install-url input {
+  flex: 1;
+  font-size: 13px;
+  padding: 10px 12px;
+}
+
+.install-benefits {
+  padding: 16px 18px;
+}
+
+.install-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.install-benefits li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
