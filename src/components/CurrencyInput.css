@@ -1,0 +1,84 @@
+.ci-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Chips de atalho */
+.ci-presets {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.ci-presets::-webkit-scrollbar { display: none; }
+
+.ci-chip {
+  flex-shrink: 0;
+  padding: 5px 13px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.ci-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ci-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--primary);
+}
+
+/* Input row */
+.ci-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm, 10px);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.ci-input-wrap:focus-within {
+  border-color: var(--accent);
+}
+
+.ci-prefix {
+  padding: 0 10px 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ci-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 11px 8px 11px 0;
+  outline: none;
+  min-width: 0;
+  font-family: inherit;
+}
+
+.ci-live {
+  padding: 0 12px 0 6px;
+  font-size: 11px;
+  color: var(--text-light);
+  white-space: nowrap;
+  user-select: none;
+}

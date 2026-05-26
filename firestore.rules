@@ -68,5 +68,17 @@ service cloud.firestore {
       );
       allow delete: if isSignedIn() && resource.data.adminId == request.auth.uid;
     }
+
+    // /competitorOffers — ofertas da concorrência (marketing/admin)
+    match /competitorOffers/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // /segmentNews — notícias e lançamentos por segmento (curadas por IA)
+    match /segmentNews/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
   }
 }

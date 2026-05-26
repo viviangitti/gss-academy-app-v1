@@ -42,9 +42,10 @@
 
 .auth-brand p {
   font-size: 13px;
-  opacity: 0.8;
-  margin-top: 2px;
-  font-family: 'Cinzel', serif;
+  opacity: 0.75;
+  margin-top: 4px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .auth-card.card {
@@ -204,6 +205,38 @@
   text-decoration: underline;
 }
 
+
+/* Access type selector */
+.auth-access-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-access-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.auth-access-option.active {
+  border-color: var(--accent);
+  background: rgba(201, 168, 76, 0.08);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+}
 
 .auth-footer {
   font-size: 12px;

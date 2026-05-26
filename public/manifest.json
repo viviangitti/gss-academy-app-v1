@@ -1,7 +1,7 @@
 {
-  "name": "MAESTR.IA em Vendas",
-  "short_name": "MAESTR.IA",
-  "description": "App de bolso para vendedores de alta performance. Treine objeções, revise mensagens, analise reuniões e organize seu dia — tudo com IA. Complemento do curso MAESTR.IA em Vendas da GSS Academy.",
+  "name": "GSS",
+  "short_name": "GSS",
+  "description": "App de bolso para vendedores e times de marketing de alta performance. Treine objeções, crie copies, analise campanhas e muito mais — tudo com IA. By GSS Academy.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

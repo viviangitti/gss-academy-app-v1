@@ -1,27 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, Shield, AlertTriangle, Copy, Check } from 'lucide-react';
-import { getObjections } from '../services/content';
+import { getObjections, STAGES } from '../services/content';
 import { loadData, KEYS } from '../services/storage';
 import { SEGMENTS } from '../types';
 import type { UserProfile } from '../types';
-import type { Objection } from '../services/content';
+import type { Objection, Stage } from '../services/content';
 import SpeakButton from '../components/SpeakButton';
 import FavoriteButton from '../components/FavoriteButton';
 import ShareButton from '../components/ShareButton';
 import './Objections.css';
 
 export default function Objections() {
-  const [objections, setObjections] = useState<Objection[]>([]);
+  const [allObjections, setAllObjections] = useState<Objection[]>([]);
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [segmentLabel, setSegmentLabel] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = useState<Stage | ''>('');
 
   useEffect(() => {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-    // Filter out stage variants (simpler UX)
-    const all = getObjections(profile.segment).filter(o => !o.stage);
-    setObjections(all);
+    setAllObjections(getObjections(profile.segment));
     setSegmentLabel(SEGMENTS.find(s => s.value === profile.segment)?.label || '');
   }, []);
 
@@ -33,7 +32,15 @@ export default function Objections() {
     } catch { /* fallback */ }
   };
 
-  const filtered = objections.filter(o => {
+  // Stage filter: when a stage is selected, show stage variants first, then general
+  const stageFiltered: Objection[] = selectedStage
+    ? [
+        ...allObjections.filter(o => o.stage === selectedStage),
+        ...allObjections.filter(o => !o.stage),
+      ]
+    : allObjections.filter(o => !o.stage);
+
+  const filtered = stageFiltered.filter(o => {
     if (!search) return true;
     return o.objection.toLowerCase().includes(search.toLowerCase()) ||
       o.responses.some(r => r.toLowerCase().includes(search.toLowerCase()));
@@ -50,6 +57,26 @@ export default function Objections() {
         <span className="objections-segment">Personalizado para: {segmentLabel}</span>
       )}
 
+      {/* Filtro por estágio do funil */}
+      <div className="stage-chips">
+        {STAGES.map(s => (
+          <button
+            key={s.value}
+            className={`stage-chip ${selectedStage === s.value ? 'active' : ''}`}
+            onClick={() => { setSelectedStage(s.value as Stage | ''); setExpandedId(null); }}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {selectedStage && (
+        <div className="stage-hint">
+          <AlertTriangle size={12} />
+          Variantes específicas de <strong>{STAGES.find(s => s.value === selectedStage)?.label}</strong> aparecem primeiro
+        </div>
+      )}
+
       <div className="search-bar">
         <Search size={16} />
         <input
@@ -63,12 +90,14 @@ export default function Objections() {
         {filtered.map(obj => {
           const isExpanded = expandedId === obj.id;
           const isSegment = obj.segment !== 'geral';
+          const isStageVariant = !!obj.stage;
 
           return (
-            <div key={obj.id} className={`objection-card card ${isSegment ? 'segment-specific' : ''}`}>
+            <div key={obj.id} className={`objection-card card ${isSegment ? 'segment-specific' : ''} ${isStageVariant ? 'stage-variant' : ''}`}>
               <div className="objection-header" onClick={() => setExpandedId(isExpanded ? null : obj.id)}>
                 <h4>{obj.objection}</h4>
                 <div className="objection-meta">
+                  {isStageVariant && <span className="badge badge-stage">{STAGES.find(s => s.value === obj.stage)?.label}</span>}
                   {isSegment && <span className="badge badge-reuniao">Seu segmento</span>}
                   <FavoriteButton type="objection" itemId={obj.id} label={obj.objection} size={15} />
                   {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

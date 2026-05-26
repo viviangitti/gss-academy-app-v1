@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Users, Target, Save, RefreshCw, Car, CreditCard, Package, AlertCircle } from 'lucide-react';
+import { Users, Target, Save, RefreshCw, Car, CreditCard, Package, AlertCircle, Plus, X } from 'lucide-react';
+import CurrencyInput from '../components/CurrencyInput';
 import { useAuth } from '../contexts/AuthContext';
 import { loadData, KEYS } from '../services/storage';
 import { getTeamMembers, updateMemberGoals } from '../services/firestore/team';
@@ -7,15 +8,13 @@ import { isAutomotive } from '../types';
 import type { UserProfile } from '../types';
 import './Controladoria.css';
 
-function formatBRL(v: number) {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 });
-}
 
 interface MemberRow {
   profile: UserProfile;
   goal: string;
   financing: string;
   accessories: string;
+  customGoals: Array<{ label: string; target: string }>;
   saving: boolean;
   saved: boolean;
   error: string;
@@ -34,7 +33,7 @@ export default function Controladoria() {
     });
     setMyProfile(profile);
 
-    if (!profile.teamId) {
+    if (!profile.company) {
       setNoTeam(true);
       setLoading(false);
       return;
@@ -42,12 +41,13 @@ export default function Controladoria() {
 
     setLoading(true);
     try {
-      const list = await getTeamMembers(profile.teamId);
+      const list = await getTeamMembers(profile.company);
       setMembers(list.map(p => ({
         profile: p,
         goal: String(p.monthlyGoal || ''),
         financing: String(p.monthlyGoalFinancing || ''),
         accessories: String(p.monthlyGoalAccessories || ''),
+        customGoals: (p.customGoals || []).map(g => ({ label: g.label, target: String(g.target || '') })),
         saving: false,
         saved: false,
         error: '',
@@ -76,6 +76,9 @@ export default function Controladoria() {
         goals.monthlyGoalFinancing = Number(row.financing) || 0;
         goals.monthlyGoalAccessories = Number(row.accessories) || 0;
       }
+      goals.customGoals = row.customGoals
+        .map(g => ({ label: g.label, target: Number(g.target) || 0 }))
+        .filter(g => g.label.trim() !== '');
       await updateMemberGoals(row.profile.uid, goals);
       setMembers(prev => prev.map((r, i) =>
         i === idx ? { ...r, saving: false, saved: true } : r
@@ -93,6 +96,27 @@ export default function Controladoria() {
   const updateField = (idx: number, field: 'goal' | 'financing' | 'accessories', val: string) => {
     setMembers(prev => prev.map((r, i) =>
       i === idx ? { ...r, [field]: val, saved: false } : r
+    ));
+  };
+
+  const updateCustomGoal = (memberIdx: number, goalIdx: number, field: 'label' | 'target', val: string) => {
+    setMembers(prev => prev.map((r, i) => {
+      if (i !== memberIdx) return r;
+      const updated = [...r.customGoals];
+      updated[goalIdx] = { ...updated[goalIdx], [field]: val };
+      return { ...r, customGoals: updated, saved: false };
+    }));
+  };
+
+  const addCustomGoal = (memberIdx: number) => {
+    setMembers(prev => prev.map((r, i) =>
+      i === memberIdx ? { ...r, customGoals: [...r.customGoals, { label: '', target: '' }], saved: false } : r
+    ));
+  };
+
+  const removeCustomGoal = (memberIdx: number, goalIdx: number) => {
+    setMembers(prev => prev.map((r, i) =>
+      i === memberIdx ? { ...r, customGoals: r.customGoals.filter((_, j) => j !== goalIdx), saved: false } : r
     ));
   };
 
@@ -118,13 +142,13 @@ export default function Controladoria() {
         </div>
       </div>
 
-      {/* Sem teamId */}
+      {/* Sem empresa configurada */}
       {noTeam && (
         <div className="ctrl-alert card">
           <AlertCircle size={18} />
           <div>
-            <strong>Configure seu Team ID</strong>
-            <p>Vá em Perfil e preencha o campo "Team ID" com o código da sua equipe. Os vendedores precisam ter o mesmo código para aparecer aqui.</p>
+            <strong>Empresa não configurada</strong>
+            <p>Vá em Perfil e preencha o campo "Empresa". Os vendedores da mesma empresa aparecem aqui automaticamente.</p>
           </div>
         </div>
       )}
@@ -133,8 +157,8 @@ export default function Controladoria() {
       {!noTeam && !loading && members.length === 0 && (
         <div className="ctrl-empty card">
           <Users size={32} />
-          <p>Nenhum vendedor encontrado com o Team ID <strong>{myProfile?.teamId}</strong>.</p>
-          <p className="ctrl-empty-hint">Certifique-se de que os vendedores configuraram o mesmo Team ID no perfil deles.</p>
+          <p>Nenhum vendedor encontrado em <strong>{myProfile?.company}</strong>.</p>
+          <p className="ctrl-empty-hint">Os vendedores precisam cadastrar o mesmo nome de empresa no perfil deles.</p>
           <button className="btn btn-outline" onClick={loadMembers}>
             <RefreshCw size={14} /> Atualizar
           </button>
@@ -158,46 +182,71 @@ export default function Controladoria() {
 
             <div className="ctrl-goals">
               {/* Meta de vendas */}
-              <div className="ctrl-goal-row">
-                <label><Target size={13} /> Meta de vendas (R$)</label>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="Ex: 150000"
-                  value={row.goal}
-                  onChange={e => updateField(idx, 'goal', e.target.value)}
+              <div className="ctrl-goal-field">
+                <label><Target size={13} /> {auto ? 'Vendas — Carros' : 'Meta de vendas'}</label>
+                <CurrencyInput
+                  value={Number(row.goal) || 0}
+                  onChange={v => updateField(idx, 'goal', String(v))}
                 />
-                {row.goal && <span className="ctrl-preview">{formatBRL(Number(row.goal))}</span>}
               </div>
 
               {/* Automotivo: financiamento + acessórios */}
               {auto && (
                 <>
-                  <div className="ctrl-goal-row">
-                    <label><CreditCard size={13} /> Meta de financiamento (R$)</label>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="Ex: 80000"
-                      value={row.financing}
-                      onChange={e => updateField(idx, 'financing', e.target.value)}
+                  <div className="ctrl-goal-field">
+                    <label><CreditCard size={13} /> Financiamento</label>
+                    <CurrencyInput
+                      value={Number(row.financing) || 0}
+                      onChange={v => updateField(idx, 'financing', String(v))}
+                      presets={[30_000, 50_000, 80_000, 100_000, 150_000, 200_000]}
                     />
-                    {row.financing && <span className="ctrl-preview">{formatBRL(Number(row.financing))}</span>}
                   </div>
-                  <div className="ctrl-goal-row">
-                    <label><Package size={13} /> Meta de acessórios (R$)</label>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="Ex: 20000"
-                      value={row.accessories}
-                      onChange={e => updateField(idx, 'accessories', e.target.value)}
+                  <div className="ctrl-goal-field">
+                    <label><Package size={13} /> Acessórios</label>
+                    <CurrencyInput
+                      value={Number(row.accessories) || 0}
+                      onChange={v => updateField(idx, 'accessories', String(v))}
+                      presets={[5_000, 10_000, 15_000, 20_000, 30_000, 50_000]}
                     />
-                    {row.accessories && <span className="ctrl-preview">{formatBRL(Number(row.accessories))}</span>}
                   </div>
                   <div className="ctrl-auto-badge"><Car size={12} /> Segmento automotivo</div>
                 </>
               )}
+
+              {/* Metas personalizadas */}
+              {row.customGoals.map((cg, cgIdx) => (
+                <div key={cgIdx} className="ctrl-goal-field ctrl-custom-goal-field">
+                  <div className="ctrl-custom-goal-header">
+                    <input
+                      type="text"
+                      placeholder="Nome da meta"
+                      value={cg.label}
+                      onChange={e => updateCustomGoal(idx, cgIdx, 'label', e.target.value)}
+                      className="ctrl-custom-label-input"
+                    />
+                    <button
+                      type="button"
+                      className="ctrl-remove-goal"
+                      onClick={() => removeCustomGoal(idx, cgIdx)}
+                      aria-label="Remover meta"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                  <CurrencyInput
+                    value={Number(cg.target) || 0}
+                    onChange={v => updateCustomGoal(idx, cgIdx, 'target', String(v))}
+                    presets={[20_000, 50_000, 80_000, 100_000, 150_000, 200_000]}
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-outline btn-sm ctrl-add-goal"
+                onClick={() => addCustomGoal(idx)}
+              >
+                <Plus size={12} /> Adicionar meta
+              </button>
             </div>
 
             {row.error && <p className="ctrl-error">{row.error}</p>}

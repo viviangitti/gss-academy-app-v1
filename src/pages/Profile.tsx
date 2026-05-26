@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, CreditCard, Package, Car, Users, Megaphone } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles } from 'lucide-react';
+import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { SEGMENTS, isAutomotive } from '../types';
-import type { UserProfile } from '../types';
+import { SEGMENTS, SEGMENT_GOAL_PRESETS } from '../types';
+import type { UserProfile, GoalItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
@@ -18,7 +19,17 @@ export default function Profile() {
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('gss_theme') as Theme) || 'auto');
 
   useEffect(() => {
-    setProfile(loadData(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 }));
+    const p = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
+    // Migrate legacy automotive fields into customGoals
+    const existing = p.customGoals || [];
+    const migrated: GoalItem[] = [...existing];
+    if (p.monthlyGoalFinancing && p.monthlyGoalFinancing > 0 && !migrated.find(g => g.label === 'Financiamento')) {
+      migrated.unshift({ label: 'Financiamento', icon: '💳', target: p.monthlyGoalFinancing });
+    }
+    if (p.monthlyGoalAccessories && p.monthlyGoalAccessories > 0 && !migrated.find(g => g.label === 'Acessórios')) {
+      migrated.push({ label: 'Acessórios', icon: '📦', target: p.monthlyGoalAccessories });
+    }
+    setProfile({ ...p, customGoals: migrated });
   }, []);
 
   const handleSave = async () => {
@@ -93,51 +104,96 @@ export default function Profile() {
           <span className="form-hint">Personaliza objeções, roteiros e notícias do seu mercado</span>
         </div>
         <div className="form-group">
-          <label><Target size={14} /> Meta de vendas mensal (R$)</label>
-          <input
-            type="number"
-            value={profile.monthlyGoal || ''}
-            onChange={e => setProfile({ ...profile, monthlyGoal: Number(e.target.value) || 0 })}
-            placeholder="Ex: 150000"
+          <label><Target size={14} /> Meta principal mensal</label>
+          <CurrencyInput
+            value={profile.monthlyGoal || 0}
+            onChange={v => setProfile({ ...profile, monthlyGoal: v })}
           />
-          <span className="form-hint">Sua meta de vendas do mês — acompanhe o progresso na Home</span>
+          <span className="form-hint">Exibida com barra de progresso na Home</span>
         </div>
 
-        {isAutomotive(profile.segment) && (
-          <>
-            <div className="form-group form-group-auto">
-              <div className="form-auto-badge"><Car size={12} /> Metas automotivo</div>
-            </div>
-            <div className="form-group">
-              <label><CreditCard size={14} /> Meta de financiamento (R$)</label>
-              <input
-                type="number"
-                value={profile.monthlyGoalFinancing || ''}
-                onChange={e => setProfile({ ...profile, monthlyGoalFinancing: Number(e.target.value) || 0 })}
-                placeholder="Ex: 80000"
-              />
-            </div>
-            <div className="form-group">
-              <label><Package size={14} /> Meta de acessórios (R$)</label>
-              <input
-                type="number"
-                value={profile.monthlyGoalAccessories || ''}
-                onChange={e => setProfile({ ...profile, monthlyGoalAccessories: Number(e.target.value) || 0 })}
-                placeholder="Ex: 20000"
-              />
-            </div>
-          </>
-        )}
-        {/* Team ID */}
-        <div className="form-group">
-          <label><Users size={14} /> Team ID</label>
-          <input
-            value={profile.teamId || ''}
-            onChange={e => setProfile({ ...profile, teamId: e.target.value || null })}
-            placeholder="Código da equipe (ex: gss-sp-01)"
-          />
-          <span className="form-hint">Mesmo código para vendedor e controladoria da mesma equipe</span>
+        {/* Metas adicionais — modulares para todos os segmentos */}
+        <div className="form-group form-group-auto">
+          <div className="form-auto-badge"><Target size={12} /> Metas adicionais</div>
         </div>
+
+        {(profile.customGoals || []).map((cg, i) => (
+          <div key={i} className="form-group custom-goal-block">
+            <div className="custom-goal-header">
+              <span className="custom-goal-emoji">{cg.icon || '🎯'}</span>
+              <input
+                type="text"
+                placeholder="Nome (ex: Financiamento, Seguro…)"
+                value={cg.label}
+                onChange={e => {
+                  const updated = [...(profile.customGoals || [])];
+                  updated[i] = { ...updated[i], label: e.target.value };
+                  setProfile({ ...profile, customGoals: updated });
+                }}
+                className="custom-goal-label-input"
+              />
+              <button
+                type="button"
+                className="custom-goal-remove"
+                onClick={() => {
+                  const updated = (profile.customGoals || []).filter((_, j) => j !== i);
+                  setProfile({ ...profile, customGoals: updated });
+                }}
+              >
+                <X size={14} />
+              </button>
+            </div>
+            <CurrencyInput
+              value={cg.target || 0}
+              onChange={v => {
+                const updated = [...(profile.customGoals || [])];
+                updated[i] = { ...updated[i], target: v };
+                setProfile({ ...profile, customGoals: updated });
+              }}
+            />
+          </div>
+        ))}
+
+        {/* Sugestões rápidas por segmento */}
+        {(() => {
+          const presets = SEGMENT_GOAL_PRESETS[profile.segment] || [];
+          const existingLabels = (profile.customGoals || []).map(g => g.label.toLowerCase());
+          const suggestions = presets.filter(p => !existingLabels.includes(p.label.toLowerCase()));
+          if (suggestions.length === 0) return null;
+          return (
+            <div className="form-group">
+              <span className="form-hint" style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+                <Sparkles size={12} /> Sugestões para seu segmento:
+              </span>
+              <div className="goal-presets">
+                {suggestions.map(s => (
+                  <button
+                    key={s.label}
+                    type="button"
+                    className="goal-preset-chip"
+                    onClick={() => setProfile({
+                      ...profile,
+                      customGoals: [...(profile.customGoals || []), { label: s.label, icon: s.icon, target: 0 }],
+                    })}
+                  >
+                    {s.icon} {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        <div className="form-group">
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => setProfile({ ...profile, customGoals: [...(profile.customGoals || []), { label: '', icon: '🎯', target: 0 }] })}
+          >
+            <Plus size={13} /> Adicionar meta personalizada
+          </button>
+        </div>
+
 
         {/* Controladoria toggle */}
         <div className="form-group form-toggle-row">
@@ -155,20 +211,27 @@ export default function Profile() {
           </label>
         </div>
 
-        {/* Marketing toggle */}
-        <div className="form-group form-toggle-row">
-          <div>
-            <strong>Acesso Marketing</strong>
-            <p className="form-hint">Ativa o painel para cadastrar ofertas e campanhas do mês</p>
+        {/* Tipo de acesso */}
+        <div className="form-group">
+          <label className="form-label">Tipo de acesso</label>
+          <div className="access-type-selector">
+            {(['vendas', 'marketing', 'ambos'] as const).map(type => (
+              <button
+                key={type}
+                type="button"
+                className={`access-type-option${(profile.userAccessType || 'vendas') === type ? ' active' : ''}`}
+                onClick={() => setProfile({
+                  ...profile,
+                  userAccessType: type,
+                  isMarketing: type === 'marketing' || type === 'ambos',
+                })}
+              >
+                {type === 'vendas' && 'Vendas'}
+                {type === 'marketing' && 'Marketing'}
+                {type === 'ambos' && 'Ambos'}
+              </button>
+            ))}
           </div>
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={!!profile.isMarketing}
-              onChange={e => setProfile({ ...profile, isMarketing: e.target.checked })}
-            />
-            <span className="toggle-track" />
-          </label>
         </div>
 
         <button className={`btn btn-primary save-btn ${saved ? 'saved' : ''}`} onClick={handleSave}>
@@ -191,6 +254,19 @@ export default function Profile() {
           </button>
         </div>
       </div>
+
+      {(profile.userAccessType === 'ambos') && (
+        <div className="card" style={{ padding: '16px' }}>
+          <h3 className="section-title" style={{ marginBottom: 10 }}>Painel Marketing</h3>
+          <Link to="/marketing-hub" className="link-card card" style={{ marginBottom: 0 }}>
+            <div className="link-info">
+              <h4><Megaphone size={14} /> Acessar Marketing Hub</h4>
+              <p>Ofertas, concorrência e copiloto de marketing</p>
+            </div>
+            <ExternalLink size={16} />
+          </Link>
+        </div>
+      )}
 
       <div className="profile-links">
         <h3 className="section-title">MAESTR.IA em Vendas</h3>

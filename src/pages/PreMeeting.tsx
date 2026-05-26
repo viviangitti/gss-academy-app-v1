@@ -5,18 +5,13 @@ import { TECHNIQUES } from '../services/content';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import type { Objection } from '../services/content';
+import { getSegmentLang } from '../services/segmentLanguage';
 import './PreMeeting.css';
 
-const PRE_MEETING_CHECKLIST = [
-  'Revisei o histórico do cliente',
-  'Tenho o objetivo da reunião claro',
-  'Preparei perguntas de descoberta',
-  'Sei quais objeções esperar',
-  'Tenho proposta/material pronto',
-  'Confirmei horário e participantes',
-];
-
 export default function PreMeeting() {
+  const [lang] = useState(() =>
+    getSegmentLang(loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' }).segment)
+  );
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   const [showObjections, setShowObjections] = useState(false);
   const [showTechniques, setShowTechniques] = useState(false);
@@ -45,7 +40,7 @@ export default function PreMeeting() {
     localStorage.setItem('gss_premeeting_notes', value);
   };
 
-  const progress = Math.round((checkedItems.size / PRE_MEETING_CHECKLIST.length) * 100);
+  const progress = Math.round((checkedItems.size / lang.checklist.length) * 100);
   const topTechniques = TECHNIQUES.slice(0, 3);
 
   return (
@@ -53,8 +48,8 @@ export default function PreMeeting() {
       <div className="premeeting-hero card">
         <Zap size={28} />
         <div>
-          <h3>Modo Pré-reunião</h3>
-          <p>Prepare-se em 2 minutos</p>
+          <h3>{lang.preTitle}</h3>
+          <p>{lang.preDesc}</p>
         </div>
       </div>
 
@@ -66,7 +61,7 @@ export default function PreMeeting() {
           <span>{progress}%</span>
         </div>
         <div className="quick-checklist card">
-          {PRE_MEETING_CHECKLIST.map((item, i) => (
+          {lang.checklist.map((item, i) => (
             <div key={i} className={`quick-check-item ${checkedItems.has(i) ? 'checked' : ''}`} onClick={() => toggleCheck(i)}>
               <div className="quick-check-box">
                 {checkedItems.has(i) && <Check size={12} />}
@@ -85,7 +80,7 @@ export default function PreMeeting() {
           value={notes}
           onChange={e => handleNotesChange(e.target.value)}
           rows={4}
-          placeholder="Nome do cliente, contexto, objetivo da reunião, pontos de atenção..."
+          placeholder={lang.notesPlaceholder}
         />
       </div>
 

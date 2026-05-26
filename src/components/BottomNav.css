@@ -26,8 +26,9 @@
   background: none;
   cursor: pointer;
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   transition: color 0.2s var(--ease);
   -webkit-tap-highlight-color: transparent;
   font-family: inherit;

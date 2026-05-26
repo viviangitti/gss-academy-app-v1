@@ -247,6 +247,41 @@
   padding: 4px 10px;
 }
 
+/* Access type selector */
+.access-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.access-type-option {
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.access-type-option.active {
+  border-color: var(--accent);
+  background: rgba(201, 168, 76, 0.08);
+  color: var(--accent);
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 2px;
+  display: block;
+}
+
 .form-toggle-row {
   flex-direction: row !important;
   align-items: center;
@@ -286,3 +321,88 @@
 }
 .toggle-switch input:checked + .toggle-track { background: var(--accent); }
 .toggle-switch input:checked + .toggle-track::before { transform: translateX(18px); }
+
+/* Custom goals rows in Profile */
+.custom-goal-row {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-goal-label-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-goal-value-input {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.custom-goal-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.custom-goal-remove:hover {
+  color: #e74c3c;
+}
+
+/* Custom goal block (new layout) */
+.custom-goal-block {
+  background: color-mix(in srgb, var(--primary-light) 5%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custom-goal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-goal-emoji {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Segment goal preset chips */
+.goal-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.goal-preset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border: 1.5px solid var(--accent);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+
+.goal-preset-chip:hover {
+  background: var(--accent);
+  color: var(--primary);
+}

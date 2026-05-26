@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Target, Eye, EyeOff, ArrowRight, Globe } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Target, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone } from 'lucide-react';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, translateAuthError } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
 import { saveData, loadData, KEYS } from '../services/storage';
@@ -28,6 +28,7 @@ export default function Auth() {
   const [company, setCompany] = useState('');
   const [segment, setSegment] = useState<Segment>('');
   const [monthlyGoal, setMonthlyGoal] = useState('');
+  const [accessType, setAccessType] = useState<'vendas' | 'marketing' | 'ambos'>('vendas');
   // Pré-carrega do localStorage se existir (migração)
   const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
 
@@ -69,6 +70,8 @@ export default function Auth() {
         uid: user.uid,
         teamId: null,
         isAdmin: false,
+        isMarketing: accessType === 'marketing' || accessType === 'ambos',
+        userAccessType: accessType,
         createdAt: Date.now(),
       };
 
@@ -215,6 +218,33 @@ export default function Auth() {
           <>
             <h2>Seu perfil profissional</h2>
             <p className="auth-subtitle">Personaliza objeções, roteiros e notícias do seu mercado.</p>
+
+            <div className="auth-access-selector">
+              <button
+                type="button"
+                className={`auth-access-option${accessType === 'vendas' ? ' active' : ''}`}
+                onClick={() => setAccessType('vendas')}
+              >
+                <TrendingUp size={18} />
+                <span>Vendas</span>
+              </button>
+              <button
+                type="button"
+                className={`auth-access-option${accessType === 'marketing' ? ' active' : ''}`}
+                onClick={() => setAccessType('marketing')}
+              >
+                <Megaphone size={18} />
+                <span>Marketing</span>
+              </button>
+              <button
+                type="button"
+                className={`auth-access-option${accessType === 'ambos' ? ' active' : ''}`}
+                onClick={() => setAccessType('ambos')}
+              >
+                <TrendingUp size={14} />+<Megaphone size={14} />
+                <span>Ambos</span>
+              </button>
+            </div>
 
             <div className="auth-field">
               <Briefcase size={14} />

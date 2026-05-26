@@ -1,22 +1,33 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check } from 'lucide-react';
+import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check, Paperclip, X, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMessage, resetChat } from '../services/gemini';
+import type { ImageAttachment } from '../services/gemini';
 import { loadData, saveData, KEYS } from '../services/storage';
 import type { ChatMessage, UserProfile } from '../types';
 import SpeakButton from '../components/SpeakButton';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
 import { getActiveOffers } from '../services/firestore/offers';
+import { getActiveCompetitorOffers } from '../services/firestore/competitorOffers';
 import './AICoach.css';
 
-const QUICK_PROMPTS = [
+const QUICK_PROMPTS_VENDAS = [
   'Como responder à objeção de preço?',
   'Roteiro para ligação fria',
   'Técnicas de fechamento',
   'Como manter minha energia e foco durante o mês?',
   'Roteiro de reunião de vendas',
   'Como qualificar um cliente potencial?',
+];
+
+const QUICK_PROMPTS_MARKETING = [
+  'Como criar uma campanha alinhada com a marca?',
+  'Como avaliar se uma ação está no tom certo?',
+  'Ideias para campanha de lançamento de produto',
+  'Como fazer benchmark da concorrência?',
+  'Estratégias para aumentar engajamento nas redes',
+  'Como medir o ROI de uma ação de marketing?',
 ];
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -39,6 +50,27 @@ function formatTime(sec: number) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
+function readFileAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(',')[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function readFileAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // Delays pseudo-aleatórios para a waveform
 const BAR_DELAYS = [0, 0.15, 0.3, 0.08, 0.45, 0.22, 0.6, 0.38, 0.52, 0.12,
                     0.7, 0.28, 0.18, 0.55, 0.42, 0.65, 0.05, 0.35, 0.48, 0.75];
@@ -57,6 +89,42 @@ export default function AICoach() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const offersContextRef = useRef<string>('');
 
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const accessType = profile.userAccessType || 'vendas';
+  const locationState = location.state as { prefill?: string; aiMode?: 'vendas' | 'marketing' } | null;
+  const defaultMode: 'vendas' | 'marketing' =
+    locationState?.aiMode || (accessType === 'marketing' ? 'marketing' : 'vendas');
+  const [aiMode, setAiMode] = useState<'vendas' | 'marketing'>(defaultMode);
+
+  const isAmbos = accessType === 'ambos';
+  const QUICK_PROMPTS = aiMode === 'marketing' ? QUICK_PROMPTS_MARKETING : QUICK_PROMPTS_VENDAS;
+
+  // File attachment (image or PDF)
+  const [attachedFile, setAttachedFile] = useState<{
+    attachment: ImageAttachment;
+    preview: string | null; // null for PDFs
+    name: string;
+    isPdf: boolean;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_FILE_MB = 15;
+
+  const handleFileAttach = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      alert(`Arquivo muito grande. O limite é ${MAX_FILE_MB} MB.`);
+      e.target.value = '';
+      return;
+    }
+    const isPdf = file.type === 'application/pdf';
+    const base64 = await readFileAsBase64(file);
+    const preview = isPdf ? null : await readFileAsDataURL(file);
+    setAttachedFile({ attachment: { base64, mimeType: file.type }, preview, name: file.name, isPdf });
+    e.target.value = '';
+  };
+
   // Recorder
   const [isRecording, setIsRecording] = useState(false);
   const isRecordingRef = useRef(false);
@@ -74,27 +142,53 @@ export default function AICoach() {
     setIsRecording(v);
   };
 
+  const handleModeSwitch = (mode: 'vendas' | 'marketing') => {
+    if (mode === aiMode) return;
+    setAiMode(mode);
+    setMessages([]);
+    setSuggestions([]);
+    saveData(KEYS.CHAT_HISTORY, []);
+    resetChat();
+  };
+
   useEffect(() => {
     setMessages(loadData(KEYS.CHAT_HISTORY, []));
 
-    // Carrega ofertas ativas para retroalimentar a IA
-    const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-    getActiveOffers(profile.segment || undefined).then(offers => {
-      if (offers.length === 0) return;
-      const ctx = [
-        '📢 OFERTAS ATIVAS DO MÊS (use essas informações para ajudar o vendedor):',
-        ...offers.map(o => [
-          `• ${o.title} (válido até ${o.validTo})`,
-          `  ${o.description}`,
-          o.highlights.length ? `  Destaques: ${o.highlights.join(' | ')}` : '',
-          o.pitch ? `  Pitch sugerido: "${o.pitch}"` : '',
-        ].filter(Boolean).join('\n')),
-      ].join('\n');
-      offersContextRef.current = ctx;
-    }).catch(() => {});
+    // Carrega ofertas ativas + concorrência para retroalimentar a IA
+    Promise.all([
+      getActiveOffers(profile.segment || undefined).catch(() => []),
+      getActiveCompetitorOffers(profile.segment || undefined).catch(() => []),
+    ]).then(([offers, compOffers]) => {
+      const parts: string[] = [];
+      if (offers.length > 0) {
+        parts.push([
+          '📢 NOSSAS OFERTAS ATIVAS DO MÊS (use para ajudar o vendedor com clientes):',
+          ...offers.map(o => [
+            `• ${o.title} (válido até ${o.validTo})`,
+            `  ${o.description}`,
+            o.highlights.length ? `  Destaques: ${o.highlights.join(' | ')}` : '',
+            o.pitch ? `  Pitch sugerido: "${o.pitch}"` : '',
+          ].filter(Boolean).join('\n')),
+        ].join('\n'));
+      }
+      if (compOffers.length > 0) {
+        parts.push([
+          '🔴 OFERTAS DA CONCORRÊNCIA ATIVAS (use para preparar contra-argumentos):',
+          ...compOffers.map(o => [
+            `• ${o.competitor}: ${o.title} (válido até ${o.validTo})`,
+            `  ${o.description}`,
+            o.highlights.length ? `  Destaques deles: ${o.highlights.join(' | ')}` : '',
+            o.ourAdvantages.length ? `  Nossas vantagens: ${o.ourAdvantages.join(' | ')}` : '',
+          ].filter(Boolean).join('\n')),
+        ].join('\n'));
+      }
+      if (parts.length > 0) {
+        offersContextRef.current = parts.join('\n\n');
+      }
+    });
 
-    // Prefill vindo da página de Ofertas ("Pedir à IA")
-    const prefill = (location.state as { prefill?: string } | null)?.prefill;
+    // Prefill vindo de Ofertas ou do TrainingHub de Marketing
+    const prefill = locationState?.prefill;
     if (prefill) setInput(prefill);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -104,9 +198,22 @@ export default function AICoach() {
 
   const handleSend = async (text?: string) => {
     const msg = text || input.trim();
-    if (!msg || loading) return;
+    const file = text ? null : attachedFile; // quick prompts / voice don't use attachment
+    if ((!msg && !file) || loading) return;
 
-    const userMsg: ChatMessage = { id: generateId(), role: 'user', content: msg, timestamp: Date.now() };
+    // Clear attachment before async work
+    if (!text) setAttachedFile(null);
+
+    const displayMsg = msg || (file ? `📎 ${file.name}` : '');
+    const userMsg: ChatMessage = {
+      id: generateId(),
+      role: 'user',
+      content: displayMsg,
+      timestamp: Date.now(),
+      imagePreview: file?.preview ?? undefined,
+      attachmentName: file?.name,
+      attachmentMime: file?.attachment.mimeType,
+    };
     const updated = [...messages, userMsg];
     setMessages(updated);
     setInput('');
@@ -114,14 +221,18 @@ export default function AICoach() {
     setLoading(true);
 
     // Injeta contexto das ofertas na primeira mensagem
+    const effectiveMsg = msg || (file?.isPdf ? 'Analise esse documento PDF e me dê sua avaliação.' : 'Analise essa imagem e me dê sua avaliação.');
     const offerCtx = offersContextRef.current;
     const withOffers = offerCtx && messages.length === 0
-      ? `${offerCtx}\n\n---\n${msg}`
-      : msg;
-    const withSuggestions = withOffers + '\n\n(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas que o vendedor poderia fazer ao cliente em seguida)';
+      ? `${offerCtx}\n\n---\n${effectiveMsg}`
+      : effectiveMsg;
+    const sugLabel = aiMode === 'marketing'
+      ? '(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas de acompanhamento sobre marketing, branding ou campanhas)'
+      : '(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas que o vendedor poderia fazer ao cliente em seguida)';
+    const withSuggestions = withOffers + '\n\n' + sugLabel;
 
     try {
-      const response = await sendMessage(withSuggestions, API_KEY);
+      const response = await sendMessage(withSuggestions, API_KEY, aiMode, file?.attachment ?? undefined);
       const { clean, suggestions: newSug } = parseSuggestions(response);
       setSuggestions(newSug);
 
@@ -260,21 +371,44 @@ export default function AICoach() {
   const hasSpeechRecognition = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  if (!isOnline) return <OfflineState feature="o Coach de IA" />;
-  if (!API_KEY) return <OfflineState feature="o Coach de IA" subtitle="Configuração de IA indisponível. Fale com o suporte." />;
+  if (!isOnline) return <OfflineState feature="o Consultor" />;
+  if (!API_KEY) return <OfflineState feature="o Consultor" subtitle="Serviço indisponível no momento. Fale com o suporte." />;
+
+  const modeSwitcher = isAmbos ? (
+    <div className="ai-mode-toggle">
+      <button
+        className={`ai-mode-btn ${aiMode === 'vendas' ? 'active' : ''}`}
+        onClick={() => handleModeSwitch('vendas')}
+      >
+        Consultor de Vendas
+      </button>
+      <button
+        className={`ai-mode-btn ${aiMode === 'marketing' ? 'active' : ''}`}
+        onClick={() => handleModeSwitch('marketing')}
+      >
+        Consultor de Marketing
+      </button>
+    </div>
+  ) : null;
 
   return (
     <div className="ai-coach-page">
       {messages.length === 0 ? (
         <div className="ai-welcome">
+          {modeSwitcher}
           <div className="ai-welcome-icon"><Sparkles size={40} /></div>
-          <h3>Pergunte ao Especialista</h3>
-          <p>Tire dúvidas sobre vendas, negociação e liderança comercial.</p>
+          <h3>{aiMode === 'marketing' ? 'Consultor de Marketing' : 'Consultor de Vendas'}</h3>
+          <p>{aiMode === 'marketing'
+            ? 'Tire dúvidas sobre campanhas, branding, benchmarks e estratégia de marketing.'
+            : 'Tire dúvidas sobre vendas, negociação e liderança comercial.'
+          }</p>
 
-          <button className="roleplay-cta" onClick={() => navigate('/treino')}>
-            <Swords size={18} />
-            <span>Treinar objeções com simulação</span>
-          </button>
+          {aiMode === 'vendas' && (
+            <button className="roleplay-cta" onClick={() => navigate('/treino')}>
+              <Swords size={18} />
+              <span>Treinar objeções com simulação</span>
+            </button>
+          )}
 
           <div className="quick-prompts">
             <p className="quick-label">Sugestões rápidas:</p>
@@ -287,6 +421,7 @@ export default function AICoach() {
         </div>
       ) : (
         <div className="messages">
+          {modeSwitcher}
           <button className="clear-chat" onClick={handleClear}>
             <RotateCcw size={12} /> Nova conversa
           </button>
@@ -294,6 +429,15 @@ export default function AICoach() {
             <div key={msg.id} className={`message ${msg.role}`}>
               {msg.role === 'assistant' && <div className="msg-avatar"><Sparkles size={14} /></div>}
               <div className="msg-bubble">
+                {msg.imagePreview && (
+                  <img className="coach-msg-img" src={msg.imagePreview} alt={msg.attachmentName || 'imagem'} />
+                )}
+                {!msg.imagePreview && msg.attachmentMime === 'application/pdf' && (
+                  <div className="coach-pdf-badge">
+                    <FileText size={14} />
+                    <span>{msg.attachmentName}</span>
+                  </div>
+                )}
                 <div
                   className="msg-content"
                   dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }}
@@ -371,21 +515,51 @@ export default function AICoach() {
         </>
       ) : (
         <div className="input-area">
+          {/* File attachment preview */}
+          {attachedFile && (
+            <div className="coach-attach-preview">
+              {attachedFile.isPdf
+                ? <div className="coach-attach-pdf-icon"><FileText size={20} /></div>
+                : <img src={attachedFile.preview!} alt="anexo" className="coach-attach-thumb" />
+              }
+              <span className="coach-attach-name">{attachedFile.name}</span>
+              <button className="coach-attach-remove" onClick={() => setAttachedFile(null)} aria-label="Remover arquivo">
+                <X size={14} />
+              </button>
+            </div>
+          )}
           <div className="input-wrapper">
+            {/* Hidden file input — images + PDFs */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,application/pdf"
+              style={{ display: 'none' }}
+              onChange={handleFileAttach}
+            />
+            {/* Attach button */}
+            <button
+              className="coach-img-btn"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="Anexar imagem ou PDF"
+              disabled={loading}
+            >
+              <Paperclip size={18} />
+            </button>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder="Pergunte sobre vendas..."
+              placeholder={aiMode === 'marketing' ? 'Pergunte sobre marketing...' : 'Pergunte sobre vendas...'}
               disabled={loading}
             />
-            {/* Mic aparece quando não há texto; Send aparece quando há texto */}
-            {!input.trim() && hasSpeechRecognition ? (
+            {/* Mic quando sem texto e sem arquivo; Send caso contrário */}
+            {!input.trim() && !attachedFile && hasSpeechRecognition ? (
               <button className="mic-btn" onClick={startRecording} aria-label="Gravar mensagem de voz">
                 <Mic size={20} />
               </button>
             ) : (
-              <button className="send-btn" onClick={() => handleSend()} disabled={!input.trim() || loading}>
+              <button className="send-btn" onClick={() => handleSend()} disabled={(!input.trim() && !attachedFile) || loading}>
                 <Send size={18} />
               </button>
             )}

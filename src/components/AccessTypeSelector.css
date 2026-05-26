@@ -1,0 +1,132 @@
+.ats-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--primary-deep) 0%, var(--primary) 60%, var(--primary-light) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px 40px;
+  gap: 0;
+}
+
+.ats-logo {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light, #e8c96d));
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 24px;
+}
+
+.ats-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+.ats-subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  text-align: center;
+  max-width: 300px;
+  line-height: 1.5;
+  margin: 0 0 32px;
+}
+
+.ats-options {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.ats-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.2s;
+  color: #fff;
+}
+
+.ats-option:active {
+  transform: scale(0.98);
+}
+
+.ats-option-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ats-option-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ats-option-text strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.ats-option-text span {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.4;
+}
+
+.ats-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.ats-radio.active {
+  border-width: 6px;
+}
+
+.ats-confirm {
+  width: 100%;
+  max-width: 420px;
+  padding: 15px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light, #e8c96d));
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.ats-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -182,8 +182,8 @@ export default function RolePlay() {
       .replace(/\n/g, '<br/>');
   };
 
-  if (!isOnline) return <OfflineState feature="o Simulador de Treino" />;
-  if (!API_KEY) return <OfflineState feature="o Simulador de Treino" subtitle="Configuração de IA indisponível. Fale com o suporte." />;
+  if (!isOnline) return <OfflineState feature="o Treino" />;
+  if (!API_KEY) return <OfflineState feature="o Treino" subtitle="Serviço indisponível no momento. Fale com o suporte." />;
 
   // Selection screen
   if (!selectedObjection) {
@@ -192,8 +192,8 @@ export default function RolePlay() {
         <div className="roleplay-hero card">
           <Swords size={28} />
           <div>
-            <h3>Simulador de Treino</h3>
-            <p>Pratique responder objeções com um cliente virtual realista</p>
+            <h3>Treino de Objeções</h3>
+            <p>Pratique como se fosse um cliente real do seu segmento</p>
           </div>
         </div>
 

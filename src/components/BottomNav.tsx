@@ -1,15 +1,19 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Swords, Sparkles } from 'lucide-react';
+import { Home, Newspaper, BookOpen, Sparkles } from 'lucide-react';
 import './BottomNav.css';
 
-const LIBRARY_PATHS = ['/biblioteca', '/objecoes', '/scripts', '/tecnicas', '/noticias', '/favoritos', '/historico'];
-const TRAINING_PATHS = ['/treino-hub', '/treino', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao', '/vendas-perdidas'];
+const NEWS_PATHS = ['/noticias'];
+const LIBRARY_PATHS = [
+  '/biblioteca', '/playbook', '/objecoes', '/scripts', '/tecnicas', '/favoritos', '/historico',
+  '/treino-hub', '/treino', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao',
+  '/vendas-perdidas', '/condicoes', '/gatilhos', '/concorrencia', '/ofertas',
+];
 
 const tabs = [
   { path: '/', icon: Home, label: 'Início' },
+  { path: '/noticias', icon: Newspaper, label: 'Notícias' },
   { path: '/biblioteca', icon: BookOpen, label: 'Biblioteca' },
-  { path: '/treino-hub', icon: Swords, label: 'Treino' },
-  { path: '/ia-coach', icon: Sparkles, label: 'IA' },
+  { path: '/ia-coach', icon: Sparkles, label: 'Consultor' },
 ];
 
 export default function BottomNav() {
@@ -20,8 +24,8 @@ export default function BottomNav() {
     <nav className="bottom-nav">
       {tabs.map(({ path, icon: Icon, label }) => {
         let isActive = location.pathname === path;
+        if (path === '/noticias') isActive = NEWS_PATHS.includes(location.pathname);
         if (path === '/biblioteca') isActive = LIBRARY_PATHS.includes(location.pathname);
-        if (path === '/treino-hub') isActive = TRAINING_PATHS.includes(location.pathname);
 
         return (
           <button

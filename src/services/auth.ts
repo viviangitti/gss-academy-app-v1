@@ -52,7 +52,10 @@ export async function signOut(): Promise<void> {
 
 export async function resetPassword(email: string): Promise<void> {
   if (!auth) throw new Error('Firebase não configurado');
-  await sendPasswordResetEmail(auth, email);
+  await sendPasswordResetEmail(auth, email, {
+    url: window.location.origin,   // redireciona de volta ao app após redefinir
+    handleCodeInApp: false,
+  });
 }
 
 export function getCurrentUser(): AuthUser | null {
@@ -72,6 +75,9 @@ export function translateAuthError(code: string): string {
     'auth/network-request-failed': 'Sem conexão. Verifique sua internet.',
     'auth/popup-closed-by-user': 'Login cancelado.',
     'auth/popup-blocked': 'O navegador bloqueou o popup do Google. Libere e tente novamente.',
+    'auth/unauthorized-domain': 'Domínio não autorizado no Firebase. Peça ao administrador para adicionar este domínio no Console do Firebase.',
+    'auth/missing-android-pkg-name': 'Configuração inválida de reset.',
+    'auth/missing-continue-uri': 'URL de retorno não configurada.',
   };
   return map[code] || 'Não foi possível completar a operação. Tente novamente.';
 }

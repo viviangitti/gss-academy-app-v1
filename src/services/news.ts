@@ -1,9 +1,184 @@
 import type { Segment, NewsItem } from '../types';
+import { fetchSegmentNews } from './firestore/segmentNews';
 
-export type NewsCategory = 'tudo' | 'lancamentos' | 'ofertas' | 'concorrencia' | 'mercado';
+// Segments that have curated Firestore news (takes priority over RSS)
+const FIRESTORE_NEWS_SEGMENTS = new Set(['farmaceutico']);
+
+export type NewsCategory = 'tudo' | 'lancamentos' | 'ofertas' | 'mercado' | 'marketing' | 'concorrentes';
+export type NewsGeo = 'brasil' | 'mundo';
+
+// Queries para notícias de marketing — usadas quando userAccessType é 'marketing' ou 'ambos'
+const MARKETING_QUERIES_BR = [
+  'marketing luxury brand campaign Brasil OR luxury brand marketing strategy 2025',
+  'marketing digital tendência 2025 Brasil marca premium',
+  'branding experiência cliente luxo concessionária premium',
+  'estratégia marketing automotivo premium Land Rover BMW Mercedes 2025',
+  'social media luxury brand Instagram influencer marketing',
+  'marketing experiencial evento ativação marca luxo Brasil',
+  'retail marketing concessionária campanha lançamento premium',
+  'brand guide identidade visual marca premium campanha',
+  'marketing conteúdo luxury brand storytelling engajamento',
+  'CX experiência cliente luxo tendência 2025',
+];
+
+const MARKETING_QUERIES_WORLD = [
+  'luxury brand marketing campaign 2025',
+  'automotive luxury marketing digital strategy',
+  'experiential marketing luxury retail activation',
+  'luxury brand social media content Instagram',
+  'premium brand campaign launch global 2025',
+  'luxury retail customer experience trend',
+  'JLR Land Rover Range Rover campaign marketing',
+  'luxury brand benchmark engagement ROI',
+];
+
+// Queries de ações de marketing da concorrência — por segmento
+const COMPETITOR_MKT_QUERIES: Partial<Record<string, string[]>> = {
+  automotivo: [
+    'campanha publicitária marketing Volkswagen Fiat Toyota Hyundai Honda concessionária Brasil',
+    'ação marketing digital BYD GWM Chery Changan lançamento campanha anúncio',
+    'campanha TV internet marketing automóvel concorrente Brasil 2025',
+    'patrocínio evento ativação marca automotiva concorrente Brasil',
+  ],
+  automotivo_luxo: [
+    'campanha marketing BMW Mercedes Porsche Audi Land Rover Range Rover Brasil',
+    'ativação evento experiência marca luxo automotivo concorrente',
+    'publicidade digital premium luxury car campanha Brasil 2025',
+    'lançamento campanha marca luxo event ação concorrente automotivo',
+  ],
+  farmaceutico: [
+    'campanha marketing laboratório farmácia medicamento publicidade Brasil',
+    'ação marketing digital farmácias Drogasil Raia Pacheco campanha',
+    'marketing farmacêutico campanha consciência saúde publicidade concorrente',
+    'laboratório campanha produto publicidade divulgação mídia Brasil',
+  ],
+  varejo: [
+    'campanha marketing Magazine Luiza Americanas Casas Bahia Renner concorrente',
+    'ação marketing digital varejo promoção publicidade loja campanha Brasil',
+    'influencer parceria marca varejo concorrente campanha digital',
+    'campanha retail varejo Black Friday promoção anúncio concorrente',
+  ],
+  tecnologia: [
+    'campanha marketing software SaaS empresa tecnologia concorrente Brasil',
+    'ação marketing B2B tecnologia publicidade digital campanha 2025',
+    'evento tech marketing empresa software concorrente lançamento',
+    'marketing tecnologia Google Microsoft SAP Totvs campanha Brasil',
+  ],
+  imobiliario: [
+    'campanha marketing MRV Cyrela Trisul construtora incorporadora concorrente',
+    'ação marketing digital imobiliária lançamento campanha anúncio publicidade',
+    'marketing imóvel branding incorporadora evento lançamento concorrente',
+    'publicidade TV digital imobiliário campanha concorrente Brasil 2025',
+  ],
+  financeiro: [
+    'campanha marketing banco seguradora fintech concorrente publicidade Brasil',
+    'ação marketing digital Nubank Itaú Bradesco XP campanha publicidade',
+    'marketing seguros consórcio campanha publicidade influencer parceria',
+    'evento patrocínio branding banco fintech campanha concorrente Brasil',
+  ],
+  saude: [
+    'campanha marketing clínica hospital plano saúde Unimed Hapvida concorrente',
+    'ação marketing digital saúde estética publicidade campanha Brasil',
+    'marketing saúde consciência campanha publicidade mídia concorrente',
+    'patrocínio evento saúde marca campanha concorrente Brasil 2025',
+  ],
+  educacao: [
+    'campanha marketing universidade escola faculdade EAD concorrente Brasil',
+    'ação marketing digital educação plataforma publicidade campanha',
+    'marketing educacional edtech campanha publicidade influencer',
+    'evento branding escola faculdade lançamento campanha concorrente',
+  ],
+  agro: [
+    'campanha marketing defensivo agrícola semente fertilizante concorrente Syngenta BASF',
+    'ação marketing agronegócio publicidade campanha feiras concorrente',
+    'marketing agro evento Agrishow Expointer campanha marca concorrente',
+    'publicidade agro digital campanha agricultor produtor concorrente Brasil',
+  ],
+  energia: [
+    'campanha marketing energia solar concorrente publicidade instaladora Brasil',
+    'ação marketing digital solar campanha publicidade influencer parceria',
+    'marketing energia renovável evento campanha publicidade concorrente Brasil',
+    'publicidade solar patrocínio evento marca campanha concorrente 2025',
+  ],
+  bebidas_alcoolicas: [
+    'campanha marketing Ambev Heineken Diageo concorrente publicidade Brasil',
+    'ação marketing digital cerveja destilado campanha influencer parceria',
+    'patrocínio evento cerveja spirits marca campanha concorrente Brasil',
+    'publicidade bebida alcoólica campanha TV digital mídia concorrente',
+  ],
+  bebidas_alcoolicas_vinho: [
+    'campanha marketing vinho vinícola importadora concorrente publicidade Brasil',
+    'ação marketing digital vinho influencer sommelier campanha',
+    'evento enogastronomia vinho marketing campanha concorrente Brasil',
+    'publicidade vinho digital TV marketing marca concorrente Brasil 2025',
+  ],
+};
+
+const COMPETITOR_MKT_QUERIES_WORLD: string[] = [
+  'competitor marketing campaign automotive luxury brand 2025',
+  'brand activation event experiential marketing competitor',
+  'competitor digital marketing campaign social media influencer',
+  'advertising campaign competitor brand strategy launch 2025',
+];
+
+const COMPETITOR_MKT_FALLBACK_BR = [
+  'campanha marketing concorrente publicidade ação marca Brasil 2025',
+  'ação marketing digital concorrente campanha publicidade influencer',
+  'ativação evento branding concorrente campanha mídia Brasil',
+  'publicidade concorrente TV digital redes sociais campanha 2025',
+];
+
+export async function fetchCompetitorMarketingNews(segment: string, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
+  const cKey = `${CACHE_KEY}_concorrentes_${segment}_${geo}`;
+  try {
+    const raw = localStorage.getItem(cKey);
+    if (raw) {
+      const entry = JSON.parse(raw) as CacheEntry;
+      if (Date.now() - entry.ts < CACHE_TTL) return entry.items;
+    }
+  } catch { /* ignore */ }
+
+  const queries = geo === 'mundo'
+    ? COMPETITOR_MKT_QUERIES_WORLD
+    : (COMPETITOR_MKT_QUERIES[segment] || COMPETITOR_MKT_FALLBACK_BR);
+
+  const selected = queries.slice(0, 4);
+  const results = await Promise.all(selected.map(q => fetchFromGoogleNews(q, 8, geo)));
+  const all = dedupeByTitle(results.flat());
+  const sorted = sortByDate(all).slice(0, 25);
+
+  try {
+    localStorage.setItem(cKey, JSON.stringify({ ts: Date.now(), items: sorted }));
+  } catch { /* ignore */ }
+
+  return sorted;
+}
+
+export async function fetchMarketingNews(geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
+  const cKey = `${CACHE_KEY}_marketing_${geo}`;
+  try {
+    const raw = localStorage.getItem(cKey);
+    if (raw) {
+      const entry = JSON.parse(raw) as CacheEntry;
+      if (Date.now() - entry.ts < CACHE_TTL) return entry.items;
+    }
+  } catch { /* ignore */ }
+
+  const queries = geo === 'mundo' ? MARKETING_QUERIES_WORLD : MARKETING_QUERIES_BR;
+  const selected = queries.slice(0, 5);
+  const results = await Promise.all(selected.map(q => fetchFromGoogleNews(q, 8, geo)));
+  const all = dedupeByTitle(results.flat());
+  const sorted = sortByDate(all).slice(0, 25);
+
+  try {
+    localStorage.setItem(cKey, JSON.stringify({ ts: Date.now(), items: sorted }));
+  } catch { /* ignore */ }
+
+  return sorted;
+}
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache';
+const CACHE_KEY = 'gss_news_cache_v3'; // bump version to clear old generic queries
 const CACHE_TTL = 30 * 60 * 1000; // 30 min
 
 interface CacheEntry {
@@ -11,71 +186,330 @@ interface CacheEntry {
   items: NewsItem[];
 }
 
-// Termos base expandidos por segmento
-const SEGMENT_BASE: Record<string, string> = {
-  farmaceutico: '(farmacêutica OR medicamentos OR laboratório OR drogaria OR farmácia)',
-  automotivo: '(automotivo OR automóveis OR veículos OR concessionária OR montadora)',
-  automotivo_luxo: '(carros de luxo OR premium OR Porsche OR BMW OR Mercedes OR Audi OR Lexus)',
-  tecnologia: '(tecnologia OR software OR SaaS OR startup OR plataforma digital)',
-  varejo: '(varejo OR e-commerce OR lojas OR shopping OR consumo)',
-  imobiliario: '(imobiliário OR imóveis OR construtoras OR incorporadora OR lançamentos imobiliários)',
-  financeiro: '(bancos OR seguros OR fintech OR investimentos OR mercado financeiro)',
-  industria: '(indústria OR manufatura OR produção industrial OR fábrica)',
-  saude: '(saúde OR hospitais OR clínicas OR estética OR odontologia)',
-  educacao: '(educação OR escolas OR edtech OR cursos OR universidade)',
-  servicos: '(serviços OR consultoria empresarial OR terceirização)',
-  agro: '(agronegócio OR agricultura OR safra OR commodities OR pecuária)',
-  energia: '(energia solar OR renovável OR fotovoltaico OR sustentabilidade energética)',
-  bebidas_alcoolicas: '(bebidas alcoólicas OR cerveja OR destilados OR cachaça OR gin OR whisky OR distribuidora de bebidas OR mercado de bebidas Brasil)',
-  bebidas_alcoolicas_vinho: '(vinho OR vinhos OR importadora de vinho OR enologia OR adega OR safra vinho OR mercado de vinhos Brasil)',
+// Termos base globais (sem "Brasil") para notícias mundiais
+const SEGMENT_BASE_WORLD: Record<string, string> = {
+  farmaceutico:           '(pharmaceutical OR drug launch OR FDA OR EMA OR clinical trial)',
+  automotivo:             '(BYD OR GWM OR Chery OR MG OR Changan OR GAC OR Jaecoo OR electric vehicle EV launch OR automotive OR car market trends)',
+  automotivo_luxo:        '(luxury car OR premium automotive OR Porsche OR BMW OR Ferrari launch)',
+  tecnologia:             '(technology OR SaaS OR AI software OR startup OR platform)',
+  varejo:                 '(retail OR e-commerce OR consumer trends OR shopping)',
+  imobiliario:            '(real estate OR property market OR construction trends)',
+  financeiro:             '(banking OR fintech OR investment OR financial markets)',
+  industria:              '(manufacturing OR industry OR production trends)',
+  saude:                  '(healthcare OR medical OR health trends OR pharma)',
+  educacao:               '(education OR edtech OR learning OR university)',
+  servicos:               '(consulting OR business services OR outsourcing)',
+  agro:                   '(agribusiness OR agriculture OR crop OR commodities)',
+  energia:                '(solar energy OR renewable OR photovoltaic OR clean energy)',
+  bebidas_alcoolicas:     '(beer OR spirits OR alcoholic beverages OR drinks industry)',
+  bebidas_alcoolicas_vinho: '(wine OR winery OR viticulture OR wine market)',
 };
 
-// Queries específicas por categoria — múltiplas para garantir volume
+// Queries base por segmento — orientadas ao vendedor, não ao setor genérico
+// Foco: o que afeta o fechamento, o que o cliente está lendo, o que o concorrente está fazendo
+const SEGMENT_BASE: Record<string, string> = {
+  farmaceutico:
+    '(novo medicamento aprovado ANVISA OR genérico lançamento OR farmácia campanha promoção OR medicamento similar preço OR OTC automedicação Brasil)',
+  automotivo:
+    'lançamento carro Brasil 2026 OR emplacamentos OR BYD Fiat Volkswagen Toyota oferta',
+  automotivo_luxo:
+    '(carro luxo lançamento Brasil OR BMW OR Mercedes OR Porsche OR Audi OR Land Rover OR test drive OR importado câmbio)',
+  tecnologia:
+    '(software empresa lançamento OR SaaS preço OR transformação digital PME OR contrato tecnologia OR licença software Brasil)',
+  varejo:
+    '(promoção varejo Brasil OR consumidor compra OR crediário juros OR comércio vendas OR lojista campanha OR Black Friday OR liquidação)',
+  imobiliario:
+    '(lançamento imóvel OR Selic impacto financiamento imóvel OR MCMV OR construtora condições OR FGTS imóvel OR permuta imóvel OR VGV)',
+  financeiro:
+    '(seguro novo produto OR plano capitalização OR consórcio OR taxa corretagem OR sinistro OR seguradora campanha OR fundo investimento lançamento)',
+  industria:
+    '(insumo industrial preço OR matéria-prima custo OR contrato fornecimento OR licitação OR importação insumo OR prazo entrega indústria)',
+  saude:
+    '(tratamento estético lançamento OR procedimento novo clínica OR plano saúde cobertura OR equipamento médico homologado OR odontologia implante preço)',
+  educacao:
+    '(bolsa estudo OR financiamento educacional OR curso novo lançamento OR ENEM matrícula OR mensalidade escola OR edtech plataforma)',
+  servicos:
+    '(contrato consultoria OR outsourcing demanda OR terceirização tendência OR RH empresa serviços OR licita serviços OR contrato serviço renovação)',
+  agro:
+    '(defensivo agrícola lançamento OR semente nova tecnologia OR safra previsão OR crédito rural condições OR cotação commodities OR insumo agro preço)',
+  energia:
+    '(energia solar instalação OR painéis fotovoltaicos preço OR financiamento solar OR distribuidora energia tarifa OR desconto energia renovável OR crédito BNDES)',
+  bebidas_alcoolicas:
+    '(cerveja lançamento Brasil OR destilado nova marca OR distribuidora bebidas PDV OR promoção bebidas supermercado OR bar restaurante consumo OR gin cachaça whisky)',
+  bebidas_alcoolicas_vinho:
+    '(vinho importado lançamento OR vinícola nova safra OR importadora vinho promoção OR vinho nacional premiado OR harmonização restaurante OR enoturismo)',
+};
+
+// Queries específicas por segmento+categoria — voltadas ao dia a dia do vendedor
+const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCategory, string[]>>>> = {
+  automotivo: {
+    lancamentos: [
+      'BYD GWM "Caoa Chery" "MG Motor" Changan GAC Jaecoo lançamento novo modelo Brasil 2025',
+      'Fiat Volkswagen Chevrolet Toyota Renault Honda Hyundai novo modelo lançamento Brasil',
+      'elétrico híbrido lançamento preço concessionária Brasil',
+      'SUV pickup sedan novo Brasil montadora',
+      'Nissan Jeep Toyota Renault facelift nova versão Brasil',
+    ],
+    mercado: [
+      'BYD GWM "Caoa Chery" "MG Motor" Changan GAC Jaecoo chinês mercado automotivo Brasil emplacamentos crescimento',
+      'financiamento veículo Selic taxa juros impacto vendas 2025',
+      'emplacamentos carros Brasil ranking marcas crescimento queda',
+      'consumidor intenção compra carro pesquisa Brasil',
+      'seminovos usados mercado preço tabela fipe',
+      'elétrico híbrido incentivo isenção IPVA Brasil',
+    ],
+  },
+  automotivo_luxo: {
+    lancamentos: [
+      'BMW Mercedes Porsche Audi lançamento Brasil 2025',
+      'importado luxo novo modelo preço Brasil',
+      'SUV luxo estreia concessionária Brasil',
+      'elétrico premium lançamento Tesla Volvo Land Rover',
+    ],
+    mercado: [
+      'câmbio dólar impacto carro importado',
+      'alto padrão consumo luxo Brasil tendência',
+      'IPTU IPVA isenção carro elétrico 2025',
+      'milionários Brasil consumo premium pesquisa',
+    ],
+  },
+  farmaceutico: {
+    lancamentos: [
+      'medicamento aprovado ANVISA 2025',
+      'genérico similar lançamento laboratório Brasil',
+      'produto farmacêutico OTC novo lançamento',
+      'suplemento vitamina lançamento farmácia',
+    ],
+    mercado: [
+      'automedicação crescimento Brasil pesquisa',
+      'dermocosméticos suplementos tendência vendas',
+      'farmácia popular crescimento mercado',
+      'prescrição digital receita eletrônica impacto',
+    ],
+  },
+  tecnologia: {
+    lancamentos: [
+      'software SaaS lançamento novidade Brasil',
+      'plataforma digital nova PME empresas',
+      'ferramenta produtividade lançamento empresa',
+      'ERP CRM novo sistema lançamento Brasil',
+    ],
+    mercado: [
+      'transformação digital PME investimento 2025',
+      'LGPD conformidade empresa software demanda',
+      'inteligência artificial adoção empresa Brasil',
+      'corte custo tecnologia empresa tendência',
+    ],
+  },
+  varejo: {
+    lancamentos: [
+      'marca produto novo varejo Brasil lançamento',
+      'linha produto nova franquia loja Brasil',
+      'produto exclusivo loja parceria novidade',
+    ],
+    mercado: [
+      'consumidor renda intenção compra índice',
+      'crediário parcelamento juros varejo tendência',
+      'e-commerce varejo físico omnichannel Brasil',
+      'Black Friday data 2025 varejo expectativa',
+    ],
+  },
+  imobiliario: {
+    lancamentos: [
+      'lançamento imóvel empreendimento novo Brasil',
+      'construtora incorporadora lançamento VGV',
+      'MCMV programa habitacional novo',
+      'apartamento casa lançamento planta novo',
+    ],
+    mercado: [
+      'Selic queda alta impacto financiamento imóvel',
+      'FGTS regras compra imóvel 2025',
+      'aluguel preço alta baixa Brasil',
+      'comprador imóvel perfil pesquisa tendência',
+    ],
+  },
+  financeiro: {
+    lancamentos: [
+      'seguro produto novo lançamento Brasil',
+      'consórcio nova carta crédito condição',
+      'investimento plano novo lançamento banco',
+      'fintech produto financeiro novo Brasil',
+    ],
+    mercado: [
+      'Selic taxa juros decisão impacto',
+      'inadimplência crédito pessoa física tendência',
+      'seguro vida saúde crescimento demanda Brasil',
+      'renda variável fixa comportamento investidor',
+    ],
+  },
+  agro: {
+    lancamentos: [
+      'defensivo agrícola novo produto lançamento',
+      'semente tecnologia nova safra 2025',
+      'máquina agrícola equipamento novo lançamento',
+      'fertilizante biológico novo produto',
+    ],
+    mercado: [
+      'safra previsão produção grãos Brasil 2025',
+      'crédito rural Plano Safra condições',
+      'cotação soja milho boi preço hoje',
+      'insumo agro preço custo produção',
+    ],
+  },
+  energia: {
+    lancamentos: [
+      'painel solar novo modelo eficiência lançamento',
+      'bateria armazenamento energia novo produto',
+      'solução energia solar residencial comercial novo',
+      'inversor solar novo lançamento Brasil',
+    ],
+    mercado: [
+      'tarifa energia elétrica aumento 2025',
+      'payback energia solar prazo retorno',
+      'financiamento BNDES solar condições 2025',
+      'desconto conta luz solar instalação',
+    ],
+  },
+  saude: {
+    lancamentos: [
+      'equipamento estético novo aprovado ANVISA',
+      'tratamento procedimento novo clínica',
+      'aparelho odontológico implante novo',
+      'plano saúde novo produto cobertura',
+    ],
+    mercado: [
+      'consumidor saúde gasto tendência pesquisa',
+      'plano saúde mensalidade reajuste impacto',
+      'estética saúde preventiva crescimento demanda',
+      'odontologia implante mercado crescimento',
+    ],
+  },
+  educacao: {
+    lancamentos: [
+      'curso novo lançamento escola faculdade EAD',
+      'plataforma edtech novo produto Brasil',
+      'programa educacional novo parceria',
+      'graduação pós-graduação novo curso 2025',
+    ],
+    mercado: [
+      'matrícula evasão tendência ensino',
+      'ENEM vestibular impacto inscrições',
+      'bolsa ProUni FIES condições 2025',
+      'educação corporativa treinamento demanda empresa',
+    ],
+  },
+  servicos: {
+    lancamentos: [
+      'serviço empresa novo contrato lançamento',
+      'consultoria produto novo oferta',
+      'outsourcing serviço novo pacote empresa',
+    ],
+    mercado: [
+      'terceirização tendência empresa Brasil 2025',
+      'contrato serviço renovação empresa corte',
+      'RH folha pagamento gestão demanda',
+      'compliance auditoria empresa demanda crescimento',
+    ],
+  },
+  industria: {
+    lancamentos: [
+      'máquina equipamento industrial novo lançamento',
+      'insumo material novo produto indústria',
+      'automação robótica industrial novo Brasil',
+    ],
+    mercado: [
+      'matéria-prima custo aço plástico tendência',
+      'prazo entrega frete logística indústria',
+      'importação exportação industrial câmbio',
+      'indústria pedidos demanda crescimento queda',
+    ],
+  },
+  bebidas_alcoolicas: {
+    lancamentos: [
+      'cerveja nova marca lançamento Brasil',
+      'gin cachaça whisky novo produto lançamento',
+      'bebida alcoólica nova embalagem sabor',
+      'craft artesanal cerveja lançamento',
+    ],
+    mercado: [
+      'bar restaurante consumo bebida tendência',
+      'supermercado bebida alcoólica vendas volume',
+      'imposto bebida alcoólica tributação 2025',
+      'consumidor bebida alcoólica pesquisa hábito',
+    ],
+  },
+  bebidas_alcoolicas_vinho: {
+    lancamentos: [
+      'vinho novo rótulo lançamento Brasil',
+      'vinícola nova safra premiada',
+      'importadora vinho novo produto portfólio',
+      'espumante prosecco novo lançamento',
+    ],
+    mercado: [
+      'consumo vinho Brasil crescimento pesquisa',
+      'importação vinho câmbio preço impacto',
+      'sommelier mercado vinho tendência',
+      'restaurante adega carta vinhos tendência',
+    ],
+  },
+};
+
+// RSS feeds diretos por segmento+categoria
+// Usados EM VEZ das queries Google News quando definidos
+const SEGMENT_RSS_FEEDS: Partial<Record<string, Partial<Record<NewsCategory, string[]>>>> = {
+  farmaceutico: {
+    tudo: [
+      'https://www.panoramafarmaceutico.com.br/feed/',
+      'https://www.saudebusiness.com/feed/',
+    ],
+    lancamentos: [
+      'https://www.panoramafarmaceutico.com.br/feed/',
+      // Google News query via RSS — aprovações e novos produtos ANVISA
+      'https://news.google.com/rss/search?q=medicamento+aprovado+ANVISA+2025&hl=pt-BR&gl=BR&ceid=BR:pt-419',
+      'https://news.google.com/rss/search?q=novo+medicamento+laborat%C3%B3rio+Brasil+lan%C3%A7a&hl=pt-BR&gl=BR&ceid=BR:pt-419',
+    ],
+    mercado: [
+      'https://www.saudebusiness.com/feed/',
+      'https://www.panoramafarmaceutico.com.br/feed/',
+    ],
+  },
+};
+
+// Queries genéricas por categoria — usadas como fallback quando não há override por segmento
 const CATEGORY_QUERIES: Record<NewsCategory, string[]> = {
   tudo: [''],
   lancamentos: [
-    'lançamento',
-    'novo produto',
-    'estreia',
-    'apresenta',
-    'inovação',
+    'lançamento novo produto Brasil 2025',
+    'estreia novo modelo versão Brasil',
+    'novidade produto mercado apresenta',
   ],
   ofertas: [
-    '"condições especiais"',
-    'promoção',
-    'desconto',
-    'campanha comercial',
-    'pacote',
-    '"black friday"',
-    'benefícios',
-    'cashback',
-  ],
-  concorrencia: [
-    'concorrência',
-    'disputa de mercado',
-    'rival',
-    'estratégia',
-    'movimento',
-    'aquisição',
-    'fusão',
+    'condições especiais promoção campanha',
+    'desconto oferta cashback cliente',
+    'campanha comercial incentivo compra',
   ],
   mercado: [
-    'tendências',
-    'análise',
-    'crescimento',
-    'previsão',
-    'mercado',
-    'setor',
+    'tendência consumidor compra comportamento',
+    'mercado crescimento queda demanda 2025',
+    'economia impacto vendas setor Brasil',
+  ],
+  marketing: [
+    'marketing digital tendência 2025 Brasil',
+    'branding campanha marca premium',
+  ],
+  concorrentes: [
+    'campanha marketing concorrente publicidade ação Brasil',
+    'ativação evento branding concorrente campanha mídia',
   ],
 };
 
-function cacheKey(segment: string, cat: NewsCategory): string {
-  return `${CACHE_KEY}_${segment}_${cat}`;
+function cacheKey(segment: string, cat: NewsCategory, geo: NewsGeo): string {
+  return `${CACHE_KEY}_${segment}_${cat}_${geo}`;
 }
 
-function getCached(segment: string, cat: NewsCategory): NewsItem[] | null {
+function getCached(segment: string, cat: NewsCategory, geo: NewsGeo): NewsItem[] | null {
   try {
-    const raw = localStorage.getItem(cacheKey(segment, cat));
+    const raw = localStorage.getItem(cacheKey(segment, cat, geo));
     if (!raw) return null;
     const entry = JSON.parse(raw) as CacheEntry;
     if (Date.now() - entry.ts > CACHE_TTL) return null;
@@ -85,16 +519,19 @@ function getCached(segment: string, cat: NewsCategory): NewsItem[] | null {
   }
 }
 
-function setCached(segment: string, cat: NewsCategory, items: NewsItem[]): void {
+function setCached(segment: string, cat: NewsCategory, geo: NewsGeo, items: NewsItem[]): void {
   try {
     const entry: CacheEntry = { ts: Date.now(), items };
-    localStorage.setItem(cacheKey(segment, cat), JSON.stringify(entry));
+    localStorage.setItem(cacheKey(segment, cat, geo), JSON.stringify(entry));
   } catch { /* storage cheio, ignore */ }
 }
 
-async function fetchFromGoogleNews(query: string, limit: number): Promise<NewsItem[]> {
+async function fetchFromGoogleNews(query: string, limit: number, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
   const encoded = encodeURIComponent(query);
-  const rssUrl = `https://news.google.com/rss/search?q=${encoded}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+  const geoParams = geo === 'mundo'
+    ? 'hl=en&gl=US&ceid=US:en'
+    : 'hl=pt-BR&gl=BR&ceid=BR:pt-419';
+  const rssUrl = `https://news.google.com/rss/search?q=${encoded}&${geoParams}`;
   // rss2json free não aceita 'count' — limitamos no cliente
   const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
@@ -140,28 +577,70 @@ export async function fetchNews(segment: Segment): Promise<NewsItem[]> {
   return fetchNewsByCategory(segment, 'tudo');
 }
 
-export async function fetchNewsByCategory(segment: Segment, category: NewsCategory): Promise<NewsItem[]> {
+export async function fetchNewsByCategory(segment: Segment, category: NewsCategory, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
   if (!segment) return [];
 
   // Cache primeiro
-  const cached = getCached(segment, category);
+  const cached = getCached(segment, category, geo);
   if (cached) return cached;
 
   const base = SEGMENT_BASE[segment] || segment;
-  const categoryQueries = CATEGORY_QUERIES[category];
+  const baseWorld = SEGMENT_BASE_WORLD[segment] || base;
+  const effectiveBase = geo === 'mundo' ? baseWorld : base;
+
+  // 0 ── Firestore curated news (priority for segments with AI-curated content) — skip for 'mundo'
+  if (geo !== 'mundo' && FIRESTORE_NEWS_SEGMENTS.has(segment)) {
+    try {
+      const curated = await fetchSegmentNews(segment, category);
+      if (curated.length >= 3) {
+        // Blend with RSS for 'tudo' category, use curated-only for specific categories
+        if (category !== 'tudo') {
+          setCached(segment, category, geo, curated);
+          return curated;
+        }
+        // For 'tudo', fetch RSS too and merge
+        const rssItems = await fetchFromGoogleNews(base, 15, geo);
+        const merged = sortByDate(dedupeByTitle([...curated, ...rssItems])).slice(0, 25);
+        setCached(segment, category, geo, merged);
+        return merged;
+      }
+    } catch { /* offline fallback */ }
+  }
+
+  // 1 ── RSS diretos por segmento+categoria — skip for 'mundo'
+  if (geo !== 'mundo') {
+    const rssFeeds = SEGMENT_RSS_FEEDS[segment]?.[category];
+    if (rssFeeds && rssFeeds.length > 0) {
+      const promises = rssFeeds.map(url => fetchFromGoogleNews(url, 12, geo));
+      const results = await Promise.all(promises);
+      const allItems = results.flat();
+      const deduped = dedupeByTitle(allItems);
+      const sorted = sortByDate(deduped).slice(0, 25);
+      if (sorted.length >= 3) {
+        setCached(segment, category, geo, sorted);
+        return sorted;
+      }
+      // fallback se feeds diretos vieram vazios
+    }
+  }
+
+  // 2 ── Google News queries (genéricas ou override por segmento)
+  const overrides = SEGMENT_CATEGORY_OVERRIDES[segment];
+  const categoryQueries = (overrides?.[category]) ?? CATEGORY_QUERIES[category];
 
   // Para "tudo", faz uma query ampla
   if (category === 'tudo') {
-    const items = await fetchFromGoogleNews(base, 25);
+    const items = await fetchFromGoogleNews(effectiveBase, 25, geo);
     const result = sortByDate(dedupeByTitle(items));
-    setCached(segment, category, result);
+    if (result.length > 0) setCached(segment, category, geo, result);
     return result;
   }
 
   // Para categorias específicas, faz 3-4 queries em paralelo e junta
+  const hasOverride = !!overrides?.[category];
   const selectedQueries = categoryQueries.slice(0, 4);
   const promises = selectedQueries.map(q =>
-    fetchFromGoogleNews(`${base} ${q}`, 8)
+    fetchFromGoogleNews(hasOverride ? q : `${effectiveBase} ${q}`, 8, geo)
   );
 
   const results = await Promise.all(promises);
@@ -169,15 +648,15 @@ export async function fetchNewsByCategory(segment: Segment, category: NewsCatego
   const deduped = dedupeByTitle(allItems);
   const sorted = sortByDate(deduped).slice(0, 20);
 
-  // Se veio pouco, faz fallback pra categoria "tudo"
+  // Se veio pouco, faz fallback pra query base
   if (sorted.length < 3) {
-    const fallback = await fetchFromGoogleNews(base, 20);
+    const fallback = await fetchFromGoogleNews(effectiveBase, 20, geo);
     const merged = sortByDate(dedupeByTitle([...sorted, ...fallback])).slice(0, 20);
-    setCached(segment, category, merged);
+    if (merged.length > 0) setCached(segment, category, geo, merged);
     return merged;
   }
 
-  setCached(segment, category, sorted);
+  if (sorted.length > 0) setCached(segment, category, geo, sorted);
   return sorted;
 }
 

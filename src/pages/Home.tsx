@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Target, Newspaper, ExternalLink, Star, ArrowRight, Plus, Check, X, Clock, CheckSquare, TrendingUp, Award, Activity, MessageCircle } from 'lucide-react';
+import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { fetchNews } from '../services/news';
 import { getFavorites } from '../services/favorites';
-import { getDay, addMeeting, removeMeeting, addTask, toggleTask, removeTask } from '../services/day';
+import { getDay, addTask, toggleTask, removeTask } from '../services/day';
 import { getStats, addSale, getDailyAccumulation } from '../services/goal';
 import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
@@ -16,18 +16,6 @@ import type { DayData } from '../services/day';
 import type { GoalStats } from '../services/goal';
 import './Home.css';
 
-const TIPS = [
-  'Comece cada dia revisando suas metas de vendas.',
-  'Escute mais do que fala. O cliente que fala, compra.',
-  'Faça o acompanhamento em até 24h. Velocidade fecha negócios.',
-  'Prepare pelo menos 3 respostas para cada objeção comum.',
-  'Rituais diários criam consistência. Consistência gera resultados.',
-  'Pergunte "O que te impede de fechar hoje?" para acelerar decisões.',
-  'Comemore cada pequena vitória — celebrar faz parte do processo.',
-  'Revise seus números toda sexta-feira para ajustar a rota.',
-  'Antes de qualquer reunião, use o modo Pré-reunião do app.',
-  'Conheça as objeções do seu segmento como a palma da mão.',
-];
 
 function formatBRL(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 });
@@ -35,15 +23,12 @@ function formatBRL(v: number) {
 
 export default function Home() {
   const navigate = useNavigate();
-  const [tip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
   const [greeting, setGreeting] = useState('');
   const [news, setNews] = useState<NewsItem[]>([]);
   const [segmentLabel, setSegmentLabel] = useState('');
   const [favs, setFavs] = useState<Favorite[]>([]);
   const [day, setDay] = useState<DayData>({ date: '', meetings: [], tasks: [] });
-  const [newMeeting, setNewMeeting] = useState({ time: '', title: '' });
   const [newTask, setNewTask] = useState('');
-  const [showNewMeeting, setShowNewMeeting] = useState(false);
   const [goal, setGoal] = useState(0);
   const [stats, setStats] = useState<GoalStats | null>(null);
   const [weekStats, setWeekStats] = useState<WeekStats | null>(null);
@@ -90,13 +75,6 @@ export default function Home() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
   const name = profile.name ? `, ${profile.name.split(' ')[0]}` : '';
-
-  const handleAddMeeting = () => {
-    if (!newMeeting.title.trim() || !newMeeting.time) return;
-    setDay(addMeeting(newMeeting));
-    setNewMeeting({ time: '', title: '' });
-    setShowNewMeeting(false);
-  };
 
   const handleAddTask = () => {
     if (!newTask.trim()) return;
@@ -164,16 +142,26 @@ export default function Home() {
         </div>
       )}
 
-      <button className="premeeting-btn" onClick={() => navigate('/pre-reuniao')}>
-        <Zap size={18} />
-        <span>Vou entrar numa reunião</span>
-      </button>
+      {/* Notícias em destaque */}
+      {news.length > 0 && (
+        <button className="home-news-hero card" onClick={() => navigate('/noticias')}>
+          <div className="home-news-hero-top">
+            <span className="home-news-hero-badge"><Newspaper size={12} /> Notícias</span>
+            {segmentLabel && <span className="home-news-hero-segment">{segmentLabel}</span>}
+          </div>
+          <p className="home-news-hero-title">{news[0].title}</p>
+          <div className="home-news-hero-footer">
+            <span>Ver todas as notícias</span>
+            <ExternalLink size={13} />
+          </div>
+        </button>
+      )}
 
-      {/* Meta de vendas */}
-      {stats && goal > 0 && (
+      {/* Meta de vendas — oculta para marketing puro */}
+      {profile.userAccessType !== 'marketing' && stats && goal > 0 && (
         <div className="day-section">
           <div className="day-section-header">
-            <h3 className="section-title"><Award size={16} /> Meta de vendas do mês</h3>
+            <h3 className="section-title">Meta do mês</h3>
             <div style={{ display: 'flex', gap: 6 }}>
               <button className="btn btn-outline btn-sm" onClick={() => navigate('/vendas')}>
                 Ver extrato
@@ -266,15 +254,28 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Mini-goal chips — metas adicionais de todos os segmentos */}
+          {(profile.customGoals || []).some(cg => cg.label && cg.target > 0) && (
+            <div className="goal-chips">
+              {(profile.customGoals || []).filter(cg => cg.label && cg.target > 0).map((cg, i) => (
+                <div key={i} className="goal-chip">
+                  <span className="goal-chip-icon">{cg.icon || '🎯'}</span>
+                  <span className="goal-chip-label">{cg.label}</span>
+                  <span className="goal-chip-value">{formatBRL(cg.target)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {stats && goal === 0 && (
+      {profile.userAccessType !== 'marketing' && stats && goal === 0 && (
         <div className="goal-setup card" onClick={() => navigate('/perfil')}>
           <TrendingUp size={18} />
           <div>
-            <strong>Defina sua meta de vendas</strong>
-            <p>Configure no perfil para acompanhar seu progresso.</p>
+            <strong>Meta do mês não definida</strong>
+            <p>Toque aqui para configurar no perfil.</p>
           </div>
           <ArrowRight size={14} />
         </div>
@@ -284,7 +285,7 @@ export default function Home() {
       {weekStats && (
         <div className="day-section">
           <div className="day-section-header">
-            <h3 className="section-title"><Activity size={16} /> Essa semana</h3>
+            <h3 className="section-title">Essa semana</h3>
             <button className="btn btn-outline btn-sm" onClick={() => navigate('/historico')}>Ver histórico</button>
           </div>
           <div className="week-stats card">
@@ -293,60 +294,65 @@ export default function Home() {
               <span className="week-stat-label">Mensagens</span>
             </div>
             <div className="week-stat">
-              <span className="week-stat-value">{weekStats.meetings}</span>
-              <span className="week-stat-label">Reuniões</span>
+              <span className="week-stat-value">{weekStats.simulations}</span>
+              <span className="week-stat-label">Treinos</span>
             </div>
             <div className="week-stat">
               <span className="week-stat-value">
-                {weekStats.averageSimScore !== null ? weekStats.averageSimScore.toFixed(1) : weekStats.simulations}
+                {weekStats.averageSimScore !== null ? weekStats.averageSimScore.toFixed(1) : '—'}
               </span>
-              <span className="week-stat-label">
-                {weekStats.averageSimScore !== null ? 'Nota média' : 'Treinos'}
-              </span>
+              <span className="week-stat-label">Nota média</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reuniões de hoje */}
-      <div className="day-section">
-        <div className="day-section-header">
-          <h3 className="section-title"><Clock size={16} /> Reuniões de hoje</h3>
-          <button className="btn btn-outline btn-sm" onClick={() => setShowNewMeeting(!showNewMeeting)}>
-            <Plus size={12} /> Nova
-          </button>
+
+      {/* ── Acesso rápido: Vendas + Marketing (ambos) ou só um dos lados ── */}
+      {profile.userAccessType === 'ambos' ? (
+        <div className="home-dual-section">
+          <div className="home-dual-label">Acesso rápido</div>
+          <div className="home-dual-grid">
+            <button className="home-dual-card home-dual-vendas card" onClick={() => navigate('/treino-hub')}>
+              <div className="home-dual-icon"><Dumbbell size={18} /></div>
+              <strong>Treino</strong>
+              <span>Role-play e análise</span>
+            </button>
+            <button className="home-dual-card home-dual-mkt card" onClick={() => navigate('/marketing-hub')}>
+              <div className="home-dual-icon"><Megaphone size={18} /></div>
+              <strong>Marketing</strong>
+              <span>Copy, guia e análise</span>
+            </button>
+          </div>
         </div>
-
-        {showNewMeeting && (
-          <div className="new-meeting card">
-            <input type="time" value={newMeeting.time} onChange={e => setNewMeeting({ ...newMeeting, time: e.target.value })} className="meeting-time-input" />
-            <input type="text" placeholder="Cliente / reunião" value={newMeeting.title} onChange={e => setNewMeeting({ ...newMeeting, title: e.target.value })} className="meeting-title-input" />
-            <button className="btn btn-primary btn-sm" onClick={handleAddMeeting}><Check size={14} /></button>
-          </div>
-        )}
-
-        {day.meetings.length === 0 && !showNewMeeting ? (
-          <div className="day-empty">Nenhuma reunião agendada para hoje.</div>
-        ) : (
-          <div className="meetings-list">
-            {day.meetings.map(m => (
-              <div key={m.id} className="meeting-item card">
-                <span className="meeting-time">{m.time}</span>
-                <span className="meeting-title">{m.title}</span>
-                <button className="meeting-remove" onClick={() => setDay(removeMeeting(m.id))}>
-                  <X size={14} />
-                </button>
+      ) : (
+        <>
+          <button className="home-train-card card" onClick={() => navigate('/treino-hub')}>
+            <div className="home-train-icon"><Dumbbell size={18} /></div>
+            <div className="home-train-text">
+              <strong>Treino</strong>
+              <span>Role-play, análise de reunião e mensagens</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
+          {profile.userAccessType === 'marketing' && (
+            <button className="home-train-card home-mkt-card card" onClick={() => navigate('/marketing-hub')}>
+              <div className="home-train-icon home-mkt-icon"><Megaphone size={18} /></div>
+              <div className="home-train-text">
+                <strong>Painel Marketing</strong>
+                <span>Copiloto, benchmarks, ofertas e concorrência</span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <ArrowRight size={16} className="home-train-arrow" />
+            </button>
+          )}
+        </>
+      )}
 
       {/* Tarefas */}
       <div className="day-section">
         <div className="day-section-header">
           <h3 className="section-title">
-            <CheckSquare size={16} /> Tarefas
+            Tarefas do dia
             {totalTasks > 0 && <span className="task-counter">{totalTasks - pendingTasks}/{totalTasks}</span>}
           </h3>
         </div>
@@ -384,15 +390,10 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="tip-card card">
-        <div className="tip-icon"><Target size={18} /></div>
-        <p className="tip-text">{tip}</p>
-      </div>
-
       {favs.length > 0 && (
         <div className="home-favs">
           <div className="news-section-header">
-            <h3 className="section-title"><Star size={16} /> Seus favoritos</h3>
+            <h3 className="section-title">Favoritos</h3>
             <button className="btn btn-outline btn-sm" onClick={() => navigate('/favoritos')}>Ver todos</button>
           </div>
           {favs.map(f => (
@@ -410,25 +411,12 @@ export default function Home() {
         </div>
       )}
 
-      {news.length > 0 && (
-        <div className="home-news">
-          <div className="news-section-header">
-            <h3 className="section-title"><Newspaper size={16} /> {segmentLabel}</h3>
-            <button className="btn btn-outline btn-sm" onClick={() => navigate('/noticias')}>Ver mais</button>
-          </div>
-          {news.map((item, i) => (
-            <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="home-news-item card">
-              <h4>{item.title}</h4>
-              <ExternalLink size={12} />
-            </a>
-          ))}
-        </div>
+      {/* FAB: Registrar venda rápida — oculto para marketing puro */}
+      {profile.userAccessType !== 'marketing' && (
+        <button className="fab-sale" onClick={() => setShowAddSale(true)} title="Registrar venda">
+          <TrendingUp size={22} />
+        </button>
       )}
-
-      {/* FAB: Registrar venda rápida */}
-      <button className="fab-sale" onClick={() => setShowAddSale(true)} title="Registrar venda">
-        <TrendingUp size={22} />
-      </button>
 
       {/* Modal de venda rápida */}
       {showAddSale && (

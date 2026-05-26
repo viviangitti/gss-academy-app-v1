@@ -1,0 +1,72 @@
+.urgency-page { display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+
+/* Hero */
+.urgency-hero.card {
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, #b45309, #f59e0b) !important;
+  color: white; padding: 18px; border: none;
+}
+.urgency-hero svg { color: #fef3c7; flex-shrink: 0; }
+.urgency-hero h2 { font-size: 17px; color: white; margin-bottom: 3px; }
+.urgency-hero p  { font-size: 13px; opacity: 0.85; }
+
+/* Intro */
+.urgency-intro {
+  font-size: 13px; color: var(--text-light); line-height: 1.5;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #f59e0b;
+}
+
+/* Category card */
+.urgency-category.card { padding: 0; overflow: hidden; }
+
+.urgency-cat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; cursor: pointer; user-select: none;
+  gap: 12px;
+}
+
+.urgency-cat-title {
+  display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;
+}
+.urgency-cat-icon { font-size: 22px; flex-shrink: 0; }
+.urgency-cat-title strong { font-size: 15px; display: block; margin-bottom: 2px; }
+.urgency-cat-title p { font-size: 12px; color: var(--text-light); margin: 0; }
+
+.urgency-cat-right {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.urgency-count { font-size: 12px; font-weight: 700; }
+
+/* Triggers list */
+.urgency-triggers {
+  display: flex; flex-direction: column; gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.urgency-trigger {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.urgency-trigger:last-child { border-bottom: none; }
+
+.urgency-trigger p {
+  font-size: 14px; line-height: 1.5; margin: 0;
+  font-style: italic; color: var(--text);
+}
+
+.urgency-trigger-actions {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.urgency-copy {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; padding: 5px 12px;
+  border-radius: 8px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text); cursor: pointer;
+  transition: all 0.15s;
+}
+.urgency-copy:hover { border-color: var(--accent); color: var(--accent); }

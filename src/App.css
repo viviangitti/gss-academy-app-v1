@@ -93,10 +93,11 @@
 }
 
 body {
-  font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
@@ -104,7 +105,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Garante que todos os elementos herdam Cinzel */
+/* Garante que todos os elementos herdam Inter */
 button, input, textarea, select, h1, h2, h3, h4, h5, h6, p, span, div, a, label, li {
   font-family: inherit;
 }
@@ -165,7 +166,7 @@ input, textarea {
 .card {
   background: var(--surface);
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border);
   transition: all 0.2s var(--ease);
@@ -229,11 +230,12 @@ input, textarea {
 }
 
 .section-title {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   margin-bottom: 12px;
-  color: var(--text);
-  letter-spacing: -0.01em;
+  color: var(--text-light);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -351,6 +353,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .badge-reuniao { background: var(--info-bg); color: #1d4ed8; }
+.badge-stage { background: color-mix(in srgb, var(--accent) 18%, transparent); color: #92400e; }
 .badge-ritual { background: var(--warning-bg); color: #92400e; }
 .badge-followup { background: var(--success-bg); color: #065f46; }
 .badge-treinamento { background: #ede9fe; color: #5b21b6; }

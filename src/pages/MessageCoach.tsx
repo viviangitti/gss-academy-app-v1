@@ -156,8 +156,8 @@ export default function MessageCoach() {
     : 'bad'
     : '';
 
-  if (!isOnline) return <OfflineState feature="o Coach de Mensagem" />;
-  if (!API_KEY) return <OfflineState feature="o Coach de Mensagem" subtitle="Configuração de IA indisponível. Fale com o suporte." />;
+  if (!isOnline) return <OfflineState feature="Revisar Mensagem" />;
+  if (!API_KEY) return <OfflineState feature="Revisar Mensagem" subtitle="Serviço indisponível no momento. Fale com o suporte." />;
 
   return (
     <div className="msgcoach-page">
@@ -166,8 +166,8 @@ export default function MessageCoach() {
           <div className="msgcoach-hero card">
             <Wand2 size={26} />
             <div>
-              <h3>Coach de Mensagem</h3>
-              <p>Cole o que vai enviar. A IA avalia e reescreve melhor em segundos.</p>
+              <h3>Revisar Mensagem</h3>
+              <p>Cole o que vai enviar e receba uma versão mais eficaz em segundos.</p>
             </div>
           </div>
 

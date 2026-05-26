@@ -2,12 +2,12 @@ import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/fire
 import { db } from '../firebase';
 import type { UserProfile } from '../../types';
 
-/** Lista todos os vendedores do mesmo teamId (exclui a própria controladoria) */
-export async function getTeamMembers(teamId: string): Promise<UserProfile[]> {
-  if (!db || !teamId) return [];
+/** Lista todos os vendedores da mesma empresa (exclui a própria controladoria) */
+export async function getTeamMembers(company: string): Promise<UserProfile[]> {
+  if (!db || !company) return [];
   const q = query(
     collection(db, 'users'),
-    where('teamId', '==', teamId),
+    where('company', '==', company),
     where('isControladoria', '!=', true),
   );
   const snap = await getDocs(q);
@@ -21,6 +21,7 @@ export async function updateMemberGoals(
     monthlyGoal?: number;
     monthlyGoalFinancing?: number;
     monthlyGoalAccessories?: number;
+    customGoals?: Array<{ label: string; target: number }>;
   }
 ): Promise<void> {
   if (!db) return;

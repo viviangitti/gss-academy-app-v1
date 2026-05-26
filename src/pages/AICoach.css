@@ -451,3 +451,133 @@
   background: var(--accent);
   color: var(--primary);
 }
+
+/* ── Image attachment ── */
+.coach-msg-img {
+  display: block;
+  max-width: 220px;
+  max-height: 160px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  object-fit: cover;
+}
+
+.coach-pdf-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+  max-width: 220px;
+  word-break: break-all;
+}
+
+.coach-attach-pdf-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.coach-attach-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.coach-attach-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.coach-attach-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coach-attach-remove {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.coach-attach-remove:hover { color: #ef4444; }
+
+.coach-img-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.coach-img-btn:hover { color: var(--accent); }
+.coach-img-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── AI Mode Toggle (ambos users) ── */
+.ai-mode-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 4px;
+  margin-bottom: 20px;
+  align-self: center;
+}
+
+.ai-mode-btn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ai-mode-btn.active {
+  background: linear-gradient(135deg, var(--primary-deep), var(--primary));
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(15, 15, 30, 0.15);
+}
+
+.ai-mode-btn:not(.active):hover {
+  color: var(--text);
+}

@@ -8,6 +8,9 @@ import ShareButton from '../components/ShareButton';
 import SpeakButton from '../components/SpeakButton';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
+import { loadData, KEYS } from '../services/storage';
+import type { UserProfile } from '../types';
+import { getSegmentLang } from '../services/segmentLanguage';
 import './MeetingAnalysis.css';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -22,7 +25,7 @@ interface Analysis {
   nextAction: string;
 }
 
-const ANALYSIS_PROMPT = (transcript: string) => `Você é um coach de vendas sênior. O vendedor acabou de sair de uma reunião e está te contando como foi. Analise o relato e extraia os pontos importantes.
+const ANALYSIS_PROMPT = (transcript: string, sessionNoun: string) => `Você é um coach de vendas sênior. O vendedor acabou de terminar um(a) ${sessionNoun} e está te contando como foi. Analise o relato e extraia os pontos importantes.
 
 RELATO DO VENDEDOR:
 """
@@ -32,12 +35,12 @@ ${transcript}
 Responda EXATAMENTE neste formato JSON (sem markdown, sem crases), em português brasileiro:
 
 {
-  "summary": "<resumo da reunião em 1-2 frases, objetivo>",
-  "quality": <qualidade da reunião de 1 a 5>,
+  "summary": "<resumo do(a) ${sessionNoun} em 1-2 frases, objetivo>",
+  "quality": <qualidade do(a) ${sessionNoun} de 1 a 5>,
   "participants": ["<pessoas mencionadas com papel se houver, ex: 'João (decisor)', 'Maria (compradora)'>"],
-  "objections": ["<objeções que surgiram na reunião, em frases diretas>"],
+  "objections": ["<objeções que surgiram, em frases diretas>"],
   "nextSteps": ["<próximos passos acordados - ações concretas com prazo se houver>"],
-  "warnings": ["<pontos de atenção ou sinais de alerta, ex: 'comprou de concorrente antes'>"],
+  "warnings": ["<pontos de atenção ou sinais de alerta>"],
   "nextAction": "<sua recomendação mais importante em 1-2 frases: o que o vendedor deve fazer agora para avançar o negócio>"
 }
 
@@ -87,6 +90,9 @@ type RecState = 'idle' | 'recording' | 'done';
 export default function MeetingAnalysis() {
   const navigate = useNavigate();
   const isOnline = useOnline();
+  const [lang] = useState(() =>
+    getSegmentLang(loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' }).segment)
+  );
   const [recState, setRecState] = useState<RecState>('idle');
   const recStateRef = useRef<RecState>('idle');
   const [transcript, setTranscript] = useState('');
@@ -133,9 +139,8 @@ export default function MeetingAnalysis() {
 
   const handleExample = () => {
     setManualEdit(true);
-    const ex = 'A reunião com a Alpha foi interessante. O João é o diretor e pareceu bem interessado. Já a Maria, que é a compradora, bateu muito na questão do preço, disse que temos que melhorar. Eles já viram 3 propostas de concorrentes. Combinamos que eu vou enviar o comparativo com nosso concorrente principal até sexta e marcar nova reunião na segunda.';
-    setTranscript(ex);
-    finalTranscriptRef.current = ex;
+    setTranscript(lang.exampleRelato);
+    finalTranscriptRef.current = lang.exampleRelato;
   };
 
   const handleCreateTasks = () => {
@@ -261,7 +266,7 @@ export default function MeetingAnalysis() {
     try {
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-      const result = await model.generateContent(ANALYSIS_PROMPT(fullText));
+      const result = await model.generateContent(ANALYSIS_PROMPT(fullText, lang.sessionNoun));
       const text = result.response.text().trim();
       const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
       const parsed = JSON.parse(cleaned) as Analysis;
@@ -288,7 +293,7 @@ export default function MeetingAnalysis() {
 
   const buildShareText = () => {
     if (!analysis) return '';
-    const parts = [`📋 RESUMO DA REUNIÃO`, analysis.summary, ''];
+    const parts = [`📋 ${lang.shareTitle}`, analysis.summary, ''];
     if (analysis.participants.length) { parts.push('👥 Participantes:'); analysis.participants.forEach(p => parts.push(`• ${p}`)); parts.push(''); }
     if (analysis.objections.length)  { parts.push('💬 Objeções:'); analysis.objections.forEach(o => parts.push(`• ${o}`)); parts.push(''); }
     if (analysis.nextSteps.length)   { parts.push('✅ Próximos passos:'); analysis.nextSteps.forEach(s => parts.push(`• ${s}`)); parts.push(''); }
@@ -370,12 +375,12 @@ export default function MeetingAnalysis() {
         )}
 
         <div className="manalysis-result-actions">
-          <ShareButton text={buildShareText()} title="Resumo da reunião" size={16} />
+          <ShareButton text={buildShareText()} title={lang.postTitle} size={16} />
           <SpeakButton text={buildShareText().replace(/[📋👥💬✅🎯•]/g, '')} size={16} />
         </div>
 
         <button className="btn btn-outline manalysis-reset" onClick={handleReset}>
-          <RotateCcw size={14} /> Analisar outra reunião
+          <RotateCcw size={14} /> {lang.resetBtn}
         </button>
       </div>
     );
@@ -390,8 +395,8 @@ export default function MeetingAnalysis() {
       <div className="manalysis-hero card">
         <Mic size={26} />
         <div>
-          <h3>Análise pós-reunião</h3>
-          <p>Conte como foi a reunião em 1-2 minutos. A IA extrai resumo, objeções e próximos passos.</p>
+          <h3>{lang.postTitle}</h3>
+          <p>{lang.postDesc}</p>
         </div>
       </div>
 
@@ -473,12 +478,12 @@ export default function MeetingAnalysis() {
         </>
       ) : (
         <div className="form-group">
-          <label className="manalysis-label">Relato da reunião</label>
+          <label className="manalysis-label">{lang.relatoLabel}</label>
           <textarea
             value={transcript}
             onChange={e => handleTranscriptChange(e.target.value)}
             rows={10}
-            placeholder="Escreva aqui como foi a reunião..."
+            placeholder={lang.relatoPlaceholder}
             className="manalysis-textarea"
           />
           <button className="btn btn-outline btn-sm mt-8" onClick={() => setManualEdit(false)}>
@@ -494,7 +499,7 @@ export default function MeetingAnalysis() {
       >
         {loading
           ? <><Sparkles size={16} className="spinning" /> Analisando...</>
-          : <><Sparkles size={16} /> Analisar reunião</>}
+          : <><Sparkles size={16} /> {lang.analyzeBtn}</>}
       </button>
 
       {error && (

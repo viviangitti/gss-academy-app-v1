@@ -1,9 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
+import { loadData, KEYS } from '../services/storage';
+import type { UserProfile } from '../types';
 import './Header.css';
 
 const titles: Record<string, string> = {
-  '/': 'MAESTR.IA',
+  '/': 'Maestria',
   '/biblioteca': 'Biblioteca',
   '/objecoes': 'Objeções',
   '/scripts': 'Roteiros',
@@ -11,25 +13,45 @@ const titles: Record<string, string> = {
   '/noticias': 'Notícias',
   '/favoritos': 'Favoritos',
   '/treino-hub': 'Treino',
-  '/treino': 'Simulador de Treino',
+  '/treino': 'Treino',
   '/pre-reuniao': 'Pré-reunião',
-  '/coach-mensagem': 'Coach de Mensagem',
-  '/analise-reuniao': 'Análise pós-reunião',
+  '/coach-mensagem': 'Revisar Mensagem',
+  '/analise-reuniao': 'Pós-reunião',
   '/vendas-perdidas': 'Vendas Perdidas',
-  '/historico': 'Meu Histórico',
+  '/historico': 'Histórico',
   '/privacidade': 'Privacidade',
   '/instalar': 'Instalar o app',
-  '/feedback': 'Enviar Feedback',
+  '/feedback': 'Feedback',
   '/vendas': 'Histórico de Vendas',
-  '/ia-coach': 'Pergunte à IA',
+  '/ia-coach': 'Consultor',
   '/perfil': 'Perfil',
   '/controladoria': 'Gestão de Metas',
   '/ofertas': 'Ofertas do Mês',
   '/ofertas-admin': 'Painel Marketing',
+  '/concorrencia': 'Concorrência',
+  '/concorrencia-admin': 'Concorrência',
+  '/gatilhos': 'Gatilhos',
+  '/condicoes': 'Condições Comerciais',
+  '/condicoes-admin': 'Condições — Admin',
+  '/playbook': 'Playbook',
+  '/marketing-hub': 'Marketing Hub',
+  '/marketing-chat': 'Copiloto Marketing',
+  '/guia-marca': 'Guia de Marca',
+  '/analise-campanha': 'Análise de Campanhas',
+  '/gerador-copy': 'Gerador de Copy',
 };
 
-const LIBRARY_SUB_PAGES = ['/objecoes', '/scripts', '/tecnicas', '/noticias', '/favoritos', '/historico'];
+const LIBRARY_SUB_PAGES = [
+  '/objecoes', '/scripts', '/tecnicas', '/favoritos', '/historico',
+  '/condicoes', '/gatilhos', '/concorrencia', '/ofertas', '/playbook',
+  '/analise-campanha',
+];
+// Treino sub-pages go back to /treino-hub
 const TRAINING_SUB_PAGES = ['/treino', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao', '/vendas-perdidas'];
+// Treino hub itself goes back to /biblioteca
+const TRAINING_HUB_PAGES = ['/treino-hub'];
+// Marketing Hub sub-pages go back to /marketing-hub
+const MARKETING_HUB_SUB_PAGES = ['/guia-marca', '/marketing-chat', '/gerador-copy'];
 
 export default function Header() {
   const location = useLocation();
@@ -38,10 +60,18 @@ export default function Header() {
   const isHome = location.pathname === '/';
   const isLibrarySub = LIBRARY_SUB_PAGES.includes(location.pathname);
   const isTrainingSub = TRAINING_SUB_PAGES.includes(location.pathname);
+  const isTrainingHub = TRAINING_HUB_PAGES.includes(location.pathname);
+  const isMarketingHubSub = MARKETING_HUB_SUB_PAGES.includes(location.pathname);
+
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const accessType = profile.userAccessType || 'vendas';
+  const subtitle = accessType === 'marketing' ? 'em Marketing' : accessType === 'ambos' ? 'em Vendas & Marketing' : 'em Vendas';
 
   const handleBack = () => {
     if (isLibrarySub) navigate('/biblioteca');
+    else if (isMarketingHubSub) navigate('/marketing-hub');
     else if (isTrainingSub) navigate('/treino-hub');
+    else if (isTrainingHub) navigate('/biblioteca');
     else navigate(-1);
   };
 
@@ -51,15 +81,16 @@ export default function Header() {
         {isHome ? (
           <div className="header-brand">
             <div className="header-logo">GSS</div>
-            <span className="header-subtitle">MAESTR.IA em Vendas</span>
+            <div className="header-brand-text">
+              <span className="header-title-main">MAESTRIA</span>
+              <span className="header-subtitle">{subtitle}</span>
+            </div>
           </div>
         ) : (
           <div className="header-nav">
-            {(isLibrarySub || isTrainingSub) && (
-              <button className="header-back" onClick={handleBack}>
-                <ArrowLeft size={20} />
-              </button>
-            )}
+            <button className="header-back" onClick={handleBack}>
+              <ArrowLeft size={20} />
+            </button>
             <h1 className="header-title">{title}</h1>
           </div>
         )}

@@ -1,43 +1,64 @@
 import { useNavigate } from 'react-router-dom';
-import { Shield, FileText, BookOpen, Newspaper, Star, History as HistoryIcon } from 'lucide-react';
+import { Tag, Swords, BookOpen, ChevronRight, BarChart2 } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
-import { SEGMENTS } from '../types';
 import type { UserProfile } from '../types';
-import './Content.css';
-
-const MENU_ITEMS = [
-  { path: '/objecoes', icon: Shield, label: 'Objeções', desc: 'Respostas prontas para cada objeção', color: '#ef4444' },
-  { path: '/scripts', icon: FileText, label: 'Roteiros', desc: 'Abordagens, acompanhamento e gatilhos', color: '#3b82f6' },
-  { path: '/tecnicas', icon: BookOpen, label: 'Técnicas', desc: 'Perguntas estratégicas, qualificação e mais', color: '#8b5cf6' },
-  { path: '/noticias', icon: Newspaper, label: 'Notícias', desc: 'Novidades do seu mercado', color: '#f59e0b' },
-  { path: '/favoritos', icon: Star, label: 'Favoritos', desc: 'Seus itens marcados com estrela', color: '#c9a84c' },
-  { path: '/historico', icon: HistoryIcon, label: 'Histórico', desc: 'Tudo que você já fez com a IA', color: '#64748b' },
-];
+import './Library.css';
 
 export default function Library() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-  const segmentLabel = profile.segment ? SEGMENTS.find(s => s.value === profile.segment)?.label : '';
+  const isMarketingUser = profile.userAccessType === 'marketing' || profile.userAccessType === 'ambos';
 
   return (
-    <div className="content-page">
-      {segmentLabel && (
-        <div className="content-segment">
-          Conteúdo personalizado para: <strong>{segmentLabel}</strong>
-        </div>
-      )}
+    <div className="lib-page">
+      <div className="lib-section-label">Intel do mês</div>
 
-      <div className="content-grid">
-        {MENU_ITEMS.map(item => (
-          <button key={item.path} className="content-item card" onClick={() => navigate(item.path)}>
-            <div className="content-icon" style={{ background: `${item.color}15`, color: item.color }}>
-              <item.icon size={22} />
-            </div>
-            <h4>{item.label}</h4>
-            <p>{item.desc}</p>
-          </button>
-        ))}
+      <div className="lib-intel-grid">
+        <button className="lib-intel-card card" onClick={() => navigate('/condicoes')}>
+          <div className="lib-intel-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>
+            <Tag size={20} />
+          </div>
+          <span className="lib-intel-title">Condições</span>
+          <span className="lib-intel-desc">Tabelas e campanhas do mês</span>
+        </button>
+
+        <button className="lib-intel-card card" onClick={() => navigate('/concorrencia')}>
+          <div className="lib-intel-icon" style={{ background: 'rgba(185,28,28,0.1)', color: '#b91c1c' }}>
+            <Swords size={20} />
+          </div>
+          <span className="lib-intel-title">Concorrência</span>
+          <span className="lib-intel-desc">O que estão fazendo agora</span>
+        </button>
       </div>
+
+      <div className="lib-section-label">Referência</div>
+
+      <button className="lib-playbook-card card" onClick={() => navigate('/playbook')}>
+        <div className="lib-intel-icon" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>
+          <BookOpen size={20} />
+        </div>
+        <div className="lib-playbook-text">
+          <span className="lib-intel-title">Playbook</span>
+          <span className="lib-intel-desc">Objeções · Roteiros · Técnicas · Gatilhos</span>
+        </div>
+        <ChevronRight size={18} className="lib-playbook-arrow" />
+      </button>
+
+      {isMarketingUser && (
+        <>
+          <div className="lib-section-label">Análise</div>
+          <button className="lib-playbook-card card" onClick={() => navigate('/analise-campanha')}>
+            <div className="lib-intel-icon" style={{ background: 'rgba(201,168,76,0.12)', color: '#c9a84c' }}>
+              <BarChart2 size={20} />
+            </div>
+            <div className="lib-playbook-text">
+              <span className="lib-intel-title">Análise de Campanhas</span>
+              <span className="lib-intel-desc">Envie um print ou relatório — IA gera insights e takeaways</span>
+            </div>
+            <ChevronRight size={18} className="lib-playbook-arrow" />
+          </button>
+        </>
+      )}
     </div>
   );
 }

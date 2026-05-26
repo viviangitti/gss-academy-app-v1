@@ -165,3 +165,45 @@
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+
+/* Custom goal rows */
+.ctrl-custom-goal-row {
+  align-items: center;
+  gap: 6px;
+}
+
+.ctrl-custom-label-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.ctrl-custom-value-input {
+  width: 90px;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.ctrl-remove-goal {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.ctrl-remove-goal:hover { color: #e74c3c; }
+
+.ctrl-add-goal {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}

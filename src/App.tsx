@@ -26,6 +26,17 @@ import Profile from './pages/Profile';
 import Controladoria from './pages/Controladoria';
 import Offers from './pages/Offers';
 import OffersAdmin from './pages/OffersAdmin';
+import CompetitorIntel from './pages/CompetitorIntel';
+import CompetitorAdmin from './pages/CompetitorAdmin';
+import MarketingHub from './pages/MarketingHub';
+import Urgency from './pages/Urgency';
+import CommercialConditions from './pages/CommercialConditions';
+import CommercialConditionsAdmin from './pages/CommercialConditionsAdmin';
+import Playbook from './pages/Playbook';
+import MarketingChat from './pages/MarketingChat';
+import BrandGuide from './pages/BrandGuide';
+import CampaignAnalysis from './pages/CampaignAnalysis';
+import CopyGenerator from './pages/CopyGenerator';
 import Auth from './pages/Auth';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
@@ -62,7 +73,15 @@ function AppContent() {
       // 1. Perfil
       const remote = await getRemoteProfile(uid);
       if (remote) {
-        saveData(KEYS.PROFILE, remote);
+        // Preserva userAccessType local se o Firestore ainda não tem
+        const local = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+        const mergedAccessType = remote.userAccessType || local.userAccessType;
+        const merged: UserProfile = {
+          ...remote,
+          userAccessType: mergedAccessType,
+          // isMarketing não controla mais roteamento — mantém como está no remote
+        };
+        saveData(KEYS.PROFILE, merged);
       } else {
         const local = loadData<UserProfile>(KEYS.PROFILE, {
           name: user.displayName || '',
@@ -130,6 +149,9 @@ function AppContent() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
+  // Título fixo sem ponto
+  document.title = 'GSS';
+
   // Controladoria → só tela de metas
   if (profile.isControladoria) {
     return (
@@ -147,23 +169,8 @@ function AppContent() {
     );
   }
 
-  // Marketing → só painel de ofertas
-  if (profile.isMarketing) {
-    return (
-      <BrowserRouter>
-        <div className="app">
-          <Header />
-          <main className="app-content">
-            <Routes>
-              <Route path="*" element={<OffersAdmin />} />
-              <Route path="/perfil" element={<Profile />} />
-            </Routes>
-          </main>
-        </div>
-      </BrowserRouter>
-    );
-  }
-
+  // Todos os perfis (vendas, marketing, ambos) vêem o app completo.
+  // Marketing/ambos têm acesso adicional ao hub de marketing dentro do mesmo app.
   return (
     <BrowserRouter>
       <div className="app">
@@ -193,6 +200,17 @@ function AppContent() {
             <Route path="/controladoria" element={<Controladoria />} />
             <Route path="/ofertas" element={<Offers />} />
             <Route path="/ofertas-admin" element={<OffersAdmin />} />
+            <Route path="/concorrencia" element={<CompetitorIntel />} />
+            <Route path="/concorrencia-admin" element={<CompetitorAdmin />} />
+            <Route path="/gatilhos" element={<Urgency />} />
+            <Route path="/condicoes" element={<CommercialConditions />} />
+            <Route path="/condicoes-admin" element={<CommercialConditionsAdmin />} />
+            <Route path="/playbook" element={<Playbook />} />
+            <Route path="/marketing-hub" element={<MarketingHub />} />
+            <Route path="/marketing-chat" element={<MarketingChat />} />
+            <Route path="/guia-marca" element={<BrandGuide />} />
+            <Route path="/analise-campanha" element={<CampaignAnalysis />} />
+            <Route path="/gerador-copy" element={<CopyGenerator />} />
           </Routes>
         </main>
         <BottomNav />
