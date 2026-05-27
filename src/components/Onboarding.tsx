@@ -35,6 +35,8 @@ type AccessType = 'vendas' | 'marketing' | 'ambos';
 export default function Onboarding({ onComplete }: Props) {
   const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
+  const [step, setStep] = useState(0);
+
   // Pre-fill from profile (set during Auth signup step 2)
   const [segment, setSegment] = useState<Segment>(existing.segment || '');
   const [accessType, setAccessType] = useState<AccessType>((existing.userAccessType as AccessType) || 'vendas');
