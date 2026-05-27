@@ -32,15 +32,20 @@ interface Props {
 
 type AccessType = 'vendas' | 'marketing' | 'ambos';
 
-const TOTAL_STEPS = 5;
-
 export default function Onboarding({ onComplete }: Props) {
-  const [step, setStep] = useState(0);
-  const [segment, setSegment] = useState<Segment>('');
-  const [accessType, setAccessType] = useState<AccessType>('vendas');
+  const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+
+  // Pre-fill from profile (set during Auth signup step 2)
+  const [segment, setSegment] = useState<Segment>(existing.segment || '');
+  const [accessType, setAccessType] = useState<AccessType>((existing.userAccessType as AccessType) || 'vendas');
+
+  // If profile already has both segment and accessType, skip steps 3 & 4
+  const alreadyConfigured = !!(existing.segment && existing.userAccessType);
+
+  // Total dots depend on whether config steps are needed
+  const TOTAL_STEPS = alreadyConfigured ? 3 : 5;
 
   const handleFinish = () => {
-    const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     const profile: UserProfile = {
       ...existing,
       segment: segment || existing.segment,
@@ -174,8 +179,11 @@ export default function Onboarding({ onComplete }: Props) {
               <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
             ))}
           </div>
-          <button className="onboarding-next" onClick={() => setStep(3)}>
-            Próximo <ChevronRight size={18} />
+          <button
+            className={`onboarding-next ${alreadyConfigured ? 'onboarding-finish' : ''}`}
+            onClick={() => alreadyConfigured ? handleFinish() : setStep(3)}
+          >
+            {alreadyConfigured ? <>Começar <Sparkles size={16} /></> : <>Próximo <ChevronRight size={18} /></>}
           </button>
         </div>
       )}
