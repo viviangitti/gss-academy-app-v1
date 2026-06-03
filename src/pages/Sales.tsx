@@ -45,6 +45,7 @@ export default function Sales() {
   const [chartData, setChartData] = useState<{ label: string; value: number }[]>([]);
   const [showAddSale, setShowAddSale] = useState(false);
   const [saleForm, setSaleForm] = useState({ amount: '', commission: '', client: '' });
+  const [addSaleError, setAddSaleError] = useState(false);
 
   const refresh = (p: Period) => {
     setStats(getPeriodStats(p));
@@ -70,9 +71,13 @@ export default function Sales() {
   const handleAddSale = () => {
     const amount = Number(saleForm.amount);
     const commission = Number(saleForm.commission);
-    if (!amount || !saleForm.client.trim()) return;
+    if (!amount || !saleForm.client.trim()) {
+      setAddSaleError(true);
+      return;
+    }
     addSale(amount, commission || 0, saleForm.client);
     setSaleForm({ amount: '', commission: '', client: '' });
+    setAddSaleError(false);
     setShowAddSale(false);
     refresh(period);
   };
@@ -197,16 +202,18 @@ export default function Sales() {
         <div className="new-sale-form card">
           <input
             type="text"
-            placeholder="Cliente"
+            placeholder={addSaleError && !saleForm.client.trim() ? 'Cliente obrigatório!' : 'Cliente'}
             value={saleForm.client}
-            onChange={e => setSaleForm({ ...saleForm, client: e.target.value })}
+            onChange={e => { setSaleForm({ ...saleForm, client: e.target.value }); setAddSaleError(false); }}
+            className={addSaleError && !saleForm.client.trim() ? 'input-error' : undefined}
           />
           <div className="sale-amount-row">
             <input
               type="number"
-              placeholder="Venda R$"
+              placeholder={addSaleError && !Number(saleForm.amount) ? 'Valor obrigatório!' : 'Venda R$'}
               value={saleForm.amount}
-              onChange={e => setSaleForm({ ...saleForm, amount: e.target.value })}
+              onChange={e => { setSaleForm({ ...saleForm, amount: e.target.value }); setAddSaleError(false); }}
+              className={addSaleError && !Number(saleForm.amount) ? 'input-error' : undefined}
             />
             <input
               type="number"

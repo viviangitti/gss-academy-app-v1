@@ -928,7 +928,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 100;
+  z-index: 110;
   transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 

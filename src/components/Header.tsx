@@ -32,7 +32,7 @@ const titles: Record<string, string> = {
   '/concorrencia-admin': 'Concorrência',
   '/gatilhos': 'Gatilhos',
   '/condicoes': 'Condições Comerciais',
-  '/condicoes-admin': 'Condições — Admin',
+  '/condicoes-admin': 'Campanhas e Condições',
   '/playbook': 'Playbook',
   '/marketing-hub': 'Marketing Hub',
   '/marketing-chat': 'Copiloto Marketing',
@@ -88,14 +88,14 @@ export default function Header() {
           </div>
         ) : (
           <div className="header-nav">
-            <button className="header-back" onClick={handleBack}>
+            <button className="header-back" onClick={handleBack} aria-label="Voltar">
               <ArrowLeft size={20} />
             </button>
             <h1 className="header-title">{title}</h1>
           </div>
         )}
         {location.pathname !== '/perfil' && (
-          <button className="header-profile" onClick={() => navigate('/perfil')}>
+          <button className="header-profile" onClick={() => navigate('/perfil')} aria-label="Perfil">
             <User size={20} />
           </button>
         )}

@@ -33,8 +33,11 @@ export default function Home() {
   const [stats, setStats] = useState<GoalStats | null>(null);
   const [weekStats, setWeekStats] = useState<WeekStats | null>(null);
   const [welcomeBack, setWelcomeBack] = useState<string | null>(null);
-  const [showAddSale, setShowAddSale] = useState(false);
+  const [showAddSale, setShowAddSale] = useState(false);   // inline form (Meta do mês)
+  const [showQuickSale, setShowQuickSale] = useState(false); // FAB modal
   const [saleForm, setSaleForm] = useState({ amount: '', commission: '', client: '' });
+  const [saleError, setSaleError] = useState(false);
+  const [quickSaleError, setQuickSaleError] = useState(false);
   const [showFeedbackBanner, setShowFeedbackBanner] = useState(false);
 
   const refreshStats = (g: number) => {
@@ -85,10 +88,14 @@ export default function Home() {
   const handleRegisterSale = () => {
     const amount = Number(saleForm.amount);
     const commission = Number(saleForm.commission);
-    if (!amount || !saleForm.client.trim()) return;
+    if (!amount || !saleForm.client.trim()) {
+      setSaleError(true);
+      return;
+    }
     addSale(amount, commission || 0, saleForm.client);
     refreshStats(goal);
     setSaleForm({ amount: '', commission: '', client: '' });
+    setSaleError(false);
     setShowAddSale(false);
   };
 
@@ -176,17 +183,17 @@ export default function Home() {
             <div className="new-sale card">
               <input
                 type="text"
-                placeholder="Cliente"
+                placeholder={saleError && !saleForm.client.trim() ? 'Cliente obrigatório!' : 'Cliente'}
                 value={saleForm.client}
-                onChange={e => setSaleForm({ ...saleForm, client: e.target.value })}
-                className="sale-client-input"
+                onChange={e => { setSaleForm({ ...saleForm, client: e.target.value }); setSaleError(false); }}
+                className={`sale-client-input${saleError && !saleForm.client.trim() ? ' input-error' : ''}`}
               />
               <input
                 type="number"
-                placeholder="Venda R$"
+                placeholder={saleError && !Number(saleForm.amount) ? 'Valor obrigatório!' : 'Venda R$'}
                 value={saleForm.amount}
-                onChange={e => setSaleForm({ ...saleForm, amount: e.target.value })}
-                className="sale-amount-input"
+                onChange={e => { setSaleForm({ ...saleForm, amount: e.target.value }); setSaleError(false); }}
+                className={`sale-amount-input${saleError && !Number(saleForm.amount) ? ' input-error' : ''}`}
               />
               <input
                 type="number"
@@ -270,17 +277,6 @@ export default function Home() {
         </div>
       )}
 
-      {profile.userAccessType !== 'marketing' && stats && goal === 0 && (
-        <div className="goal-setup card" onClick={() => navigate('/perfil')}>
-          <TrendingUp size={18} />
-          <div>
-            <strong>Meta do mês não definida</strong>
-            <p>Toque aqui para configurar no perfil.</p>
-          </div>
-          <ArrowRight size={14} />
-        </div>
-      )}
-
       {/* Progresso semanal */}
       {weekStats && (
         <div className="day-section">
@@ -316,7 +312,7 @@ export default function Home() {
             <button className="home-dual-card home-dual-vendas card" onClick={() => navigate('/treino-hub')}>
               <div className="home-dual-icon"><Dumbbell size={18} /></div>
               <strong>Treino</strong>
-              <span>Role-play e análise</span>
+              <span>Role-play, reuniões e mais</span>
             </button>
             <button className="home-dual-card home-dual-mkt card" onClick={() => navigate('/marketing-hub')}>
               <div className="home-dual-icon"><Megaphone size={18} /></div>
@@ -331,7 +327,7 @@ export default function Home() {
             <div className="home-train-icon"><Dumbbell size={18} /></div>
             <div className="home-train-text">
               <strong>Treino</strong>
-              <span>Role-play, análise de reunião e mensagens</span>
+              <span>Role-play, objeções, reuniões e mensagens</span>
             </div>
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
@@ -371,19 +367,19 @@ export default function Home() {
           )}
           {day.tasks.map(t => (
             <div key={t.id} className={`task-row ${t.done ? 'done' : ''} ${t.fromYesterday ? 'from-yesterday' : ''}`}>
-              <button className="task-check" onClick={() => setDay(toggleTask(t.id))}>
+              <button className="task-check" onClick={() => setDay(toggleTask(t.id))} aria-label={t.done ? 'Desmarcar tarefa' : 'Concluir tarefa'}>
                 {t.done && <Check size={12} />}
               </button>
               <span className="task-text">{t.text}</span>
               {t.fromYesterday && <span className="yesterday-badge">ontem</span>}
-              <button className="task-remove" onClick={() => setDay(removeTask(t.id))}>
+              <button className="task-remove" onClick={() => setDay(removeTask(t.id))} aria-label="Remover tarefa">
                 <X size={12} />
               </button>
             </div>
           ))}
           <div className="task-add-row">
             <input type="text" placeholder="Adicionar tarefa..." value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddTask()} className="task-input" />
-            <button className="task-add-btn" onClick={handleAddTask} disabled={!newTask.trim()}>
+            <button className="task-add-btn" onClick={handleAddTask} disabled={!newTask.trim()} aria-label="Adicionar tarefa">
               <Plus size={14} />
             </button>
           </div>
@@ -413,14 +409,14 @@ export default function Home() {
 
       {/* FAB: Registrar venda rápida — oculto para marketing puro */}
       {profile.userAccessType !== 'marketing' && (
-        <button className="fab-sale" onClick={() => setShowAddSale(true)} title="Registrar venda">
+        <button className="fab-sale" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }} title="Registrar venda" aria-label="Registrar venda">
           <TrendingUp size={22} />
         </button>
       )}
 
       {/* Modal de venda rápida */}
-      {showAddSale && (
-        <div className="quick-sale-overlay" onClick={() => setShowAddSale(false)}>
+      {showQuickSale && (
+        <div className="quick-sale-overlay" onClick={() => setShowQuickSale(false)}>
           <div className="quick-sale-sheet" onClick={e => e.stopPropagation()}>
             <div className="quick-sale-handle" />
             <h3 className="quick-sale-title"><TrendingUp size={18} /> Registrar venda</h3>
@@ -429,11 +425,12 @@ export default function Home() {
                 <label>Vendas R$ <span className="required">*</span></label>
                 <input
                   type="number"
-                  placeholder="Ex: 800"
+                  placeholder={quickSaleError && !saleForm.commission ? 'Obrigatório!' : 'Ex: 800'}
                   value={saleForm.commission}
-                  onChange={e => setSaleForm({ ...saleForm, commission: e.target.value })}
+                  onChange={e => { setSaleForm({ ...saleForm, commission: e.target.value }); setQuickSaleError(false); }}
                   autoFocus
                   inputMode="numeric"
+                  className={quickSaleError && !saleForm.commission ? 'input-error' : undefined}
                 />
               </div>
               <div className="quick-sale-field">
@@ -459,13 +456,17 @@ export default function Home() {
             <button
               className="btn btn-primary quick-sale-btn"
               onClick={() => {
-                if (!saleForm.commission) return;
+                if (!saleForm.commission) {
+                  setQuickSaleError(true);
+                  return;
+                }
                 const commission = Number(saleForm.commission);
                 const amount = Number(saleForm.amount) || commission;
                 addSale(amount, commission, saleForm.client || 'Venda');
                 refreshStats(goal);
                 setSaleForm({ amount: '', commission: '', client: '' });
-                setShowAddSale(false);
+                setQuickSaleError(false);
+                setShowQuickSale(false);
               }}
             >
               <Check size={16} /> Confirmar venda

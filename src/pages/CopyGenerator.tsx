@@ -268,6 +268,7 @@ DIRETRIZES:
             className="cg-generate-btn"
             onClick={handleGenerate}
             disabled={!produto.trim() || loading}
+            title={!produto.trim() ? 'Preencha o campo "Produto ou oferta" para gerar copies' : undefined}
           >
             {loading
               ? <><RefreshCw size={16} className="cg-spin" /> Gerando copies...</>

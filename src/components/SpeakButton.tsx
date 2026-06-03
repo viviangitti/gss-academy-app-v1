@@ -85,6 +85,7 @@ export default function SpeakButton({ text, size = 16 }: Props) {
       className={`speak-btn ${speaking ? 'speaking' : ''}`}
       onClick={handleSpeak}
       title={speaking ? 'Parar leitura' : 'Ouvir resposta'}
+      aria-label={speaking ? 'Parar leitura' : 'Ouvir resposta'}
     >
       {speaking ? <VolumeX size={size} /> : <Volume2 size={size} />}
     </button>
