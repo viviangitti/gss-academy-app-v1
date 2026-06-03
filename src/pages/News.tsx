@@ -1,45 +1,89 @@
 import { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, TrendingUp, Globe, Search, X, MapPin, Calendar, ShieldCheck, Megaphone, Swords } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, TrendingUp, Globe, Search, X, MapPin, Calendar, Megaphone, Swords, Database } from 'lucide-react';
 import { fetchNewsByCategory, fetchMarketingNews, fetchCompetitorMarketingNews, clearNewsCache } from '../services/news';
-import { searchSegmentOffers, getCachedOffers, setCachedOffers, clearOffersCache } from '../services/competitorScraper';
-import { loadData, KEYS } from '../services/storage';
-import { SEGMENTS } from '../types';
-import type { NewsItem, UserProfile } from '../types';
+import { searchSegmentOffers, getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, clearOffersCache } from '../services/competitorScraper';
+import { loadData, saveData, KEYS } from '../services/storage';
+import { SEGMENTS, PRICE_RANGES } from '../types';
+import type { NewsItem, UserProfile, PriceRange } from '../types';
 import type { NewsCategory, NewsGeo } from '../services/news';
 import type { ScrapedOffer } from '../services/competitorScraper';
 import './News.css';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
-// Brand → domain for logo lookup (Clearbit Logo API)
+// Mapeamento de marca → faixa de preço (mesmo do CompetitorIntel)
+const COMPETITOR_RANGES: Record<string, PriceRange[]> = {
+  'fiat':['ate-80k'],'chevrolet':['ate-80k'],'renault':['ate-80k'],
+  'peugeot':['ate-80k'],'citroën':['ate-80k'],'citroen':['ate-80k'],
+  'honda':['ate-80k'],'hyundai':['ate-80k'],'nissan':['ate-80k'],
+  'toyota':['ate-80k','80k-200k'],'volkswagen':['ate-80k','80k-200k'],
+  'jeep':['ate-80k','80k-200k'],'ford':['ate-80k','80k-200k'],
+  'mitsubishi':['80k-200k'],'volvo':['80k-200k'],
+  'bmw':['80k-200k','200k-500k'],'mercedes-benz':['80k-200k','200k-500k'],
+  'mercedes':['80k-200k','200k-500k'],'audi':['80k-200k','200k-500k'],
+  'land rover':['80k-200k','200k-500k'],'jaguar':['80k-200k','200k-500k'],
+  'lexus':['80k-200k','200k-500k'],'porsche':['200k-500k','acima-500k'],
+  'maserati':['200k-500k','acima-500k'],'bentley':['acima-500k'],
+  'ferrari':['acima-500k'],'lamborghini':['acima-500k'],
+  'rolls-royce':['acima-500k'],'mclaren':['acima-500k'],
+};
+
+/**
+ * Gera URL de busca Google específica para a oferta.
+ * Muito mais útil que a homepage genérica da marca —
+ * o usuário encontra a oferta exata com resultados atuais.
+ */
+function offerMatchesRange(competitor: string, range: PriceRange): boolean {
+  const key = competitor.toLowerCase().trim();
+  const ranges = COMPETITOR_RANGES[key];
+  if (ranges) return ranges.includes(range);
+  return true; // marca desconhecida: mostra em todas
+}
+
+// Brand → domínio oficial — usado para logos (Clearbit) E para links de busca site:domínio
 const BRAND_DOMAINS: Record<string, string> = {
-  honda: 'honda.com.br', volkswagen: 'volkswagen.com.br', vw: 'volkswagen.com.br',
+  // Automotivo massa
+  honda: 'honda.com.br', volkswagen: 'vw.com.br', vw: 'vw.com.br',
   fiat: 'fiat.com.br', chevrolet: 'chevrolet.com.br', hyundai: 'hyundai.com.br',
   nissan: 'nissan.com.br', jeep: 'jeep.com.br', renault: 'renault.com.br',
-  toyota: 'toyota.com.br', mitsubishi: 'mitsubishi.com.br', ford: 'ford.com.br',
-  // Chinesas
-  byd: 'byd.com.br', gwm: 'gwmbrasil.com.br',
-  'caoa chery': 'caoa-chery.com.br', chery: 'caoa-chery.com.br',
+  toyota: 'toyota.com.br', mitsubishi: 'mitsubishimotors.com.br', ford: 'ford.com.br',
+  peugeot: 'peugeot.com.br', citroen: 'citroen.com.br',
+  // Automotivo chinês
+  byd: 'byd.com.br', gwm: 'gwmmotors.com.br',
+  'caoa chery': 'caoachery.com.br', chery: 'caoachery.com.br',
   jac: 'jacmotors.com.br', 'jac motors': 'jacmotors.com.br',
-  haval: 'gwmbrasil.com.br', ora: 'gwmbrasil.com.br',
-  'gac motor': 'gac-motor.com.br', gac: 'gac-motor.com.br',
+  haval: 'gwmmotors.com.br', ora: 'gwmmotors.com.br',
+  'gac motor': 'gacgroup.com', gac: 'gacgroup.com',
   jaecoo: 'omodajaecoo.com.br', omoda: 'omodajaecoo.com.br', 'omoda & jaecoo': 'omodajaecoo.com.br',
-  'mg motor': 'mgbrasil.com.br', mg: 'mgbrasil.com.br',
-  changan: 'changandobrasil.com.br',
-  kia: 'kia.com/br',
-  // Luxo
+  'mg motor': 'mgmotoroficial.com.br', mg: 'mgmotoroficial.com.br',
+  changan: 'caoachangan.com.br', kia: 'kia.com/br',
+  // Automotivo luxo
   bmw: 'bmw.com.br', mercedes: 'mercedes-benz.com.br', 'mercedes-benz': 'mercedes-benz.com.br',
   audi: 'audi.com.br', porsche: 'porsche.com/brazil', volvo: 'volvocars.com/br',
   'land rover': 'landrover.com.br', jaguar: 'jaguar.com.br',
-  // Outros
+  lexus: 'lexus.com.br', maserati: 'maserati.com',
+  // Bebidas
   ambev: 'ambev.com.br', heineken: 'heineken.com.br',
   miolo: 'miolo.com.br', aurora: 'vinicolaaurora.com.br',
-  'magazine luiza': 'magazineluiza.com.br', magazineluiza: 'magazineluiza.com.br',
+  salton: 'salton.com.br', chandon: 'chandon.com.br',
+  // Varejo
+  'magazine luiza': 'magazineluiza.com.br', magalu: 'magazineluiza.com.br',
   americanas: 'americanas.com.br', shopee: 'shopee.com.br',
-  mrv: 'mrv.com.br', cyrela: 'cyrela.com.br',
-  nubank: 'nubank.com.br', itaú: 'itau.com.br', bradesco: 'bradesco.com.br',
-  xp: 'xpi.com.br', hapvida: 'hapvida.com.br', unimed: 'unimed.com.br',
+  'casas bahia': 'casasbahia.com.br', amazon: 'amazon.com.br',
+  // Imobiliário
+  mrv: 'mrv.com.br', cyrela: 'cyrela.com.br', tenda: 'construtora-tenda.com.br',
+  // Financeiro
+  nubank: 'nubank.com.br', itaú: 'itau.com.br', itau: 'itau.com.br',
+  bradesco: 'bradesco.com.br', xp: 'xpi.com.br',
+  // Saúde / Farma
+  hapvida: 'hapvida.com.br', unimed: 'unimed.coop.br',
+  'raia drogasil': 'raiadrogasil.com.br', ultrafarma: 'ultrafarma.com.br',
+  nissei: 'nissei.com.br',
+  // Tech / Edu / Agro
   totvs: 'totvs.com', syngenta: 'syngenta.com.br',
+  anhanguera: 'anhanguera.com', 'rd station': 'rdstation.com',
+  solfacil: 'solfacil.com.br', 'solfácil': 'solfacil.com.br',
 };
 
 function getBrandLogo(name: string): string | null {
@@ -49,13 +93,45 @@ function getBrandLogo(name: string): string | null {
   return `https://logo.clearbit.com/${domain}`;
 }
 
+/**
+ * Retorna a URL da oferta:
+ * 1. URL específica da IA (página real da oferta) — quando disponível e não é homepage genérica
+ * 2. Fallback: busca Google com site:domínio — quando URL não existe ou é genérica
+ */
+function buildOfferUrl(offer: ScrapedOffer): string {
+  const src = offer.sourceUrl;
+
+  // Usa a URL específica se existir e não for uma homepage genérica
+  // (homepage = termina em / ou tem path com menos de 2 segmentos)
+  if (src && src.startsWith('http')) {
+    try {
+      const u = new URL(src);
+      const pathDepth = u.pathname.replace(/\/$/, '').split('/').filter(Boolean).length;
+      if (pathDepth >= 2) return src; // URL específica com path real, ex: /pt/topics/ofertas
+    } catch { /* ignora URL malformada */ }
+  }
+
+  // Fallback: busca Google restrita ao domínio da marca
+  const key = (offer.competitor || '').toLowerCase().trim();
+  const domain = BRAND_DOMAINS[key] || BRAND_DOMAINS[key.split(' ')[0]];
+  const terms = [offer.model, offer.title].filter(Boolean).join(' ');
+  const query = domain
+    ? `${terms} site:${domain}`
+    : `${offer.competitor} ${terms} oferta brasil`;
+
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
+// Alias para compatibilidade com JSX existente
+const buildOfferSearchUrl = buildOfferUrl;
+
 const CATEGORIES: { value: NewsCategory; label: string; icon: React.ComponentType<{ size?: number }>; desc: string; marketingOnly?: boolean }[] = [
   { value: 'tudo',        label: 'Tudo',        icon: Globe,      desc: 'Todas as notícias do segmento' },
   { value: 'lancamentos', label: 'Lançamentos',  icon: Sparkles,   desc: 'Novos produtos, inovações e estreias' },
   { value: 'ofertas',     label: 'Ofertas',      icon: Tag,        desc: 'Promoções e condições dos concorrentes agora' },
   { value: 'mercado',     label: 'Tendências',   icon: TrendingUp, desc: 'Análises e movimentos do mercado' },
-  { value: 'marketing',    label: 'Marketing',     icon: Megaphone,  desc: 'Tendências de marketing, branding e campanhas luxury', marketingOnly: true },
-  { value: 'concorrentes', label: 'Concorrentes',  icon: Swords,     desc: 'O que os concorrentes estão fazendo em marketing e campanhas', marketingOnly: true },
+  { value: 'marketing',    label: 'Marketing',     icon: Megaphone,  desc: 'Eventos do setor, veiculação de mídia, parcerias e tendências de marketing', marketingOnly: true },
+  { value: 'concorrentes', label: 'Concorrentes',  icon: Swords,     desc: 'O que os concorrentes estão fazendo em campanhas, mídia e ativações', marketingOnly: true },
 ];
 
 function relativeTime(dateStr: string): string {
@@ -106,6 +182,7 @@ function groupByDate(items: NewsItem[]): { label: string; items: NewsItem[] }[] 
 }
 
 export default function News() {
+  const navigate = useNavigate();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [offers, setOffers] = useState<ScrapedOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,10 +190,12 @@ export default function News() {
   const [offersError, setOffersError] = useState('');
   const [segment, setSegment] = useState('');
   const [userAccessType, setUserAccessType] = useState<string>('vendas');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [category, setCategory] = useState<NewsCategory>('tudo');
   const [geo, setGeo] = useState<NewsGeo>('brasil');
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const [offerRange, setOfferRange] = useState<PriceRange>('');
 
   const isMarketingUser = userAccessType === 'marketing' || userAccessType === 'ambos';
 
@@ -125,7 +204,7 @@ export default function News() {
     if (force) { clearNewsCache(); setRefreshing(true); }
     let items: NewsItem[];
     if (cat === 'marketing') {
-      items = await fetchMarketingNews(g);
+      items = await fetchMarketingNews(g, seg);
     } else if (cat === 'concorrentes') {
       items = await fetchCompetitorMarketingNews(seg, g);
     } else {
@@ -138,16 +217,40 @@ export default function News() {
 
   const loadOffers = async (seg: string, force = false) => {
     if (force) clearOffersCache(seg);
+
     if (!force) {
-      const cached = getCachedOffers(seg);
-      if (cached !== null) { setOffers(cached); return; }
+      // 1. Cache fresco (< 1h) → mostra imediatamente, sem spinner
+      const fresh = getCachedOffers(seg);
+      if (fresh !== null && !isOffersCacheStale(seg)) {
+        setOffers(fresh);
+        return;
+      }
+
+      // 2. Cache stale (1h–24h) → stale-while-revalidate:
+      //    mostra dados antigos agora e atualiza em background sem spinner
+      const stale = getStaleCachedOffers(seg);
+      if (stale !== null) {
+        setOffers(stale); // mostra imediatamente
+        // Atualiza em background sem bloquear a UI
+        searchSegmentOffers(seg, API_KEY)
+          .then(result => {
+            if (result.length > 0) {
+              setCachedOffers(seg, result);
+              setOffers(result); // atualiza suavemente quando pronto
+            }
+          })
+          .catch(() => { /* mantém dados stale silenciosamente */ });
+        return;
+      }
     }
+
+    // 3. Sem cache → busca com spinner visível
     setOffersLoading(true);
     setOffersError('');
     try {
       const result = await searchSegmentOffers(seg, API_KEY);
       setOffers(result);
-      if (result.length > 0) setCachedOffers(seg, result); // não cacheia array vazio
+      if (result.length > 0) setCachedOffers(seg, result);
     } catch (e) {
       setOffersError(e instanceof Error ? e.message : 'Erro ao buscar ofertas.');
       setOffers([]);
@@ -159,8 +262,22 @@ export default function News() {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setSegment(profile.segment);
     setUserAccessType(profile.userAccessType || 'vendas');
+    setIsAdmin(profile.isAdmin === true);
+    setOfferRange(profile.priceRange || '');
     if (profile.segment) {
       loadNews(profile.segment, 'tudo', 'brasil');
+
+      // Pré-carrega ofertas em background ao entrar na página.
+      // Se não há cache, busca silenciosamente para que esteja pronto
+      // quando o usuário clicar em "Ofertas". Sem spinner — não interrompe a UX.
+      const seg = profile.segment;
+      if (!getCachedOffers(seg) || isOffersCacheStale(seg)) {
+        searchSegmentOffers(seg, API_KEY)
+          .then(result => {
+            if (result.length > 0) setCachedOffers(seg, result);
+          })
+          .catch(() => { /* silencioso — tenta de novo quando usuário clicar */ });
+      }
     } else {
       setLoading(false);
     }
@@ -190,6 +307,17 @@ export default function News() {
     }
   };
 
+  const handleOfferRange = (range: PriceRange) => {
+    const next = offerRange === range ? '' : range;
+    setOfferRange(next);
+    const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+    saveData(KEYS.PROFILE, { ...profile, priceRange: next });
+  };
+
+  const filteredOffers = offerRange
+    ? offers.filter(o => offerMatchesRange(o.competitor || '', offerRange))
+    : offers;
+
   const segmentLabel = SEGMENTS.find(s => s.value === segment)?.label || '';
   const currentCategory = CATEGORIES.find(c => c.value === category);
   const q = search.trim().toLowerCase();
@@ -215,10 +343,21 @@ export default function News() {
           <h3 className="section-title"><Newspaper size={16} /> Notícias</h3>
           <span className="news-segment">{segmentLabel}</span>
         </div>
-        <button className="btn btn-outline btn-sm" onClick={handleForceRefresh} disabled={loading || refreshing || offersLoading}>
-          <RefreshCw size={14} className={loading || refreshing || offersLoading ? 'spinning' : ''} />
-          {refreshing || offersLoading ? ' Buscando...' : ''}
-        </button>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {isAdmin && (
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={() => navigate('/noticias-admin')}
+              title="Admin de notícias"
+            >
+              <Database size={14} /> Admin
+            </button>
+          )}
+          <button className="btn btn-outline btn-sm" onClick={handleForceRefresh} disabled={loading || refreshing || offersLoading}>
+            <RefreshCw size={14} className={loading || refreshing || offersLoading ? 'spinning' : ''} />
+            {refreshing || offersLoading ? ' Buscando...' : ''}
+          </button>
+        </div>
       </div>
 
       {/* Category tabs */}
@@ -278,6 +417,24 @@ export default function News() {
         <p className="news-cat-desc">{currentCategory.desc}</p>
       )}
 
+      {/* Filtro por faixa — só na aba Ofertas */}
+      {category === 'ofertas' && !offersLoading && offers.length > 0 && (
+        <div className="news-range-bar">
+          <span className="news-range-label">Sua faixa:</span>
+          <div className="news-range-chips">
+            {PRICE_RANGES.map(r => (
+              <button
+                key={r.value}
+                className={`news-range-chip ${offerRange === r.value ? 'active' : ''}`}
+                onClick={() => handleOfferRange(r.value)}
+              >
+                {r.icon} {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── OFERTAS TAB ── */}
       {category === 'ofertas' ? (
         offersLoading ? (
@@ -311,7 +468,7 @@ export default function News() {
             {(() => {
               // Group offers by brand
               const groups: Record<string, ScrapedOffer[]> = {};
-              offers.forEach(o => {
+              filteredOffers.forEach(o => {
                 const k = o.competitor || 'Outros';
                 if (!groups[k]) groups[k] = [];
                 groups[k].push(o);
@@ -339,20 +496,15 @@ export default function News() {
                             {brandOffers.map((o, i) => {
                               const hl = o.highlights?.[0] || '';
                               const modelName = o.model || o.title;
-                              return o.sourceUrl && o.sourceUrl.startsWith('http')
-                                ? <a key={i} href={o.sourceUrl} target="_blank" rel="noopener noreferrer" className="offers-summary-model-row">
-                                    <div className="offers-summary-model-info">
-                                      <span className="offers-summary-model-name">{modelName}</span>
-                                      {hl && <span className="offers-summary-model-hl">{hl}</span>}
-                                    </div>
-                                    <ExternalLink size={11} className="offers-summary-link-icon" />
-                                  </a>
-                                : <div key={i} className="offers-summary-model-row offers-summary-model-row--nolink">
-                                    <div className="offers-summary-model-info">
-                                      <span className="offers-summary-model-name">{modelName}</span>
-                                      {hl && <span className="offers-summary-model-hl">{hl}</span>}
-                                    </div>
-                                  </div>;
+                              return (
+                                <a key={i} href={buildOfferSearchUrl(o)} target="_blank" rel="noopener noreferrer" className="offers-summary-model-row" title={`Pesquisar: ${modelName} ${o.title}`}>
+                                  <div className="offers-summary-model-info">
+                                    <span className="offers-summary-model-name">{modelName}</span>
+                                    {hl && <span className="offers-summary-model-hl">{hl}</span>}
+                                  </div>
+                                  <ExternalLink size={11} className="offers-summary-link-icon" />
+                                </a>
+                              );
                             })}
                           </div>
                         </div>
@@ -365,9 +517,9 @@ export default function News() {
 
             {/* ── Cards individuais ── */}
             <div className="offers-list">
-              {offers.map((offer, i) => {
+              {filteredOffers.map((offer, i) => {
                 const logo = getBrandLogo(offer.competitor || '');
-                const hasFooter = !!(offer.legalText || offer.sourceUrl);
+                const hasFooter = true; // sempre mostra "Buscar oferta"
                 return (
                   <div key={i} className="offer-card card">
                     <div className="offer-card-inner">
@@ -409,11 +561,9 @@ export default function News() {
                         {offer.legalText && (
                           <p className="offer-legal">{offer.legalText}</p>
                         )}
-                        {offer.sourceUrl && offer.sourceUrl.startsWith('http') && (
-                          <a href={offer.sourceUrl} target="_blank" rel="noopener noreferrer" className="offer-source-link">
-                            <ShieldCheck size={12} /> Fonte <ExternalLink size={11} />
-                          </a>
-                        )}
+                        <a href={buildOfferSearchUrl(offer)} target="_blank" rel="noopener noreferrer" className="offer-source-link" title={`Pesquisar: ${offer.competitor} ${offer.model} ${offer.title}`}>
+                          <Search size={12} /> Buscar oferta <ExternalLink size={11} />
+                        </a>
                       </div>
                     )}
                   </div>

@@ -626,3 +626,28 @@
   font-size: 13px;
   color: var(--text-soft);
 }
+
+/* ── Range filter bar (Ofertas tab) ──────────────────────── */
+.news-range-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.news-range-label {
+  font-size: 11px; font-weight: 700; color: var(--text-light);
+  text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+}
+.news-range-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.news-range-chip {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 500;
+  padding: 5px 11px; border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-alt, rgba(0,0,0,0.04));
+  color: var(--text-light);
+  cursor: pointer; white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.news-range-chip:hover { border-color: #c9a84c; color: #c9a84c; }
+.news-range-chip.active {
+  background: color-mix(in srgb, #c9a84c 12%, transparent);
+  border-color: #c9a84c; color: #c9a84c; font-weight: 700;
+}

@@ -227,19 +227,44 @@ Se não encontrar nenhuma oferta confirmada, retorne [].`;
   }
 }
 
-const OFFERS_CACHE_KEY = 'gss_offers_cache';
-const OFFERS_CACHE_TTL = 2 * 60 * 60 * 1000; // 2h
+const OFFERS_CACHE_KEY = 'gss_offers_cache_v7'; // v7 — filtra index.html (homepage disfarçada)
+const OFFERS_CACHE_TTL   = 24 * 60 * 60 * 1000; // 24h — campanhas são mensais
+const OFFERS_CACHE_STALE =  1 * 60 * 60 * 1000; // 1h  — após 1h, atualiza em background
 
 interface OffersCacheEntry { ts: number; offers: ScrapedOffer[] }
 
-export function getCachedOffers(segment: string): ScrapedOffer[] | null {
+function _readEntry(segment: string): OffersCacheEntry | null {
   try {
     const raw = localStorage.getItem(`${OFFERS_CACHE_KEY}_${segment}`);
     if (!raw) return null;
-    const entry = JSON.parse(raw) as OffersCacheEntry;
-    if (Date.now() - entry.ts > OFFERS_CACHE_TTL) return null;
-    return entry.offers;
+    return JSON.parse(raw) as OffersCacheEntry;
   } catch { return null; }
+}
+
+/** Retorna ofertas cacheadas se ainda dentro do TTL (24h). Null se expirado. */
+export function getCachedOffers(segment: string): ScrapedOffer[] | null {
+  const entry = _readEntry(segment);
+  if (!entry) return null;
+  if (Date.now() - entry.ts > OFFERS_CACHE_TTL) return null;
+  return entry.offers;
+}
+
+/**
+ * Retorna ofertas cacheadas mesmo que stale (para stale-while-revalidate).
+ * Retorna null apenas se não houver cache nenhum.
+ */
+export function getStaleCachedOffers(segment: string): ScrapedOffer[] | null {
+  const entry = _readEntry(segment);
+  return entry ? entry.offers : null;
+}
+
+/**
+ * True se o cache existir mas tiver mais de 1h — indica que deve ser revalidado em background.
+ */
+export function isOffersCacheStale(segment: string): boolean {
+  const entry = _readEntry(segment);
+  if (!entry) return false;
+  return Date.now() - entry.ts > OFFERS_CACHE_STALE;
 }
 
 export function setCachedOffers(segment: string, offers: ScrapedOffer[]): void {
@@ -257,32 +282,119 @@ export function clearOffersCache(segment: string): void {
  */
 // Stable official offers pages — verified 200 OK (May 2026)
 const BRAND_OFFER_URLS: Record<string, string> = {
-  'fiat':             'https://ofertas.fiat.com.br/',
-  'volkswagen':       'https://ofertas.vw.com.br/',
-  'vw':               'https://ofertas.vw.com.br/',
-  'chevrolet':        'https://www.chevrolet.com.br/veiculos/ofertas',
-  'toyota':           'https://www.toyota.com.br/ofertas',
-  'renault':          'https://www.renault.com.br/ofertas.html',
-  'honda':            'https://www.honda.com.br/automoveis/ofertas',
-  'hyundai':          'https://www.hyundai.com.br/ofertas',
-  'jeep':             'https://www.jeep.com.br/ofertas.html',
-  'nissan':           'https://www.nissan.com.br/ofertas',
-  'kia':              'https://www.kia.com/br/campaign/offers/',
-  'byd':              'https://www.byd.com.br/ofertas',
-  'gwm':              'https://www.gwmmotors.com.br/pt/saiba-mais/condicoes-comerciais',
-  'caoa chery':       'https://www.caoachery.com.br/ofertas',
-  'chery':            'https://www.caoachery.com.br/ofertas',
-  'mg motor':         'https://mgmotoroficial.com.br/',
-  'mg':               'https://mgmotoroficial.com.br/',
-  'changan':          'https://caoachangan.com.br/',
-  'caoa changan':     'https://caoachangan.com.br/',
-  'gac motor':        'https://www.gacgroup.com/pt-br',
-  'gac':              'https://www.gacgroup.com/pt-br',
-  'jaecoo':           'https://www.omodajaecoo.com.br/ofertas',
-  'omoda':            'https://www.omodajaecoo.com.br/ofertas',
+  // ── Automotivo massa ────────────────────────────────────────
+  'fiat':                   'https://ofertas.fiat.com.br/',
+  'volkswagen':             'https://ofertas.vw.com.br/',
+  'vw':                     'https://ofertas.vw.com.br/',
+  'chevrolet':              'https://www.chevrolet.com.br/veiculos/ofertas',
+  'toyota':                 'https://www.toyota.com.br/ofertas',
+  'renault':                'https://www.renault.com.br/ofertas.html',
+  'honda':                  'https://www.honda.com.br/automoveis/ofertas',
+  'hyundai':                'https://www.hyundai.com.br/ofertas',
+  'jeep':                   'https://www.jeep.com.br/ofertas.html',
+  'nissan':                 'https://www.nissan.com.br/ofertas',
+  'kia':                    'https://www.kia.com/br/campaign/offers/',
+  'mitsubishi':             'https://www.mitsubishimotors.com.br/',
+  'peugeot':                'https://www.peugeot.com.br/',
+  'citroen':                'https://www.citroen.com.br/',
+  // ── Automotivo chinês ───────────────────────────────────────
+  'byd':                    'https://www.byd.com.br/ofertas',
+  'gwm':                    'https://www.gwmmotors.com.br/pt/saiba-mais/condicoes-comerciais',
+  'caoa chery':             'https://www.caoachery.com.br/ofertas',
+  'chery':                  'https://www.caoachery.com.br/ofertas',
+  'mg motor':               'https://mgmotoroficial.com.br/',
+  'mg':                     'https://mgmotoroficial.com.br/',
+  'changan':                'https://caoachangan.com.br/',
+  'caoa changan':           'https://caoachangan.com.br/',
+  'gac motor':              'https://www.gacgroup.com/pt-br',
+  'gac':                    'https://www.gacgroup.com/pt-br',
+  'jaecoo':                 'https://www.omodajaecoo.com.br/ofertas',
+  'omoda':                  'https://www.omodajaecoo.com.br/ofertas',
+  // ── Automotivo luxo ─────────────────────────────────────────
+  'porsche':                'https://www.porsche.com/brazil/',
+  'bmw':                    'https://www.bmw.com.br/',
+  'mercedes-benz':          'https://www.mercedes-benz.com.br/',
+  'mercedes':               'https://www.mercedes-benz.com.br/',
+  'audi':                   'https://www.audi.com.br/',
+  'land rover':             'https://www.landrover.com.br/',      // /ofertas retorna 404
+  'volvo':                  'https://www.volvocars.com/br/',
+  'lexus':                  'https://www.lexus.com.br/',
+  'jaguar':                 'https://www.jaguar.com.br/',
+  'maserati':               'https://www.maserati.com/br/',
+  'ferrari':                'https://www.ferrari.com/pt-BR',
+  'lamborghini':            'https://www.lamborghini.com/pt-BR',
+  // ── Farmacêutico ────────────────────────────────────────────
+  'raia drogasil':          'https://www.raiadrogasil.com.br/',
+  'raia':                   'https://www.raiadrogasil.com.br/',
+  'drogasil':               'https://www.raiadrogasil.com.br/',
+  'ultrafarma':             'https://www.ultrafarma.com.br/',
+  'nissei':                 'https://www.nissei.com.br/',
+  'farmácia pacheco':       'https://www.farmaciaspachecoefilhos.com.br/',
+  'pacheco':                'https://www.farmaciaspachecoefilhos.com.br/',
+  'iherb':                  'https://br.iherb.com/',
+  // ── Varejo ──────────────────────────────────────────────────
+  'magazine luiza':         'https://www.magazineluiza.com.br/ofertas/',
+  'magalu':                 'https://www.magazineluiza.com.br/ofertas/',
+  'casas bahia':            'https://www.casasbahia.com.br/',
+  'americanas':             'https://www.americanas.com.br/',
+  'shopee':                 'https://shopee.com.br/',
+  'amazon':                 'https://www.amazon.com.br/deals',
+  // ── Imobiliário ─────────────────────────────────────────────
+  'mrv':                    'https://www.mrv.com.br/',
+  'cyrela':                 'https://www.cyrela.com.br/',
+  'tenda':                  'https://www.construtora-tenda.com.br/',
+  'direcional':             'https://www.direcional.com.br/',
+  'eztec':                  'https://www.eztec.com.br/',
+  // ── Tecnologia / SaaS ───────────────────────────────────────
+  'totvs':                  'https://www.totvs.com/',
+  'rd station':             'https://www.rdstation.com/',
+  'hubspot':                'https://www.hubspot.com/pt/',
+  'salesforce':             'https://www.salesforce.com/br/',
+  'pipedrive':              'https://www.pipedrive.com/pt-BR',
+  // ── Saúde ───────────────────────────────────────────────────
+  'hapvida':                'https://www.hapvida.com.br/',
+  'notredame':              'https://www.gndi.com.br/',
+  'unimed':                 'https://www.unimed.coop.br/',
+  'odontoprev':             'https://www.odontoprev.com.br/',
+  // ── Educação ────────────────────────────────────────────────
+  'anhanguera':             'https://www.anhanguera.com/',
+  'estácio':                'https://estacio.br/',
+  'estacio':                'https://estacio.br/',
+  'unopar':                 'https://www.unopar.com.br/',
+  'unip':                   'https://www.unip.br/',
+  // ── Financeiro ──────────────────────────────────────────────
+  'nubank':                 'https://nubank.com.br/',
+  'itaú':                   'https://www.itau.com.br/',
+  'itau':                   'https://www.itau.com.br/',
+  'bradesco':               'https://www.bradesco.com.br/',
+  'xp investimentos':       'https://www.xpi.com.br/',
+  'xp':                     'https://www.xpi.com.br/',
+  'btg pactual':            'https://www.btgpactual.com/',
+  // ── Bebidas ─────────────────────────────────────────────────
+  'ambev':                  'https://www.ambev.com.br/',
+  'heineken':               'https://www.heineken.com/br/',
+  'petrópolis':             'https://www.grupopetropolis.com.br/',
+  'backer':                 'https://www.backer.com.br/',
+  'miolo':                  'https://www.miolo.com.br/',
+  'chandon':                'https://www.chandon.com.br/',
+  'concha y toro':          'https://www.conchaytoro.com/',
+  'salton':                 'https://www.salton.com.br/',
+  // ── Agro ────────────────────────────────────────────────────
+  'syngenta':               'https://www.syngenta.com.br/',
+  'basf':                   'https://agriculture.basf.com/br/pt/',
+  'bayer':                  'https://www.agro.bayer.com.br/',
+  'corteva':                'https://www.corteva.com.br/',
+  'fmc':                    'https://www.fmc.com/br/',
+  // ── Energia solar ───────────────────────────────────────────
+  'solfácil':               'https://solfacil.com.br/',
+  'solfacil':               'https://solfacil.com.br/',
+  'canadian solar':         'https://www.canadiansolar.com/br/',
+  'intelbras':              'https://www.intelbras.com.br/',
+  'trina solar':            'https://www.trinasolar.com/',
 };
 
-function getStableOfferUrl(competitor: string): string | undefined {
+/** @deprecated Não mais usado — URLs específicas agora vêm direto da IA */
+export function getStableOfferUrl(competitor: string): string | undefined {
   const key = (competitor || '').toLowerCase().trim();
   return BRAND_OFFER_URLS[key] || BRAND_OFFER_URLS[key.split(' ')[0]];
 }
@@ -307,7 +419,7 @@ Para cada modelo com condição especial ativa, crie um objeto JSON com:
 - "legalText": ""
 - "validFrom": "${today}"
 - "validTo": "${endOfMonth}"
-- "sourceUrl": site oficial da marca
+- "sourceUrl": URL EXATA da página onde você encontrou esta oferta (ex: bmw.com.br/pt/topics/ofertas-especiais.html) — NÃO use a homepage, use a página específica da condição
 
 Até 3 modelos por marca. Retorne APENAS JSON array válido sem markdown.`;
 }
@@ -329,14 +441,68 @@ async function runGroundedSearch(prompt: string, genAI: GoogleGenerativeAI): Pro
       const result = await model.generateContent(prompt);
       clearTimeout(timer);
       const raw = result.response.text().trim();
+
+      // Extrai URLs reais das fontes do grounding (groundingChunks do Google Search)
+      // Tenta múltiplos paths pois a estrutura do SDK pode variar entre versões
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const r = result as any;
+      const groundingChunks: { web?: { uri?: string; title?: string } }[] =
+        r.response?.candidates?.[0]?.groundingMetadata?.groundingChunks
+        ?? r.candidates?.[0]?.groundingMetadata?.groundingChunks
+        ?? r.response?.groundingMetadata?.groundingChunks
+        ?? [];
+
+      // Mapa: domínio → URLs reais (ex: bmw.com.br → ['https://bmw.com.br/pt/topics/...'])
+      const domainUrlMap: Record<string, string[]> = {};
+      for (const chunk of groundingChunks) {
+        const uri = chunk.web?.uri;
+        if (!uri || uri.includes('vertexaisearch') || uri.includes('googleapis')) continue;
+        try {
+          const host = new URL(uri).hostname.replace('www.', '');
+          if (!domainUrlMap[host]) domainUrlMap[host] = [];
+          if (!domainUrlMap[host].includes(uri)) domainUrlMap[host].push(uri);
+        } catch { /* ignora URL malformada */ }
+      }
+
       const jsonMatch = raw.match(/\[[\s\S]*\]/);
       const jsonStr = jsonMatch ? jsonMatch[0] : raw;
       const parsed = JSON.parse(jsonStr) as ScrapedOffer[];
       if (!Array.isArray(parsed)) continue;
       return parsed.map(o => {
-        // Always use stable brand offer page instead of volatile campaign URLs
-        const stableUrl = getStableOfferUrl(o.competitor || '');
-        const withUrl = stableUrl ? { ...o, sourceUrl: stableUrl } : o;
+        // Tenta encontrar URL real do grounding para o domínio da marca
+        const competitorKey = (o.competitor || '').toLowerCase().trim();
+        const brandDomain = BRAND_OFFER_URLS[competitorKey]
+          ? new URL(BRAND_OFFER_URLS[competitorKey]).hostname.replace('www.', '')
+          : null;
+
+        let groundingUrl: string | undefined;
+        if (brandDomain && domainUrlMap[brandDomain]?.length > 0) {
+          // Prefere URL com path mais profundo (mais específica)
+          groundingUrl = domainUrlMap[brandDomain]
+            .sort((a, b) => b.split('/').length - a.split('/').length)[0];
+        }
+
+        // 1. URL do grounding (melhor — veio do Google Search diretamente)
+        // 2. URL da IA no JSON — se não for token interno e tiver path específico (≥2 segmentos)
+        // 3. undefined — fallback site: entra no momento de exibir
+        const aiUrl = o.sourceUrl;
+        const aiUrlIsUsable = aiUrl && !aiUrl.includes('vertexaisearch') && !aiUrl.includes('googleapis') && (() => {
+          try {
+            const u = new URL(aiUrl);
+            const path = u.pathname.replace(/\/$/, '');
+            const segments = path.split('/').filter(Boolean);
+            // Filtra homepages: path curto ou terminando em index.html/index.htm
+            const isHomepage = segments.length < 2 || path.endsWith('index.html') || path.endsWith('index.htm');
+            return !isHomepage;
+          }
+          catch { return false; }
+        })();
+
+        const withUrl = groundingUrl
+          ? { ...o, sourceUrl: groundingUrl }
+          : aiUrlIsUsable
+            ? o // mantém URL da IA se for específica e não for token interno
+            : { ...o, sourceUrl: undefined }; // descarta — fallback site:
         if (withUrl.model && withUrl.model.trim()) return withUrl;
         const fromTitle = withUrl.title?.match(/^([A-Z][^—\-–:]+?)\s*(?:—|-|–|:| com | para )/i);
         if (fromTitle && fromTitle[1].length < 35 && !PROMO_WORDS.test(fromTitle[1]))
@@ -366,6 +532,47 @@ async function runGroundedSearch(prompt: string, genAI: GoogleGenerativeAI): Pro
     }
   }
   throw new Error(`Falha na busca: ${lastError}`);
+}
+
+/**
+ * Valida as sourceUrls das ofertas via API server-side (/api/check-url).
+ * Substitui URLs quebradas (404) por undefined — o fallback site: entra automaticamente.
+ * Timeouts e bloqueios anti-bot (403) são tratados como URLs válidas.
+ */
+async function validateOfferUrls(offers: ScrapedOffer[]): Promise<ScrapedOffer[]> {
+  const urlsToCheck = [...new Set(
+    offers.map(o => o.sourceUrl).filter((u): u is string => !!u && u.startsWith('http'))
+  )];
+
+  if (urlsToCheck.length === 0) return offers;
+
+  // Testa todas as URLs em paralelo
+  const results = await Promise.allSettled(
+    urlsToCheck.map(async url => {
+      try {
+        const res = await fetch(`/api/check-url?url=${encodeURIComponent(url)}`);
+        const data = await res.json() as { ok: boolean; status: number };
+        return { url, ok: data.ok, status: data.status };
+      } catch {
+        return { url, ok: true, status: 0 }; // rede falhou → assume ok
+      }
+    })
+  );
+
+  // Mapa de URL → válida?
+  const validity: Record<string, boolean> = {};
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      // 404/410 são quebradas; timeout (408) e bot blocks (403) são válidas
+      validity[r.value.url] = r.value.ok || r.value.status === 403 || r.value.status === 408 || r.value.status === 0;
+    }
+  }
+
+  return offers.map(o => {
+    if (!o.sourceUrl) return o;
+    const isValid = validity[o.sourceUrl] ?? true; // desconhecido → assume válida
+    return isValid ? o : { ...o, sourceUrl: undefined }; // 404 → remove URL, fallback entra
+  });
 }
 
 export async function searchSegmentOffers(
@@ -399,10 +606,11 @@ export async function searchSegmentOffers(
 
     const all = [...tradOffers, ...chineseOffers];
     if (all.length === 0) throw new Error('Nenhuma oferta encontrada. Tente novamente.');
-    return all;
+    return validateOfferUrls(all);
   }
 
   // Non-auto segments: single search
   const top = competitors.slice(0, 6).join(', ');
-  return runGroundedSearch(buildOffersPrompt(top, today, endOfMonth, monthYear), genAI);
+  const raw = await runGroundedSearch(buildOffersPrompt(top, today, endOfMonth, monthYear), genAI);
+  return validateOfferUrls(raw);
 }
