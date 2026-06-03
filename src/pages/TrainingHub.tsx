@@ -18,6 +18,7 @@ const MARKETING_ITEMS = [
     label: 'Revisar Copy',
     desc: 'Cole um anúncio, legenda ou e-mail e a IA avalia tom, clareza e alinhamento com a marca',
     color: '#10b981',
+    path: '/revisar-copy',
     prefill: 'Vou compartilhar um texto de marketing para você analisar. Avalie:\n1. Alinhamento com identidade de marca\n2. Clareza e objetividade\n3. CTA (chamada para ação)\n4. Tom e linguagem\n\nAguardo o texto:',
   },
   {
@@ -25,6 +26,7 @@ const MARKETING_ITEMS = [
     label: 'Pré-lançamento',
     desc: 'Antes de publicar uma campanha, a IA faz as perguntas certas para você não esquecer nada',
     color: '#c9a84c',
+    path: '/pre-lancamento',
     prefill: 'Vou lançar uma campanha ou ação de marketing. Me faça as perguntas certas para eu estruturar tudo antes de publicar: público-alvo, objetivo, canais, CTA, prazo, verba e possíveis riscos.',
   },
   {
@@ -32,6 +34,7 @@ const MARKETING_ITEMS = [
     label: 'Pós-campanha',
     desc: 'Registre o que funcionou e o que não funcionou — a IA extrai aprendizados e melhorias',
     color: '#8b5cf6',
+    path: '/pos-campanha',
     prefill: 'Acabei de encerrar uma campanha ou ação de marketing. Vou descrever o que aconteceu e preciso que você me ajude a extrair aprendizados e sugestões de melhoria para a próxima vez.',
   },
 ];
@@ -143,7 +146,7 @@ export default function TrainingHub() {
               <button
                 key={item.label}
                 className="content-item card"
-                onClick={() => navigate('/ia-coach', { state: { prefill: item.prefill, aiMode: 'marketing' } })}
+                onClick={() => item.path ? navigate(item.path) : navigate('/ia-coach', { state: { prefill: item.prefill, aiMode: 'marketing' } })}
               >
                 <div className="content-icon" style={{ background: `${item.color}15`, color: item.color }}>
                   <item.icon size={22} />
