@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // PDFs de condições comerciais
+    // - Leitura pública (qualquer um pode abrir o link)
+    // - Escrita só para usuários autenticados (admin já é validado no Firestore)
+    match /pdfs/conditions/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.resource.size < 20 * 1024 * 1024
+        && request.resource.contentType == 'application/pdf';
+      allow delete: if request.auth != null;
+    }
+
+    // Bloqueia tudo mais por padrão
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

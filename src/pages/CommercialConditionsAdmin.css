@@ -408,3 +408,56 @@
   border-radius: 4px;
   font-size: 11px;
 }
+
+/* Upload direto para Firebase Storage */
+.cca-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.cca-upload-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.cca-upload-btn:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+@keyframes cca-spin {
+  to { transform: rotate(360deg); }
+}
+.cca-spin {
+  animation: cca-spin 0.8s linear infinite;
+}
+
+.cca-hint-ok {
+  color: var(--success);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.cca-url-details summary {
+  font-size: 13px;
+  color: var(--text-light);
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 2px;
+}
+.cca-url-details summary:hover {
+  color: var(--text);
+}

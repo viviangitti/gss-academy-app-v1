@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   FileText, Plus, Trash2, Save, Edit3, ToggleLeft, ToggleRight,
-  X, Link, Check, ChevronDown, ChevronUp,
+  X, Link, Check, ChevronDown, ChevronUp, Upload, Loader2,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -9,6 +9,7 @@ import {
   updateCommercialCondition, deleteCommercialCondition,
 } from '../services/firestore/commercialConditions';
 import type { CommercialCondition } from '../services/firestore/commercialConditions';
+import { uploadConditionPdf } from '../services/uploadPdf';
 import { SEGMENTS } from '../types';
 import './CommercialConditionsAdmin.css';
 
@@ -44,6 +45,8 @@ export default function CommercialConditionsAdmin() {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [uploadPct, setUploadPct] = useState<number | null>(null); // null = idle
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -75,6 +78,30 @@ export default function CommercialConditionsAdmin() {
     setEditingId(c.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUploadPdf = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      setError('Selecione um arquivo PDF.');
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setError('Arquivo muito grande. Limite: 20 MB.');
+      return;
+    }
+    setError('');
+    setUploadPct(0);
+    try {
+      const url = await uploadConditionPdf(file, pct => setUploadPct(pct));
+      setForm(f => ({ ...f, pdfUrl: url }));
+      setUploadPct(null);
+    } catch (err) {
+      setError('Erro no upload: ' + (err instanceof Error ? err.message : 'tente novamente'));
+      setUploadPct(null);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSave = async () => {
@@ -137,8 +164,8 @@ export default function CommercialConditionsAdmin() {
       <div className="cca-hero card">
         <FileText size={22} />
         <div>
-          <h2>Condições Comerciais</h2>
-          <p>Gerencie tabelas, campanhas e condições do mês</p>
+          <h2>Campanhas e Condições</h2>
+          <p>Publique ofertas, tabelas, promoções e PDFs para os vendedores</p>
         </div>
       </div>
 
@@ -207,30 +234,62 @@ export default function CommercialConditionsAdmin() {
             </div>
 
             <div className="cca-field">
-              <label>Link do PDF (Google Drive)</label>
-              <div className="cca-url-row">
-                <Link size={14} className="cca-url-icon" />
-                <input
-                  type="url"
-                  placeholder="https://drive.google.com/file/d/.../view"
-                  value={form.pdfUrl}
-                  onChange={e => setForm(f => ({ ...f, pdfUrl: e.target.value }))}
-                />
-                {form.pdfUrl && form.pdfUrl.startsWith('http') && (
-                  <a
-                    href={form.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cca-test-link"
-                    title="Testar link"
-                  >
-                    Testar
-                  </a>
-                )}
-              </div>
-              {form.pdfUrl && !form.pdfUrl.includes('drive.google.com') && form.pdfUrl.startsWith('http') && (
+              <label>PDF</label>
+
+              {/* Upload direto — recomendado */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                style={{ display: 'none' }}
+                onChange={handleUploadPdf}
+              />
+              <button
+                type="button"
+                className="cca-upload-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadPct !== null}
+              >
+                {uploadPct !== null
+                  ? <><Loader2 size={15} className="cca-spin" /> Enviando {uploadPct}%...</>
+                  : <><Upload size={15} /> Fazer upload do PDF</>
+                }
+              </button>
+
+              {form.pdfUrl && form.pdfUrl.includes('firebasestorage.googleapis.com') && (
+                <span className="cca-hint cca-hint-ok">
+                  <Check size={12} /> PDF salvo no Storage — link permanente ✓
+                </span>
+              )}
+
+              {/* Cole URL externa como alternativa */}
+              <details className="cca-url-details">
+                <summary>Ou colar URL externa (Google Drive, etc.)</summary>
+                <div className="cca-url-row" style={{ marginTop: 8 }}>
+                  <Link size={14} className="cca-url-icon" />
+                  <input
+                    type="url"
+                    placeholder="https://drive.google.com/file/d/.../view"
+                    value={form.pdfUrl}
+                    onChange={e => setForm(f => ({ ...f, pdfUrl: e.target.value }))}
+                  />
+                  {form.pdfUrl && form.pdfUrl.startsWith('http') && (
+                    <a
+                      href={form.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="cca-test-link"
+                      title="Testar link"
+                    >
+                      Testar
+                    </a>
+                  )}
+                </div>
+              </details>
+
+              {form.pdfUrl && !form.pdfUrl.includes('drive.google.com') && !form.pdfUrl.includes('firebasestorage') && form.pdfUrl.startsWith('http') && (
                 <span className="cca-hint cca-hint-warn">
-                  ⚠️ URL não parece ser do Google Drive. Certifique-se que o arquivo é público.
+                  ⚠️ URL externa pode quebrar. Prefira fazer upload direto.
                 </span>
               )}
               {form.pdfUrl && form.pdfUrl.includes('drive.google.com') && !form.pdfUrl.includes('/view') && !form.pdfUrl.includes('uc?') && (

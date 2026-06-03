@@ -5,6 +5,7 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,6 +21,7 @@ export const firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.p
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
+let storage: FirebaseStorage | null = null;
 
 if (firebaseEnabled) {
   app = initializeApp(firebaseConfig);
@@ -31,6 +33,9 @@ if (firebaseEnabled) {
   } catch {
     db = getFirestore(app);
   }
+  if (firebaseConfig.storageBucket) {
+    storage = getStorage(app);
+  }
 }
 
-export { app, auth, db };
+export { app, auth, db, storage };
