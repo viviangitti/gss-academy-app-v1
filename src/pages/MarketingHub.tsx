@@ -11,9 +11,31 @@ export default function MarketingHub() {
         <Megaphone size={22} />
         <div>
           <h2>Painel Marketing</h2>
-          <p>Gerencie ofertas e inteligência competitiva</p>
+          <p>Gerencie campanhas, condições e inteligência competitiva</p>
         </div>
       </div>
+
+      <button className="mh-card card" onClick={() => navigate('/condicoes-admin')}>
+        <div className="mh-icon" style={{ background: 'rgba(201,168,76,0.12)', color: 'var(--accent)' }}>
+          <FileText size={22} />
+        </div>
+        <div className="mh-info">
+          <h3>Campanhas e Condições</h3>
+          <p>Cadastre ofertas, promoções, tabelas e PDFs do mês para os vendedores</p>
+        </div>
+        <ChevronRight size={18} className="mh-arrow" />
+      </button>
+
+      <button className="mh-card card" onClick={() => navigate('/concorrencia-admin')}>
+        <div className="mh-icon" style={{ background: 'rgba(185,28,28,0.1)', color: '#b91c1c' }}>
+          <Swords size={22} />
+        </div>
+        <div className="mh-info">
+          <h3>Concorrência</h3>
+          <p>Importe e analise ofertas da concorrência com IA</p>
+        </div>
+        <ChevronRight size={18} className="mh-arrow" />
+      </button>
 
       <button className="mh-card card" onClick={() => navigate('/guia-marca')}>
         <div className="mh-icon" style={{ background: 'rgba(201,168,76,0.15)', color: 'var(--accent)' }}>
@@ -44,39 +66,6 @@ export default function MarketingHub() {
         <div className="mh-info">
           <h3>Copiloto de Marketing</h3>
           <p>Conferir peças, sugerir ações e diagnosticar o mix da concessionária</p>
-        </div>
-        <ChevronRight size={18} className="mh-arrow" />
-      </button>
-
-      <button className="mh-card card" onClick={() => navigate('/ofertas-admin')}>
-        <div className="mh-icon" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed' }}>
-          <Megaphone size={22} />
-        </div>
-        <div className="mh-info">
-          <h3>Ofertas do Mês</h3>
-          <p>Cadastre campanhas e promoções para os vendedores</p>
-        </div>
-        <ChevronRight size={18} className="mh-arrow" />
-      </button>
-
-      <button className="mh-card card" onClick={() => navigate('/concorrencia-admin')}>
-        <div className="mh-icon" style={{ background: 'rgba(185,28,28,0.1)', color: '#b91c1c' }}>
-          <Swords size={22} />
-        </div>
-        <div className="mh-info">
-          <h3>Concorrência</h3>
-          <p>Importe e analise ofertas da concorrência com IA</p>
-        </div>
-        <ChevronRight size={18} className="mh-arrow" />
-      </button>
-
-      <button className="mh-card card" onClick={() => navigate('/condicoes-admin')}>
-        <div className="mh-icon" style={{ background: 'rgba(201,168,76,0.12)', color: 'var(--accent)' }}>
-          <FileText size={22} />
-        </div>
-        <div className="mh-info">
-          <h3>Condições Comerciais</h3>
-          <p>Publique tabelas, campanhas e PDFs do mês para a equipe</p>
         </div>
         <ChevronRight size={18} className="mh-arrow" />
       </button>

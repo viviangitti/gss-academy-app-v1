@@ -15,6 +15,25 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    // Função auxiliar: é admin da plataforma? (campo isAdmin no perfil do usuário)
+    function isPlatformAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Função auxiliar: pode gerenciar campanhas e condições comerciais?
+    // Admin, marketing ou vendas podem criar/editar campanhas, ofertas e condições.
+    function isCampaignManager() {
+      let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return isSignedIn() && (
+        profile.isAdmin == true ||
+        profile.isMarketing == true ||
+        profile.userAccessType == 'marketing' ||
+        profile.userAccessType == 'vendas' ||
+        profile.userAccessType == 'ambos'
+      );
+    }
+
     // Função auxiliar: é admin de um time específico?
     function isTeamAdmin(teamId) {
       return isSignedIn() &&
@@ -69,16 +88,28 @@ service cloud.firestore {
       allow delete: if isSignedIn() && resource.data.adminId == request.auth.uid;
     }
 
-    // /competitorOffers — ofertas da concorrência (marketing/admin)
+    // /competitorOffers — inteligência competitiva (dados públicos, escrita mkt ou admin)
     match /competitorOffers/{docId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow read: if true;
+      allow write: if isCampaignManager();
     }
 
-    // /segmentNews — notícias e lançamentos por segmento (curadas por IA)
+    // /segmentNews — notícias por segmento (dados públicos, escrita só admin)
     match /segmentNews/{docId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow read: if true;
+      allow write: if isPlatformAdmin();
+    }
+
+    // /offers — campanhas e promoções (leitura pública, escrita mkt ou admin)
+    match /offers/{docId} {
+      allow read: if true;
+      allow write: if isCampaignManager();
+    }
+
+    // /commercialConditions — condições comerciais (leitura pública, escrita mkt ou admin)
+    match /commercialConditions/{docId} {
+      allow read: if true;
+      allow write: if isCampaignManager();
     }
   }
 }
