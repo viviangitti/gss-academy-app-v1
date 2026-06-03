@@ -68,9 +68,51 @@ export interface UserProfile {
   isControladoria?: boolean;
   isMarketing?: boolean;
   userAccessType?: 'vendas' | 'marketing' | 'ambos';
+  priceRange?: PriceRange;
   uid?: string;
   createdAt?: number;
 }
+
+export type PriceRange = 'ate-80k' | '80k-200k' | '200k-500k' | 'acima-500k' | '';
+
+export interface PriceRangeConfig {
+  value: PriceRange;
+  label: string;
+  description: string;
+  icon: string;
+  brands: string[];  // typical brands in this range (for display only)
+}
+
+export const PRICE_RANGES: PriceRangeConfig[] = [
+  {
+    value: 'ate-80k',
+    label: 'Até R$ 80 mil',
+    description: 'Entrada e popular premium',
+    icon: '💰',
+    brands: ['Jeep', 'VW', 'Toyota', 'Honda', 'Hyundai'],
+  },
+  {
+    value: '80k-200k',
+    label: 'R$ 80k – R$ 200k',
+    description: 'Premium e SUVs de luxo',
+    icon: '💎',
+    brands: ['BMW', 'Mercedes', 'Volvo', 'Audi', 'Jeep'],
+  },
+  {
+    value: '200k-500k',
+    label: 'R$ 200k – R$ 500k',
+    description: 'Ultra premium e importados',
+    icon: '👑',
+    brands: ['BMW', 'Mercedes', 'Porsche', 'Jaguar', 'Lexus'],
+  },
+  {
+    value: 'acima-500k',
+    label: 'Acima de R$ 500k',
+    description: 'Supercarros e edições especiais',
+    icon: '🚀',
+    brands: ['Ferrari', 'Lamborghini', 'Bentley', 'Rolls-Royce'],
+  },
+];
 
 /** Sugestões de metas adicionais por segmento */
 export const SEGMENT_GOAL_PRESETS: Partial<Record<Segment, { label: string; icon: string }[]>> = {
@@ -170,6 +212,7 @@ export interface CompetitorOffer {
   validFrom: string;
   validTo: string;
   segments: Segment[];
+  priceRanges?: PriceRange[];
   active: boolean;
   createdAt?: number;
   createdBy?: string;

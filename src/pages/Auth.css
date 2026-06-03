@@ -250,3 +250,16 @@
   color: var(--accent-light);
   text-decoration: underline;
 }
+
+.auth-session-expired-banner {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}

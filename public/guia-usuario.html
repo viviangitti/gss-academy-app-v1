@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia Rápido — MAESTR.IA em Vendas</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #0f1623;
+    --navy2: #1a2540;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --white: #ffffff;
+    --gray: #6b7a99;
+    --light: #f6f8ff;
+    --border: #e8ecf5;
+    --green: #1a7a4a;
+    --greenl: #e6f5ed;
+  }
+
+  @media print {
+    .page { page-break-after: always; }
+    .no-print { display: none; }
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--light);
+    color: #1a2035;
+    line-height: 1.6;
+  }
+
+  /* PRINT BUTTON */
+  .print-bar {
+    background: var(--navy);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .print-bar button {
+    background: var(--gold);
+    border: none;
+    color: var(--navy);
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* PAGE */
+  .page {
+    max-width: 820px;
+    margin: 24px auto;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy), #1e2d55);
+    padding: 44px 48px 36px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::after {
+    content: 'MAESTR.IA';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    font-size: 120px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.03);
+    letter-spacing: -4px;
+    pointer-events: none;
+  }
+  .page-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .page-title {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .page-title span { color: var(--gold); }
+  .page-desc {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    max-width: 520px;
+  }
+
+  /* CONTENT */
+  .page-body {
+    padding: 40px 48px;
+  }
+
+  /* SECTION */
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* STEP ITEM */
+  .step-item {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step-badge {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--gold), #a07820);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--navy);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2035;
+    margin-bottom: 4px;
+  }
+  .step-text {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.55;
+  }
+  .step-text strong { color: #1a2035; }
+  .step-url {
+    display: inline-block;
+    margin-top: 6px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #8a6010;
+    letter-spacing: 0.2px;
+  }
+
+  /* PLATFORM BLOCK */
+  .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .platform-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .platform-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .platform-steps { list-style: none; }
+  .platform-steps li {
+    font-size: 14px;
+    color: var(--gray);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .platform-steps li:last-child { border-bottom: none; }
+  .platform-steps li::before {
+    content: attr(data-n);
+    width: 20px;
+    height: 20px;
+    background: var(--navy);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* RESULT BOX */
+  .result-box {
+    background: var(--greenl);
+    border: 1px solid #a3d4b8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: var(--green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  /* FEATURE GRID */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .feature-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .feature-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .feature-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .feature-desc { font-size: 13px; color: var(--gray); line-height: 1.4; }
+
+  /* TIP BOX */
+  .tip-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .tip-item {
+    background: var(--light);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #2a3550;
+    line-height: 1.5;
+  }
+  .tip-item strong { color: var(--navy); }
+
+  /* PROFILE TAGS */
+  .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .profile-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+  }
+  .profile-emoji { font-size: 32px; margin-bottom: 10px; }
+  .profile-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .profile-desc { font-size: 12px; color: var(--gray); line-height: 1.4; }
+
+  /* COVER PAGE */
+  .cover-page {
+    background: linear-gradient(160deg, var(--navy), #1e2d55 50%, #0d2a1a);
+    padding: 80px 48px;
+    text-align: center;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .cover-logo {
+    font-size: 56px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -2px;
+    margin-bottom: 6px;
+  }
+  .cover-logo span { color: var(--gold); }
+  .cover-tagline {
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 40px;
+  }
+  .cover-badge-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .cover-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8);
+    border-radius: 30px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .cover-sub {
+    margin-top: 50px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+  }
+  .cover-url {
+    margin-top: 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+</style>
+</head>
+<body>
+
+<!-- PRINT BAR -->
+<div class="print-bar no-print">
+  <span>Guia do Usuário — MAESTR.IA em Vendas</span>
+  <button onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+</div>
+
+<!-- ===================== CAPA ===================== -->
+<div class="page">
+  <div class="cover-page">
+    <div class="cover-logo">MAESTR<span>.IA</span><br><span style="font-size:28px; letter-spacing:2px; color:rgba(255,255,255,0.6); font-weight:400;">EM VENDAS</span></div>
+    <div class="cover-tagline">O copiloto da sua equipe comercial</div>
+    <div class="cover-badge-row">
+      <span class="cover-badge">📱 Funciona no celular</span>
+      <span class="cover-badge">☁️ Dados na nuvem</span>
+      <span class="cover-badge">🤖 IA integrada</span>
+      <span class="cover-badge">🚗 Automotivo de Luxo</span>
+    </div>
+    <div class="cover-sub">Acesse agora:</div>
+    <div class="cover-url">gss-weld.vercel.app</div>
+  </div>
+</div>
+
+<!-- ===================== PÁGINA 1: CADASTRO ===================== -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-num">Passo 1 de 3</div>
+    <div class="page-title">Cadastro e <span>Perfil</span></div>
+    <div class="page-desc">Como criar sua conta e configurar tudo certo da primeira vez</div>
+  </div>
+  <div class="page-body">
+
+    <div class="section">
+      <div class="section-title">Criar conta</div>
+      <div class="step-item">
+        <div class="step-badge">1</div>
+        <div class="step-body">
+          <div class="step-label">Abra o link no celular</div>
+          <div class="step-text">No Chrome (Android) ou Safari (iPhone), acesse:</div>
+          <div class="step-url">gss-weld.vercel.app</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-badge">2</div>
+        <div class="step-body">
+          <div class="step-label">Entre com Google ou E-mail</div>
+          <div class="step-text">Toque em <strong>"Entrar com Google"</strong> para usar sua conta Gmail — mais rápido.<br>Ou toque em <strong>"Entrar com Email"</strong> para criar com qualquer e-mail.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-badge">3</div>
+        <div class="step-body">
+          <div class="step-label">Preencha seu perfil</div>
+          <div class="step-text">Na primeira vez, o app pede algumas informações básicas. Preencha com calma — isso personaliza todo o conteúdo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Configure seu perfil</div>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon">🏷️</div>
+          <div>
+            <div class="feature-name">Nome e Cargo</div>
+            <div class="feature-desc">Aparece no cabeçalho do app. Use seu nome real.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🏢</div>
+          <div>
+            <div class="feature-name">Empresa</div>
+            <div class="feature-desc">Nome da concessionária onde você trabalha.</div>
+          </div>
+        </div>
+        <div class="feature-item" style="border-color: rgba(201,168,76,0.3);">
+          <div class="feature-icon">🚗</div>
+          <div>
+            <div class="feature-name">Segmento ⭐</div>
+            <div class="feature-desc">Escolha <strong>Automotivo de Luxo</strong>. Personaliza objeções, notícias e roteiros.</div>
+          </div>
+        </div>
+        <div class="feature-item" style="border-color: rgba(201,168,76,0.3);">
+          <div class="feature-icon">🎯</div>
+          <div>
+            <div class="feature-name">Meta Mensal ⭐</div>
+            <div class="feature-desc">Valor da sua meta em reais. Aparece com barra de progresso na Home.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">💎</div>
+          <div>
+            <div class="feature-name">Faixa de Atuação</div>
+            <div class="feature-desc">Filtra as ofertas da concorrência para sua faixa de preço.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔑</div>
+          <div>
+            <div class="feature-name">Tipo de Acesso</div>
+            <div class="feature-desc"><strong>Vendas</strong> para vendedor. <strong>Ambos</strong> para quem também faz marketing.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tipos de perfil</div>
+      <div class="profile-grid">
+        <div class="profile-card">
+          <div class="profile-emoji">🤝</div>
+          <div class="profile-name">Vendedor</div>
+          <div class="profile-desc">Acesso a ferramentas de venda, treino e concorrência. Foco no dia a dia.</div>
+        </div>
+        <div class="profile-card" style="border-color: rgba(201,168,76,0.3);">
+          <div class="profile-emoji">📋</div>
+          <div class="profile-name">Gestor</div>
+          <div class="profile-desc">Acessa Controladoria para definir metas da equipe. Ativar com suporte.</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-emoji">📣</div>
+          <div class="profile-name">Marketing</div>
+          <div class="profile-desc">Hub de Marketing com gerador de copy, análise de campanha e concorrência.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== PÁGINA 2: INSTALAR ===================== -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-num">Passo 2 de 3</div>
+    <div class="page-title">Instalar como <span>App</span></div>
+    <div class="page-desc">Deixe o ícone na tela do celular — funciona como app nativo, sem abrir o navegador</div>
+  </div>
+  <div class="page-body">
+
+    <div class="section">
+      <div class="section-title">Por que instalar?</div>
+      <div class="feature-grid" style="margin-bottom: 24px;">
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div>
+            <div class="feature-name">Abre mais rápido</div>
+            <div class="feature-desc">Direto pelo ícone, sem digitar URL ou abrir navegador</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📱</div>
+          <div>
+            <div class="feature-name">Parece nativo</div>
+            <div class="feature-desc">Sem barra de endereço, ocupa tela cheia como qualquer app</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📴</div>
+          <div>
+            <div class="feature-name">Funciona offline</div>
+            <div class="feature-desc">Conteúdo em cache disponível sem internet</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔔</div>
+          <div>
+            <div class="feature-name">Sem loja</div>
+            <div class="feature-desc">Não precisa de App Store nem Play Store — direto pelo site</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Passo a passo por celular</div>
+      <div class="platform-grid">
+        <div class="platform-card">
+          <div class="platform-name">
+            <span style="font-size:22px;">🍎</span> iPhone (Safari)
+          </div>
+          <ul class="platform-steps">
+            <li data-n="1">Abra o Safari (não Chrome)</li>
+            <li data-n="2">Acesse <strong>gss-weld.vercel.app</strong></li>
+            <li data-n="3">Toque no botão <strong>⎙ Compartilhar</strong> (parte de baixo da tela)</li>
+            <li data-n="4">Role para baixo e toque <strong>"Adicionar à Tela de Início"</strong></li>
+            <li data-n="5">Confirme tocando <strong>"Adicionar"</strong></li>
+          </ul>
+        </div>
+        <div class="platform-card">
+          <div class="platform-name">
+            <span style="font-size:22px;">🤖</span> Android (Chrome)
+          </div>
+          <ul class="platform-steps">
+            <li data-n="1">Abra o Chrome</li>
+            <li data-n="2">Acesse <strong>gss-weld.vercel.app</strong></li>
+            <li data-n="3">Toque no menu <strong>⋮</strong> (3 pontinhos, canto superior direito)</li>
+            <li data-n="4">Toque em <strong>"Adicionar à tela inicial"</strong></li>
+            <li data-n="5">Confirme tocando <strong>"Adicionar"</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="result-box">
+        ✅ Pronto! O ícone MAESTR.IA aparece na sua tela como qualquer outro app. Toque nele para abrir diretamente.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dicas</div>
+      <ul class="tip-list">
+        <li class="tip-item"><strong>iPhone:</strong> o botão compartilhar ⎙ fica na barra inferior do Safari, ao centro</li>
+        <li class="tip-item"><strong>Android:</strong> se aparecer um banner automático "Adicionar ao início" no rodapé do site, pode usar ele também</li>
+        <li class="tip-item">Se o ícone sumir, é só repetir o processo — seus dados ficam salvos na nuvem</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== PÁGINA 3: USO DIÁRIO ===================== -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-num">Passo 3 de 3</div>
+    <div class="page-title">Uso <span>Diário</span></div>
+    <div class="page-desc">O que usar, quando usar e como tirar o máximo do app todo dia</div>
+  </div>
+  <div class="page-body">
+
+    <div class="section">
+      <div class="section-title">Telas principais</div>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon">🏠</div>
+          <div>
+            <div class="feature-name">Home</div>
+            <div class="feature-desc">Resumo do dia: meta de comissão, notícia do segmento, tarefas e atalhos rápidos</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📰</div>
+          <div>
+            <div class="feature-name">Notícias</div>
+            <div class="feature-desc">Lançamentos, ofertas da indústria, tendências, concorrentes e marketing. Filtro Brasil/Mundo.</div>
+          </div>
+        </div>
+        <div class="feature-item" style="border-color: rgba(201,168,76,0.3);">
+          <div class="feature-icon">⚔️</div>
+          <div>
+            <div class="feature-name">Concorrência ⭐</div>
+            <div class="feature-desc">Veja o que AUDI, BMW, Volvo e Land Rover estão oferecendo. Filtre pela sua faixa de preço.</div>
+          </div>
+        </div>
+        <div class="feature-item" style="border-color: rgba(201,168,76,0.3);">
+          <div class="feature-icon">🤖</div>
+          <div>
+            <div class="feature-name">Consultor IA ⭐</div>
+            <div class="feature-desc">Chat de IA 24h. Pergunte sobre objeções, roteiros, produtos, concorrência, qualquer coisa.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">💰</div>
+          <div>
+            <div class="feature-name">Vendas</div>
+            <div class="feature-desc">Registre cada venda fechada. Gráfico de evolução, comissão acumulada e progresso da meta.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📚</div>
+          <div>
+            <div class="feature-name">Biblioteca</div>
+            <div class="feature-desc">Objeções por categoria, roteiros, técnicas de venda e gatilhos de urgência com 1 toque para copiar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Funções avançadas</div>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon">🎮</div>
+          <div>
+            <div class="feature-name">Role-Play com IA</div>
+            <div class="feature-desc">Simule uma negociação com cliente difícil. Receba feedback e pontuação ao final.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🎙️</div>
+          <div>
+            <div class="feature-name">Análise de Reunião</div>
+            <div class="feature-desc">Grave ou descreva a reunião. A IA identifica o que funcionou e o que pode melhorar.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">💬</div>
+          <div>
+            <div class="feature-name">Coach de Mensagem</div>
+            <div class="feature-desc">Cole a mensagem que vai mandar para o cliente. A IA reescreve de forma mais persuasiva.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📋</div>
+          <div>
+            <div class="feature-name">Pré-Reunião</div>
+            <div class="feature-desc">Gera roteiro personalizado para cada cliente antes da reunião começar.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div>
+            <div class="feature-name">Gatilhos de Urgência</div>
+            <div class="feature-desc">Frases prontas para acelerar decisão. Toque em "Copiar" e cole no WhatsApp.</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📝</div>
+          <div>
+            <div class="feature-name">Vendas Perdidas</div>
+            <div class="feature-desc">Registre o que não fechou. A IA aponta o motivo e sugere como reverter na próxima.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Rotina recomendada</div>
+      <ul class="tip-list">
+        <li class="tip-item"><strong>Toda manhã:</strong> Abra a Home — veja sua meta e a notícia do segmento</li>
+        <li class="tip-item"><strong>Antes de toda reunião:</strong> Consultor IA → peça um roteiro para o tipo de cliente que vai atender</li>
+        <li class="tip-item"><strong>Quando cliente comparar concorrente:</strong> abra Concorrência → veja a oferta → "Como rebater com a IA"</li>
+        <li class="tip-item"><strong>Toda semana:</strong> verifique Notícias aba Concorrentes para não ser pego de surpresa</li>
+        <li class="tip-item"><strong>Após cada venda:</strong> registre em Vendas para manter a meta atualizada</li>
+        <li class="tip-item"><strong>Tempo livre:</strong> faça Role-Play para treinar sem pressão</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== PÁGINA 4: REFERÊNCIA RÁPIDA ===================== -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-num">Referência Rápida</div>
+    <div class="page-title">Cola de <span>Bolso</span></div>
+    <div class="page-desc">Recorte e guarde — resumo do que fazer em cada situação</div>
+  </div>
+  <div class="page-body">
+
+    <div class="section">
+      <div class="section-title">Se o cliente fizer isso, faça aquilo</div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:#f6f8ff; border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Cliente diz</div>
+            <div style="font-size:15px; font-weight:600; color:#1a2035;">"Vou pensar mais um pouco"</div>
+          </div>
+          <div style="background:#fff9ed; border:1px solid rgba(201,168,76,0.3); border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Você faz</div>
+            <div style="font-size:14px; color:#2a3550;">Biblioteca → Gatilhos de Urgência → copie uma frase para WhatsApp</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:#f6f8ff; border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Cliente diz</div>
+            <div style="font-size:15px; font-weight:600; color:#1a2035;">"A BMW tem taxa melhor"</div>
+          </div>
+          <div style="background:#fff9ed; border:1px solid rgba(201,168,76,0.3); border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Você faz</div>
+            <div style="font-size:14px; color:#2a3550;">Concorrência → selecione BMW → toque "Como rebater com a IA"</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:#f6f8ff; border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Cliente diz</div>
+            <div style="font-size:15px; font-weight:600; color:#1a2035;">"Está muito caro"</div>
+          </div>
+          <div style="background:#fff9ed; border:1px solid rgba(201,168,76,0.3); border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Você faz</div>
+            <div style="font-size:14px; color:#2a3550;">Biblioteca → Objeções → "Está muito caro" → resposta pronta</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:#f6f8ff; border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Situação</div>
+            <div style="font-size:15px; font-weight:600; color:#1a2035;">Reunião difícil amanhã</div>
+          </div>
+          <div style="background:#fff9ed; border:1px solid rgba(201,168,76,0.3); border-radius:12px; padding:16px 18px;">
+            <div style="font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Você faz</div>
+            <div style="font-size:14px; color:#2a3550;">Consultor IA → "Me ajude a preparar para reunião com [perfil do cliente]"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="margin-top: 32px;">
+      <div class="section-title">Suporte</div>
+      <ul class="tip-list">
+        <li class="tip-item"><strong>Dúvidas:</strong> Use o Consultor IA do próprio app — ele sabe como o app funciona</li>
+        <li class="tip-item"><strong>Feedback:</strong> Perfil → "Enviar Feedback" — suas sugestões chegam direto ao time</li>
+        <li class="tip-item"><strong>Dados perdidos:</strong> Faça login novamente — tudo está salvo na nuvem</li>
+        <li class="tip-item"><strong>Link do app:</strong> <span style="font-weight:700; color:#8a6010;">gss-weld.vercel.app</span></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

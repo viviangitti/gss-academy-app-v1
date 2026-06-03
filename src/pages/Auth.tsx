@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Target, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone } from 'lucide-react';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, translateAuthError } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
 import { saveData, loadData, KEYS } from '../services/storage';
@@ -10,8 +10,12 @@ import './Auth.css';
 type Mode = 'login' | 'signup' | 'reset';
 type SignupStep = 1 | 2;
 
-export default function Auth() {
-  const [mode, setMode] = useState<Mode>('signup');
+interface AuthProps {
+  sessionExpired?: boolean;
+}
+
+export default function Auth({ sessionExpired = false }: AuthProps) {
+  const [mode, setMode] = useState<Mode>(sessionExpired ? 'login' : 'signup');
   const [step, setStep] = useState<SignupStep>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,10 +31,9 @@ export default function Auth() {
   const [role, setRole] = useState('');
   const [company, setCompany] = useState('');
   const [segment, setSegment] = useState<Segment>('');
-  const [monthlyGoal, setMonthlyGoal] = useState('');
   const [accessType, setAccessType] = useState<'vendas' | 'marketing' | 'ambos'>('vendas');
   // Pré-carrega do localStorage se existir (migração)
-  const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
+  const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
   const handleEmailSignup = async () => {
     setError('');
@@ -46,7 +49,6 @@ export default function Auth() {
     if (existing.role) setRole(existing.role);
     if (existing.company) setCompany(existing.company);
     if (existing.segment) setSegment(existing.segment);
-    if (existing.monthlyGoal) setMonthlyGoal(String(existing.monthlyGoal));
     if (!name && existing.name) setName(existing.name);
     setStep(2);
   };
@@ -65,7 +67,6 @@ export default function Auth() {
         role: role.trim(),
         company: company.trim(),
         segment,
-        monthlyGoal: Number(monthlyGoal) || 0,
         email: user.email || email,
         uid: user.uid,
         teamId: null,
@@ -114,7 +115,6 @@ export default function Auth() {
         role: existing.role || '',
         company: existing.company || '',
         segment: existing.segment || '',
-        monthlyGoal: existing.monthlyGoal || 0,
         email: user.email || '',
         uid: user.uid,
         teamId: null,
@@ -157,6 +157,12 @@ export default function Auth() {
       </div>
 
       <div className="auth-card card">
+        {sessionExpired && (
+          <div className="auth-session-expired-banner">
+            ⚠️ Sua sessão expirou. Faça login novamente para continuar.
+          </div>
+        )}
+
         {mode === 'signup' && step === 1 && (
           <>
             <h2>Criar conta</h2>
@@ -270,16 +276,6 @@ export default function Auth() {
                 {SEGMENTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
-            <div className="auth-field">
-              <Target size={14} />
-              <input
-                type="number"
-                placeholder="Meta de comissão mensal (R$) — opcional"
-                value={monthlyGoal}
-                onChange={e => setMonthlyGoal(e.target.value)}
-              />
-            </div>
-
             {error && <div className="auth-error">{error}</div>}
 
             <button className="btn btn-primary auth-submit" onClick={handleFinishSignup} disabled={loading}>

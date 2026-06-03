@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAESTR.IA em Vendas — Apresentação</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0f1623;
+    --navy2: #1a2540;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --white: #ffffff;
+    --gray: #8a9bb5;
+    --light: #f0f4ff;
+    --red: #e85c5c;
+    --green: #4caf7d;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #080d18;
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  /* NAVIGATION */
+  .nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50px;
+    padding: 10px 20px;
+    z-index: 100;
+  }
+  .nav button {
+    background: none;
+    border: none;
+    color: var(--gray);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  .nav button:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .nav .slide-count { color: var(--gold); font-size: 13px; font-weight: 600; min-width: 50px; text-align: center; }
+  .nav .dot-row { display: flex; gap: 6px; }
+  .nav .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s; }
+  .nav .dot.active { background: var(--gold); transform: scale(1.3); }
+
+  /* SLIDES */
+  .slides { width: 100vw; height: 100vh; position: relative; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  /* ---- SLIDE 1: COVER ---- */
+  .slide-cover {
+    background: radial-gradient(ellipse at 30% 50%, #1e2d55 0%, var(--navy) 60%);
+    flex-direction: column;
+    text-align: center;
+    gap: 0;
+  }
+  .slide-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+  .cover-badge {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 30px;
+    margin-bottom: 32px;
+  }
+  .cover-title {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+  }
+  .cover-title span { color: var(--gold); }
+  .cover-sub {
+    font-size: 26px;
+    color: var(--gray);
+    font-weight: 300;
+    margin-bottom: 50px;
+  }
+  .cover-line {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 0 auto 50px;
+    border-radius: 2px;
+  }
+  .cover-tagline {
+    font-size: 17px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.5px;
+  }
+
+  /* ---- SLIDE LAYOUT HELPERS ---- */
+  .slide-inner {
+    width: 100%;
+    max-width: 1100px;
+  }
+  .slide-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .slide-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.25);
+    max-width: 60px;
+  }
+  .slide-title {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 10px;
+  }
+  .slide-subtitle {
+    font-size: 18px;
+    color: var(--gray);
+    font-weight: 400;
+    margin-bottom: 44px;
+    line-height: 1.5;
+  }
+
+  /* CARDS ROW */
+  .cards-row { display: grid; gap: 20px; }
+  .cards-3 { grid-template-columns: repeat(3, 1fr); }
+  .cards-2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(201,168,76,0.3); }
+  .card-icon { font-size: 34px; margin-bottom: 16px; }
+  .card-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .card-desc { font-size: 14px; color: var(--gray); line-height: 1.6; }
+  .card-gold { border-color: rgba(201,168,76,0.25); background: rgba(201,168,76,0.05); }
+
+  /* STAT BOXES */
+  .stats-row { display: flex; gap: 20px; margin-top: 36px; }
+  .stat-box {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 20px 28px;
+    text-align: center;
+    flex: 1;
+  }
+  .stat-number { font-size: 38px; font-weight: 800; color: var(--gold); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--gray); margin-top: 6px; }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 22px 24px;
+  }
+  .step-num {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--gold), #a07820);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800;
+    flex-shrink: 0;
+    color: var(--navy);
+  }
+  .step-content { flex: 1; }
+  .step-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .step-desc { font-size: 14px; color: var(--gray); line-height: 1.5; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .two-col-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 40px; align-items: start; }
+
+  /* PILL TAGS */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .tag {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .tag-gold {
+    background: rgba(201,168,76,0.1);
+    border-color: rgba(201,168,76,0.3);
+    color: var(--gold);
+  }
+
+  /* FEATURE LIST */
+  .feat-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .feat-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.4;
+  }
+  .feat-list li::before {
+    content: '✦';
+    color: var(--gold);
+    font-size: 11px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight {
+    background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04));
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 20px;
+    padding: 28px 32px;
+  }
+  .highlight-title { font-size: 22px; font-weight: 700; color: var(--gold2); margin-bottom: 10px; }
+  .highlight-text { font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+
+  /* BIG NUMBER */
+  .big-num { font-size: 96px; font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: -4px; }
+
+  /* ROLE CARDS */
+  .role-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px;
+    height: 100%;
+  }
+  .role-icon { font-size: 40px; margin-bottom: 14px; }
+  .role-name { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .role-sub { font-size: 13px; color: var(--gold); font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+  .role-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .role-list li { font-size: 14px; color: var(--gray); line-height: 1.4; padding-left: 16px; position: relative; }
+  .role-list li::before { content: '→'; position: absolute; left: 0; color: var(--gold); font-size: 12px; }
+
+  /* CTA SLIDE */
+  .slide-cta {
+    background: radial-gradient(ellipse at 70% 30%, #1e3a1a 0%, var(--navy) 60%);
+    flex-direction: column;
+    text-align: center;
+  }
+  .cta-title { font-size: 60px; font-weight: 900; letter-spacing: -2px; margin-bottom: 16px; }
+  .cta-title span { color: var(--gold); }
+  .cta-url {
+    font-size: 22px;
+    color: var(--gold);
+    font-weight: 600;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50px;
+    padding: 14px 36px;
+    margin: 28px 0;
+    display: inline-block;
+  }
+  .qr-placeholder {
+    width: 140px;
+    height: 140px;
+    background: white;
+    border-radius: 16px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--navy);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    gap: 3px;
+    width: 80px;
+  }
+  .qr-cell {
+    width: 14px; height: 14px;
+    border-radius: 2px;
+  }
+
+  /* BG VARIANTS */
+  .bg-navy { background: var(--navy); }
+  .bg-navy2 { background: linear-gradient(135deg, #0f1a30, #131e35); }
+  .bg-dark { background: #090d17; }
+</style>
+</head>
+<body>
+
+<div class="slides">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide slide-cover active" id="slide-1">
+    <div style="position:relative; z-index:1; text-align:center;">
+      <div class="cover-badge">Inteligência Artificial para Vendas</div>
+      <div class="cover-title">MAESTR<span>.IA</span><br>em Vendas</div>
+      <div class="cover-sub">O copiloto da sua equipe comercial</div>
+      <div class="cover-line"></div>
+      <div class="cover-tagline">Preparação · Treino · Inteligência de Mercado</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: O QUE É -->
+  <div class="slide bg-navy2" id="slide-2">
+    <div class="slide-inner">
+      <div class="slide-label">Visão Geral</div>
+      <div class="slide-title">O que é o<br>MAESTR.IA?</div>
+      <div class="slide-subtitle">Um app de inteligência comercial no bolso de cada vendedor</div>
+      <div class="cards-row cards-3">
+        <div class="card card-gold">
+          <div class="card-icon">🧠</div>
+          <div class="card-title">Preparação</div>
+          <div class="card-desc">Respostas para objeções, roteiros de vendas e análise de concorrência antes de cada reunião</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">Treino</div>
+          <div class="card-desc">Role-play com IA, análise de reuniões gravadas e coaching de mensagens para evoluir todo dia</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Inteligência</div>
+          <div class="card-desc">Ofertas da concorrência em tempo real, notícias do segmento e metas com acompanhamento automático</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: PARA QUEM -->
+  <div class="slide bg-dark" id="slide-3">
+    <div class="slide-inner">
+      <div class="slide-label">Perfis de Acesso</div>
+      <div class="slide-title">Para quem é?</div>
+      <div class="slide-subtitle">Cada perfil tem uma visão adaptada ao seu papel</div>
+      <div class="cards-row cards-3">
+        <div class="role-card">
+          <div class="role-icon">🤝</div>
+          <div class="role-name">Vendedor</div>
+          <div class="role-sub">Uso diário</div>
+          <ul class="role-list">
+            <li>Consulta objeções antes da reunião</li>
+            <li>Verifica o que a concorrência está oferecendo</li>
+            <li>Registra vendas e acompanha meta</li>
+            <li>Treina com IA no tempo livre</li>
+            <li>Recebe notícias do mercado</li>
+          </ul>
+        </div>
+        <div class="role-card" style="border-color: rgba(201,168,76,0.3);">
+          <div class="role-icon">📋</div>
+          <div class="role-name">Gestor</div>
+          <div class="role-sub">Controle de equipe</div>
+          <ul class="role-list">
+            <li>Visualiza metas e resultados da equipe</li>
+            <li>Define metas mensais por vendedor</li>
+            <li>Acessa módulo Controladoria</li>
+            <li>Acompanha evolução em tempo real</li>
+            <li>Identifica lacunas de treinamento</li>
+          </ul>
+        </div>
+        <div class="role-card">
+          <div class="role-icon">📣</div>
+          <div class="role-name">Marketing</div>
+          <div class="role-sub">Campanhas e mercado</div>
+          <ul class="role-list">
+            <li>Publica ofertas do mês para vendedores</li>
+            <li>Monitora concorrência com IA</li>
+            <li>Gera copy para posts e WhatsApp</li>
+            <li>Analisa campanhas passadas</li>
+            <li>Guia de marca integrado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: CONCORRÊNCIA -->
+  <div class="slide bg-navy2" id="slide-4">
+    <div class="slide-inner two-col-3-2">
+      <div>
+        <div class="slide-label">Funcionalidade #1</div>
+        <div class="slide-title">Inteligência<br>Competitiva</div>
+        <div class="slide-subtitle">Saiba o que a concorrência está fazendo — antes do cliente perguntar</div>
+        <ul class="feat-list">
+          <li>Ofertas cadastradas por marca com condições detalhadas</li>
+          <li>Filtro por faixa de preço (seu mercado específico)</li>
+          <li>Botão "Como rebater com IA" em cada oferta</li>
+          <li>Atualizado em tempo real pela gestão</li>
+          <li>Aba Concorrentes nas Notícias</li>
+        </ul>
+        <div class="stats-row" style="margin-top:30px;">
+          <div class="stat-box">
+            <div class="stat-number">117</div>
+            <div class="stat-label">Ofertas cadastradas</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Marcas monitoradas</div>
+          </div>
+        </div>
+      </div>
+      <div class="highlight" style="margin-top: 60px;">
+        <div class="highlight-title">💡 Na prática</div>
+        <div class="highlight-text">Cliente fala: "A Audi está com taxa zero no A3."<br><br>Vendedor abre o app, vê a oferta cadastrada e toca em <strong>"Como rebater com a IA"</strong> — recebe argumentos personalizados em segundos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: NOTÍCIAS -->
+  <div class="slide bg-dark" id="slide-5">
+    <div class="slide-inner">
+      <div class="slide-label">Funcionalidade #2</div>
+      <div class="slide-title">Notícias do Mercado</div>
+      <div class="slide-subtitle">Toda a equipe sempre atualizada sobre o segmento — sem procurar</div>
+      <div class="cards-row cards-3">
+        <div class="card">
+          <div class="card-icon">📰</div>
+          <div class="card-title">Tudo · Lançamentos · Ofertas</div>
+          <div class="card-desc">Notícias do segmento automotivo de luxo curadas automaticamente, separadas por categoria</div>
+          <div class="tags" style="margin-top:14px;">
+            <span class="tag tag-gold">Brasil</span>
+            <span class="tag tag-gold">Mundo</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📈</div>
+          <div class="card-title">Tendências · Concorrentes</div>
+          <div class="card-desc">Monitoramento do que os concorrentes estão publicando e tendências do mercado premium</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-icon">📣</div>
+          <div class="card-title">Marketing</div>
+          <div class="card-desc">Eventos do setor, veiculações de mídia, parcerias e tendências de marketing automotivo de luxo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: TREINO -->
+  <div class="slide bg-navy2" id="slide-6">
+    <div class="slide-inner two-col">
+      <div>
+        <div class="slide-label">Funcionalidade #3</div>
+        <div class="slide-title">Treino<br>com IA</div>
+        <div class="slide-subtitle">O vendedor que mais treina, mais vende</div>
+        <ul class="feat-list" style="margin-top: 8px;">
+          <li><strong>Role-Play:</strong> simulação de cliente com IA, feedback ao final</li>
+          <li><strong>Análise de Reunião:</strong> envie o áudio, receba diagnóstico completo</li>
+          <li><strong>Coach de Mensagem:</strong> melhore o WhatsApp antes de enviar</li>
+          <li><strong>Pré-Reunião:</strong> roteiro personalizado para cada cliente</li>
+          <li><strong>Vendas Perdidas:</strong> aprenda com o que não fechou</li>
+        </ul>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:50px;">
+        <div class="card card-gold">
+          <div style="font-size: 28px; margin-bottom: 10px;">🎙️</div>
+          <div class="card-title">Consultor IA</div>
+          <div class="card-desc">Chat disponível 24h. Pergunte qualquer coisa sobre vendas, objeções, produtos ou mercado.</div>
+        </div>
+        <div class="card">
+          <div style="font-size: 28px; margin-bottom: 10px;">⚡</div>
+          <div class="card-title">Gatilhos de Urgência</div>
+          <div class="card-desc">Frases prontas para acelerar a decisão do cliente, com botão copiar para WhatsApp.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: METAS -->
+  <div class="slide bg-dark" id="slide-7">
+    <div class="slide-inner two-col">
+      <div>
+        <div class="slide-label">Funcionalidade #4</div>
+        <div class="slide-title">Gestão<br>de Metas</div>
+        <div class="slide-subtitle">Cada vendedor acompanha sua evolução em tempo real</div>
+        <ul class="feat-list">
+          <li>Meta mensal com barra de progresso visual na tela inicial</li>
+          <li>Gráfico de evolução por dia, semana e mês</li>
+          <li>Dashboard de comissão no período</li>
+          <li>Metas adicionais por produto (ex: financiamento, seguro)</li>
+          <li>Gestor define metas pela Controladoria</li>
+        </ul>
+      </div>
+      <div style="margin-top:50px; display:flex; flex-direction:column; gap:16px;">
+        <div class="stat-box" style="text-align:left; padding:24px 28px;">
+          <div style="font-size:13px; color:var(--gray); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Meta do Mês</div>
+          <div class="big-num" style="font-size:48px;">R$ 500k</div>
+          <div style="margin-top:16px; background:rgba(255,255,255,0.08); border-radius:8px; height:8px; overflow:hidden;">
+            <div style="width:67%; height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2)); border-radius:8px;"></div>
+          </div>
+          <div style="margin-top:8px; font-size:13px; color:var(--gray); display:flex; justify-content:space-between;">
+            <span style="color:var(--gold);">67% concluído</span>
+            <span>R$ 165k faltando</span>
+          </div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-title" style="font-size:16px;">Controladoria</div>
+          <div class="highlight-text" style="font-size:14px;">O gestor define as metas pelo app e toda equipe vê instantaneamente</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: COMO COMEÇAR -->
+  <div class="slide bg-navy2" id="slide-8">
+    <div class="slide-inner">
+      <div class="slide-label">Primeiros Passos</div>
+      <div class="slide-title">Como começar<br>em 3 passos</div>
+      <div class="slide-subtitle">Em menos de 5 minutos, o app está instalado no celular</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Abra o link no celular</div>
+            <div class="step-desc">Acesse <strong style="color:var(--gold);">gss-weld.vercel.app</strong> pelo Chrome (Android) ou Safari (iPhone) — sem precisar baixar nada da loja</div>
+          </div>
+          <div style="font-size:32px; align-self:center;">🌐</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Crie sua conta</div>
+            <div class="step-desc">Entre com sua conta Google ou crie com e-mail. Preencha nome, cargo, empresa e segmento. Pronto em 1 minuto.</div>
+          </div>
+          <div style="font-size:32px; align-self:center;">👤</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Instale como app</div>
+            <div class="step-desc"><strong>iPhone:</strong> botão compartilhar ⎙ → "Adicionar à Tela de Início" &nbsp;&nbsp; <strong>Android:</strong> menu ⋮ → "Adicionar à tela inicial" — ícone aparece como app nativo</div>
+          </div>
+          <div style="font-size:32px; align-self:center;">📱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: RESULTADOS -->
+  <div class="slide bg-dark" id="slide-9">
+    <div class="slide-inner">
+      <div class="slide-label">O que muda</div>
+      <div class="slide-title">Resultado esperado</div>
+      <div class="slide-subtitle">O que a equipe ganha no dia a dia</div>
+      <div class="cards-row cards-3">
+        <div class="card card-gold">
+          <div class="card-icon">🛡️</div>
+          <div class="card-title">Mais Segurança</div>
+          <div class="card-desc">Vendedor chega na reunião preparado. Sabe as objeções que vão aparecer e já tem respostas prontas.</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">Mais Agilidade</div>
+          <div class="card-desc">Quando o cliente compara com concorrente, a resposta está a um toque de distância — sem improvisar.</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">Mais Foco</div>
+          <div class="card-desc">Meta visível todo dia na tela inicial. A equipe sabe exatamente onde está e quanto falta.</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-number">1 min</div>
+          <div class="stat-label">Para instalar e começar</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Treinamento necessário</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">24h</div>
+          <div class="stat-label">Disponível, offline funciona</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">1 link</div>
+          <div class="stat-label">Para toda equipe acessar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: CTA -->
+  <div class="slide slide-cta" id="slide-10">
+    <div style="position:relative; z-index:1;">
+      <div class="cover-badge" style="margin-bottom:24px;">Próximo passo</div>
+      <div class="cta-title">Comece <span>hoje.</span></div>
+      <p style="font-size:20px; color:var(--gray); margin-bottom:28px; max-width:520px; margin-left:auto; margin-right:auto; line-height:1.6;">Abra o link no seu celular agora e veja o app funcionando em menos de 2 minutos</p>
+      <div class="qr-placeholder">
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:3px; width:80px;">
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:white;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+          <div style="width:14px;height:14px;background:#0f1623;border-radius:2px;"></div>
+        </div>
+        <div style="font-size:9px; color:#555; margin-top:6px;">Substitua pelo QR real</div>
+      </div>
+      <div class="cta-url">gss-weld.vercel.app</div>
+      <p style="font-size:14px; color:rgba(255,255,255,0.35);">Funciona em qualquer celular · Sem instalação pela loja · Dados seguros na nuvem</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button onclick="prevSlide()" title="Anterior">‹</button>
+  <div class="dot-row" id="dots"></div>
+  <span class="slide-count" id="slide-count">1 / 10</span>
+  <button onclick="nextSlide()" title="Próximo">›</button>
+</div>
+
+<script>
+  const TOTAL = 10;
+  let current = 1;
+
+  function updateSlide() {
+    document.querySelectorAll('.slide').forEach((s, i) => {
+      s.classList.toggle('active', i + 1 === current);
+    });
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i + 1 === current);
+    });
+    document.getElementById('slide-count').textContent = current + ' / ' + TOTAL;
+  }
+
+  function nextSlide() { if (current < TOTAL) { current++; updateSlide(); } }
+  function prevSlide() { if (current > 1) { current--; updateSlide(); } }
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => { current = i; updateSlide(); };
+    dotsEl.appendChild(d);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+  });
+
+  // Touch
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (dx < -50) nextSlide();
+    if (dx > 50) prevSlide();
+  });
+</script>
+</body>
+</html>

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2 } from 'lucide-react';
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { SEGMENTS, SEGMENT_GOAL_PRESETS } from '../types';
-import type { UserProfile, GoalItem } from '../types';
+import { SEGMENTS, SEGMENT_GOAL_PRESETS, PRICE_RANGES } from '../types';
+import type { UserProfile, GoalItem, PriceRange } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
+import { deleteUser } from 'firebase/auth';
+import { auth } from '../services/firebase';
 import './Profile.css';
 
 type Theme = 'light' | 'dark' | 'auto';
@@ -44,6 +46,41 @@ export default function Profile() {
   const handleSignOut = async () => {
     if (confirm('Sair da sua conta? Seus dados continuam salvos na nuvem.')) {
       await signOut();
+    }
+  };
+
+  const handleClearLocalData = () => {
+    if (!confirm('Limpar todos os dados locais deste dispositivo? Isso remove histórico, metas e configurações armazenadas aqui. Seus dados na nuvem são mantidos.')) return;
+    // Clear all app keys from localStorage
+    const appKeys = Object.values(KEYS);
+    appKeys.forEach(k => localStorage.removeItem(k));
+    // Also clear news/offers caches
+    const allKeys = Object.keys(localStorage).filter(k => k.startsWith('gss_'));
+    allKeys.forEach(k => localStorage.removeItem(k));
+    alert('Dados locais removidos. Faça login novamente para restaurar da nuvem.');
+    window.location.href = '/';
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!confirm('⚠️ Isso vai excluir permanentemente sua conta e todos os seus dados. Essa ação não pode ser desfeita. Deseja continuar?')) return;
+    if (!confirm('Tem certeza? Todos os dados serão perdidos para sempre.')) return;
+    try {
+      const currentUser = auth?.currentUser;
+      if (!currentUser) { await signOut(); return; }
+      await deleteUser(currentUser);
+      // Clear all local data too
+      const allKeys = Object.keys(localStorage).filter(k => k.startsWith('gss_'));
+      allKeys.forEach(k => localStorage.removeItem(k));
+      localStorage.removeItem('gss_onboarding_done');
+      window.location.href = '/';
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code === 'auth/requires-recent-login') {
+        alert('Por segurança, faça logout e login novamente antes de excluir a conta.');
+        await signOut();
+      } else {
+        alert('Erro ao excluir conta. Tente novamente ou entre em contato com o suporte.');
+      }
     }
   };
 
@@ -234,6 +271,32 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Faixa de atuação */}
+        <div className="profile-section">
+          <label className="profile-label">Faixa de atuação</label>
+          <p className="profile-hint">Em qual faixa de preço você compete? Filtra a tela de concorrência automaticamente.</p>
+          <div className="price-range-options">
+            {PRICE_RANGES.map(r => (
+              <button
+                key={r.value}
+                type="button"
+                className={`price-range-btn ${profile.priceRange === r.value ? 'active' : ''}`}
+                onClick={() => setProfile(p => ({ ...p, priceRange: r.value as PriceRange }))}
+              >
+                <span className="price-range-icon">{r.icon}</span>
+                <div className="price-range-text">
+                  <strong>{r.label}</strong>
+                  <span>{r.description}</span>
+                  <div className="price-range-brands">
+                    {r.brands.slice(0, 4).map(b => <span key={b} className="price-range-brand">{b}</span>)}
+                  </div>
+                </div>
+                {profile.priceRange === r.value && <span className="price-range-check">✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button className={`btn btn-primary save-btn ${saved ? 'saved' : ''}`} onClick={handleSave}>
           <Save size={16} /> {saved ? 'Salvo!' : 'Salvar'}
         </button>
@@ -312,6 +375,27 @@ export default function Profile() {
           <LogOut size={14} /> Sair da conta
         </button>
       )}
+
+      {/* Dados & Privacidade */}
+      <div className="card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <h3 className="section-title" style={{ marginBottom: 4 }}>Dados & Privacidade</h3>
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={handleClearLocalData}
+          style={{ justifyContent: 'flex-start', gap: 8, color: 'var(--text-light)' }}
+        >
+          <Trash2 size={13} /> Limpar dados locais deste dispositivo
+        </button>
+        {user && firebaseEnabled && (
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={handleDeleteAccount}
+            style={{ justifyContent: 'flex-start', gap: 8, color: '#ef4444', borderColor: '#ef4444' }}
+          >
+            <Trash2 size={13} /> Excluir minha conta permanentemente
+          </button>
+        )}
+      </div>
 
       <div className="app-info">
         <p>MAESTR.IA em Vendas</p>

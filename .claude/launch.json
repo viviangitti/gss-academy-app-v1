@@ -20,5 +20,14 @@
         "VITE_FIREBASE_API_KEY": ""
       }
     }
+    ,{
+      "name": "mockup",
+      "runtimeExecutable": "/opt/homebrew/bin/python3",
+      "runtimeArgs": ["-m", "http.server", "5180", "--directory", "mockup"],
+      "port": 5180,
+      "env": {
+        "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
   ]
 }

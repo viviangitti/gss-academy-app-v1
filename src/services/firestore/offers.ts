@@ -1,6 +1,6 @@
 import {
   collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, serverTimestamp,
+  query, orderBy, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Offer, Segment } from '../../types';
@@ -11,17 +11,13 @@ const COL = 'offers';
 export async function getActiveOffers(segment?: Segment): Promise<Offer[]> {
   if (!db) return [];
   const today = new Date().toISOString().split('T')[0];
-  const snap = await getDocs(
-    query(
-      collection(db, COL),
-      where('active', '==', true),
-      where('validTo', '>=', today),
-      orderBy('validTo', 'asc'),
-    )
-  );
-  const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Offer));
+  const snap = await getDocs(collection(db, COL));
+  let all = snap.docs
+    .map(d => ({ id: d.id, ...d.data() } as Offer))
+    .filter(o => o.active && o.validTo >= today)
+    .sort((a, b) => a.validTo.localeCompare(b.validTo));
   if (!segment) return all;
-  return all.filter(o => o.segments.length === 0 || o.segments.includes(segment));
+  return all.filter(o => !o.segments || o.segments.length === 0 || o.segments.includes(segment));
 }
 
 /** Busca todas as ofertas (para painel marketing) */

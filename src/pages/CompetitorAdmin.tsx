@@ -10,8 +10,8 @@ import {
 } from '../services/firestore/competitorOffers';
 import { extractOffersFromUrl, searchCompetitorOffers, TOYOTA_COMPETITORS } from '../services/competitorScraper';
 import type { ScrapedOffer } from '../services/competitorScraper';
-import { SEGMENTS } from '../types';
-import type { CompetitorOffer, Segment } from '../types';
+import { SEGMENTS, PRICE_RANGES } from '../types';
+import type { CompetitorOffer, Segment, PriceRange } from '../types';
 import './CompetitorAdmin.css';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -37,6 +37,7 @@ const EMPTY_FORM: Omit<CompetitorOffer, 'id'> = {
   validFrom: today,
   validTo: endOfMonth,
   segments: [],
+  priceRanges: [],
   active: true,
 };
 
@@ -558,6 +559,30 @@ export default function CompetitorAdmin() {
               <label>Válido até *</label>
               <input className="ca-input" type="date" value={form.validTo}
                 onChange={e => setForm(f => ({ ...f, validTo: e.target.value }))} />
+            </div>
+          </div>
+
+          <div className="ca-field">
+            <label>Faixas de preço (vazio = todas)</label>
+            <div className="ca-segments">
+              {PRICE_RANGES.map(r => (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={`ca-seg-chip ${(form.priceRanges || []).includes(r.value) ? 'active' : ''}`}
+                  onClick={() => setForm(f => {
+                    const current = f.priceRanges || [];
+                    return {
+                      ...f,
+                      priceRanges: current.includes(r.value)
+                        ? current.filter((p: PriceRange) => p !== r.value)
+                        : [...current, r.value],
+                    };
+                  })}
+                >
+                  {r.icon} {r.label}
+                </button>
+              ))}
             </div>
           </div>
 
