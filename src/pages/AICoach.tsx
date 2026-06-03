@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check, Paperclip, X, FileText } from 'lucide-react';
+import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check, Paperclip, X, FileText, Copy } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMessage, resetChat } from '../services/gemini';
-import type { ImageAttachment } from '../services/gemini';
+import type { ImageAttachment, PriorMessage } from '../services/gemini';
 import { loadData, saveData, KEYS } from '../services/storage';
 import type { ChatMessage, UserProfile } from '../types';
 import SpeakButton from '../components/SpeakButton';
@@ -86,8 +86,16 @@ export default function AICoach() {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [autoSpeak, setAutoSpeak] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const offersContextRef = useRef<string>('');
+  // Histórico salvo — usado apenas na primeira mensagem da sessão para restaurar contexto na IA
+  const priorHistoryRef = useRef<PriorMessage[]>(
+    loadData<ChatMessage[]>(KEYS.CHAT_HISTORY, [])
+      .filter(m => !m.attachmentName && !m.imagePreview) // só texto
+      .slice(-40) // últimas 40 = 20 pares
+      .map(m => ({ role: m.role, content: m.content }))
+  );
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const accessType = profile.userAccessType || 'vendas';
@@ -147,6 +155,7 @@ export default function AICoach() {
     setAiMode(mode);
     setMessages([]);
     setSuggestions([]);
+    priorHistoryRef.current = [];
     saveData(KEYS.CHAT_HISTORY, []);
     resetChat();
   };
@@ -232,7 +241,10 @@ export default function AICoach() {
     const withSuggestions = withOffers + '\n\n' + sugLabel;
 
     try {
-      const response = await sendMessage(withSuggestions, API_KEY, aiMode, file?.attachment ?? undefined);
+      // Passa histórico anterior apenas na primeira mensagem da sessão (restaura contexto)
+      const prior = priorHistoryRef.current;
+      priorHistoryRef.current = []; // limpa após primeira chamada — Gemini já tem o contexto
+      const response = await sendMessage(withSuggestions, API_KEY, aiMode, file?.attachment ?? undefined, prior);
       const { clean, suggestions: newSug } = parseSuggestions(response);
       setSuggestions(newSug);
 
@@ -264,8 +276,27 @@ export default function AICoach() {
   const handleClear = () => {
     setMessages([]);
     setSuggestions([]);
+    priorHistoryRef.current = [];
     saveData(KEYS.CHAT_HISTORY, []);
     resetChat();
+  };
+
+  const handleCopy = (msg: ChatMessage) => {
+    const plain = msg.content.replace(/\*\*/g, '').replace(/\*/g, '');
+    navigator.clipboard.writeText(plain).then(() => {
+      setCopiedId(msg.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }).catch(() => {
+      // fallback: criar textarea temporário
+      const ta = document.createElement('textarea');
+      ta.value = plain;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopiedId(msg.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
   };
 
   // ── Recorder ──────────────────────────────────────────────────────────────
@@ -445,6 +476,16 @@ export default function AICoach() {
                 {msg.role === 'assistant' && (
                   <div className="msg-actions">
                     <SpeakButton text={msg.content.replace(/\*\*/g, '').replace(/\*/g, '')} size={14} />
+                    <button
+                      className={`msg-copy-btn${copiedId === msg.id ? ' copied' : ''}`}
+                      onClick={() => handleCopy(msg)}
+                      title="Copiar resposta"
+                    >
+                      {copiedId === msg.id
+                        ? <><Check size={12} /> Copiado</>
+                        : <><Copy size={12} /> Copiar</>
+                      }
+                    </button>
                   </div>
                 )}
               </div>
@@ -559,7 +600,7 @@ export default function AICoach() {
                 <Mic size={20} />
               </button>
             ) : (
-              <button className="send-btn" onClick={() => handleSend()} disabled={(!input.trim() && !attachedFile) || loading}>
+              <button className="send-btn" onClick={() => handleSend()} disabled={(!input.trim() && !attachedFile) || loading} aria-label="Enviar mensagem">
                 <Send size={18} />
               </button>
             )}

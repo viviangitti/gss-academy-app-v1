@@ -107,7 +107,66 @@ export interface ImageAttachment {
   mimeType: string;
 }
 
-export async function sendMessage(message: string, apiKey: string, mode: 'vendas' | 'marketing' = 'vendas', image?: ImageAttachment): Promise<string> {
+export interface PriorMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+/**
+ * Constrói o histórico Gemini a partir de mensagens anteriores.
+ * - Filtra mensagens de imagem/PDF (não suportadas em history)
+ * - Garante alternância user/model (elimina consecutivos do mesmo role)
+ * - Limita ao máximo de `maxPairs` pares para controlar tokens
+ */
+function buildGeminiHistory(
+  systemPrompt: string,
+  ack: string,
+  prior: PriorMessage[],
+  maxPairs = 20,
+): { role: 'user' | 'model'; parts: { text: string }[] }[] {
+  // Base: system prompt pair
+  const base: { role: 'user' | 'model'; parts: { text: string }[] }[] = [
+    { role: 'user', parts: [{ text: 'Contexto: ' + systemPrompt }] },
+    { role: 'model', parts: [{ text: ack }] },
+  ];
+
+  if (!prior.length) return base;
+
+  // Pega as últimas (maxPairs * 2) mensagens, filtrando só texto
+  const textOnly = prior.filter(m => m.content && m.content.trim());
+  const slice = textOnly.slice(-(maxPairs * 2));
+
+  // Garante alternância: se duas consecutivas têm o mesmo role, descarta a anterior
+  const alternating: PriorMessage[] = [];
+  for (const msg of slice) {
+    if (alternating.length > 0 && alternating[alternating.length - 1].role === msg.role) {
+      alternating[alternating.length - 1] = msg; // substitui pelo mais recente
+    } else {
+      alternating.push(msg);
+    }
+  }
+
+  // Gemini exige que history comece com 'user' e termine com 'model'
+  // Se o último é 'user', removemos (ele vai ser enviado como mensagem normal)
+  const trimmed = alternating[alternating.length - 1]?.role === 'user'
+    ? alternating.slice(0, -1)
+    : alternating;
+
+  const priorHistory = trimmed.map(m => ({
+    role: (m.role === 'assistant' ? 'model' : 'user') as 'user' | 'model',
+    parts: [{ text: m.content }],
+  }));
+
+  return [...base, ...priorHistory];
+}
+
+export async function sendMessage(
+  message: string,
+  apiKey: string,
+  mode: 'vendas' | 'marketing' = 'vendas',
+  image?: ImageAttachment,
+  priorHistory?: PriorMessage[],
+): Promise<string> {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
@@ -125,16 +184,7 @@ export async function sendMessage(message: string, apiKey: string, mode: 'vendas
         ? 'Entendido! Sou o Consultor de Marketing da MAESTR.IA. Domino branding, estratégia de campanhas, benchmarking e alinhamento marketing-vendas. Como posso ajudar?'
         : 'Entendido! Sou o Consultor de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
       chat = model.startChat({
-        history: [
-          {
-            role: 'user',
-            parts: [{ text: 'Contexto: ' + prompt }],
-          },
-          {
-            role: 'model',
-            parts: [{ text: ack }],
-          },
-        ],
+        history: buildGeminiHistory(prompt, ack, priorHistory ?? []),
       });
     }
 

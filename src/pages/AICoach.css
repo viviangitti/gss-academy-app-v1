@@ -424,7 +424,18 @@
   gap: 4px;
   margin-top: 4px;
   padding-left: 4px;
+  align-items: center;
 }
+
+.msg-copy-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-light); font-size: 11px; font-family: inherit;
+  padding: 4px 8px; border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.msg-copy-btn:hover { background: var(--surface-alt, rgba(0,0,0,0.05)); color: var(--text); }
+.msg-copy-btn.copied { color: #10b981; }
 
 /* ── Suggestions ── */
 .suggestions {
