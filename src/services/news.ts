@@ -1,35 +1,46 @@
 import type { Segment, NewsItem } from '../types';
 import { fetchSegmentNews } from './firestore/segmentNews';
 
-// Segments that have curated Firestore news (takes priority over RSS)
-const FIRESTORE_NEWS_SEGMENTS = new Set(['farmaceutico']);
+// Nota: todos os segmentos agora tentam o Firestore primeiro (banco central de notícias),
+// com fallback automático para RSS/Google News quando o banco tem < 3 itens.
 
 export type NewsCategory = 'tudo' | 'lancamentos' | 'ofertas' | 'mercado' | 'marketing' | 'concorrentes';
 export type NewsGeo = 'brasil' | 'mundo';
 
 // Queries para notícias de marketing — usadas quando userAccessType é 'marketing' ou 'ambos'
+// Organizadas por tipo: Eventos, Mídia, Parcerias, Tendências
+
 const MARKETING_QUERIES_BR = [
-  'marketing luxury brand campaign Brasil OR luxury brand marketing strategy 2025',
-  'marketing digital tendência 2025 Brasil marca premium',
-  'branding experiência cliente luxo concessionária premium',
-  'estratégia marketing automotivo premium Land Rover BMW Mercedes 2025',
-  'social media luxury brand Instagram influencer marketing',
-  'marketing experiencial evento ativação marca luxo Brasil',
-  'retail marketing concessionária campanha lançamento premium',
-  'brand guide identidade visual marca premium campanha',
-  'marketing conteúdo luxury brand storytelling engajamento',
-  'CX experiência cliente luxo tendência 2025',
+  // 🎪 Eventos
+  'evento marketing automotivo ativação showroom fórum lançamento Brasil 2025',
+  'salão automotivo motorshow expo evento marca lançamento novidade Brasil',
+  'ativação ponto de venda PDV concessionária experiência marca luxury 2025',
+  // 📺 Mídia
+  'campanha mídia veiculação TV digital outdoor anúncio automóvel premium Brasil 2025',
+  'publicidade digital programática Google Meta TikTok marca automotiva premium Brasil',
+  'mídia OOH outdoor DOOH campanha premium automotivo lançamento publicidade',
+  // 🤝 Parcerias
+  'parceria patrocínio marca automotiva esporte cultural luxo collab Brasil 2025',
+  'brand ambassador influencer parceria marca luxury automotive colaboração',
+  'co-branding parceria premium lifestyle moda arte marca automotiva',
+  // 📊 Tendências & Branding
+  'tendência marketing luxury brand premium experiência cliente CX 2025 Brasil',
+  'storytelling branding campanha digital social media marca automotiva premium',
 ];
 
 const MARKETING_QUERIES_WORLD = [
-  'luxury brand marketing campaign 2025',
-  'automotive luxury marketing digital strategy',
-  'experiential marketing luxury retail activation',
-  'luxury brand social media content Instagram',
-  'premium brand campaign launch global 2025',
-  'luxury retail customer experience trend',
-  'JLR Land Rover Range Rover campaign marketing',
-  'luxury brand benchmark engagement ROI',
+  // Events
+  'luxury automotive marketing event activation launch summit 2025',
+  'brand activation experiential marketing luxury showroom global',
+  // Media
+  'luxury brand advertising campaign media digital OOH 2025',
+  'premium automotive programmatic digital marketing media buying',
+  // Partnerships
+  'luxury brand partnership sponsorship collaboration sport art 2025',
+  'brand ambassador influencer luxury automotive partnership collaboration',
+  // Trends
+  'luxury brand marketing strategy trend digital 2025',
+  'luxury customer experience CX retail omnichannel innovation',
 ];
 
 // Queries de ações de marketing da concorrência — por segmento
@@ -154,8 +165,44 @@ export async function fetchCompetitorMarketingNews(segment: string, geo: NewsGeo
   return sorted;
 }
 
-export async function fetchMarketingNews(geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
-  const cKey = `${CACHE_KEY}_marketing_${geo}`;
+// Queries de marketing específicas por segmento — eventos, mídia e parcerias do setor
+const SEGMENT_MARKETING_QUERIES: Partial<Record<string, string[]>> = {
+  automotivo: [
+    'evento automotivo ativação lançamento concessionária Brasil 2025',
+    'campanha mídia TV digital veiculação carro anúncio Brasil',
+    'parceria patrocínio marca carro esporte collab influencer Brasil',
+    'marketing digital concessionária redes sociais lead geração',
+    'tendência marketing automotivo experiência cliente showroom Brasil',
+  ],
+  automotivo_luxo: [
+    'evento ativação luxury car brand experiência showroom lançamento Brasil 2025',
+    'campanha mídia veiculação TV digital luxury automotive premium Brasil',
+    'parceria patrocínio marca luxo arte esporte collab influencer premium Brasil',
+    'experiência cliente luxury CX concessionária premium premium brand',
+    'marketing digital luxury brand social media content Land Rover BMW Porsche',
+  ],
+  varejo: [
+    'evento varejo feira consumidor lançamento Brasil 2025',
+    'campanha mídia digital TV varejo publicidade anúncio',
+    'parceria marca varejo co-branding patrocínio influencer Brasil',
+    'tendência marketing varejo omnichannel digital experiência',
+  ],
+  financeiro: [
+    'evento fórum financeiro fintech congresso marketing 2025',
+    'campanha mídia seguro banco financeiro veiculação digital TV',
+    'parceria patrocínio marca financeira collab influencer',
+    'marketing digital financeiro redes sociais lead conversão',
+  ],
+  imobiliario: [
+    'evento lançamento imóvel ativação stand feira imobiliária Brasil',
+    'campanha mídia digital TV imóvel publicidade anúncio Brasil',
+    'parceria patrocínio construtora incorporadora collab influencer',
+    'marketing digital imobiliário conteúdo Instagram lead geração',
+  ],
+};
+
+export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: string): Promise<NewsItem[]> {
+  const cKey = `${CACHE_KEY}_marketing_${segment || 'generic'}_${geo}`;
   try {
     const raw = localStorage.getItem(cKey);
     if (raw) {
@@ -164,8 +211,19 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil'): Promise<NewsI
     }
   } catch { /* ignore */ }
 
-  const queries = geo === 'mundo' ? MARKETING_QUERIES_WORLD : MARKETING_QUERIES_BR;
-  const selected = queries.slice(0, 5);
+  let queries: string[];
+  if (geo === 'mundo') {
+    queries = MARKETING_QUERIES_WORLD;
+  } else if (segment && SEGMENT_MARKETING_QUERIES[segment]) {
+    // Blend segment-specific with generic queries for better coverage
+    const segQueries = SEGMENT_MARKETING_QUERIES[segment]!;
+    const genericExtra = MARKETING_QUERIES_BR.filter((_, i) => i >= 6); // last 5 (tendências)
+    queries = [...segQueries, ...genericExtra].slice(0, 8);
+  } else {
+    queries = MARKETING_QUERIES_BR;
+  }
+
+  const selected = queries.slice(0, 6);
   const results = await Promise.all(selected.map(q => fetchFromGoogleNews(q, 8, geo)));
   const all = dedupeByTitle(results.flat());
   const sorted = sortByDate(all).slice(0, 25);
@@ -178,7 +236,7 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil'): Promise<NewsI
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v3'; // bump version to clear old generic queries
+const CACHE_KEY = 'gss_news_cache_v4'; // bump version to clear old generic queries
 const CACHE_TTL = 30 * 60 * 1000; // 30 min
 
 interface CacheEntry {
@@ -526,6 +584,25 @@ function setCached(segment: string, cat: NewsCategory, geo: NewsGeo, items: News
   } catch { /* storage cheio, ignore */ }
 }
 
+// Normaliza links que podem ser quebrados (Google News redirect URLs intermediárias)
+// Substitui por URL de busca no Google News, que sempre funciona
+function normalizeNewsLink(title: string, link: string, geo: NewsGeo): string {
+  if (!link || !link.startsWith('http')) {
+    const q = encodeURIComponent(title);
+    return geo === 'mundo'
+      ? `https://news.google.com/search?q=${q}&hl=en&gl=US&ceid=US:en`
+      : `https://news.google.com/search?q=${q}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+  }
+  // URLs de redirect interno do Google News RSS (/rss/rd/, /rss/articles/) são instáveis
+  if (link.includes('news.google.com/rss/') || link.includes('/rss/rd/articles')) {
+    const q = encodeURIComponent(title);
+    return geo === 'mundo'
+      ? `https://news.google.com/search?q=${q}&hl=en&gl=US&ceid=US:en`
+      : `https://news.google.com/search?q=${q}&hl=pt-BR&gl=BR&ceid=BR:pt-419`;
+  }
+  return link;
+}
+
 async function fetchFromGoogleNews(query: string, limit: number, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
   const encoded = encodeURIComponent(query);
   const geoParams = geo === 'mundo'
@@ -541,7 +618,7 @@ async function fetchFromGoogleNews(query: string, limit: number, geo: NewsGeo = 
     if (data.status !== 'ok' || !Array.isArray(data.items)) return [];
     return data.items.slice(0, limit).map((item: { title: string; link: string; pubDate: string; description: string }) => ({
       title: item.title,
-      link: item.link,
+      link: normalizeNewsLink(item.title, item.link, geo),
       pubDate: item.pubDate,
       description: item.description?.replace(/<[^>]*>/g, '').slice(0, 150) || '',
     }));
@@ -584,28 +661,35 @@ export async function fetchNewsByCategory(segment: Segment, category: NewsCatego
   const cached = getCached(segment, category, geo);
   if (cached) return cached;
 
+  // 0 ── Banco central de notícias (Firestore) — prioridade para todos os segmentos e geos.
+  // Se o banco tem conteúdo suficiente, o usuário lê APENAS dele — sem chamadas RSS/Google
+  // por usuário. O admin é quem alimenta o banco em /noticias-admin.
+  try {
+    const curated = await fetchSegmentNews(segment, category, geo);
+    if (curated.length >= 3) {
+      const sorted = sortByDate(dedupeByTitle(curated)).slice(0, 25);
+      setCached(segment, category, geo, sorted);
+      return sorted;
+    }
+  } catch { /* offline → cai no fallback RSS abaixo */ }
+
+  // 1 ── Fallback: busca direto do RSS/Google News (banco vazio ou offline)
+  const items = await fetchRawNews(segment, category, geo);
+  if (items.length > 0) setCached(segment, category, geo, items);
+  return items;
+}
+
+/**
+ * Busca notícias DIRETO do RSS/Google News, ignorando cache e banco central.
+ * Usado pelo admin (/noticias-admin) para alimentar o banco do Firestore.
+ * NÃO use no fluxo normal do usuário — isso faria cada usuário puxar notícias.
+ */
+export async function fetchRawNews(segment: Segment, category: NewsCategory, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
+  if (!segment) return [];
+
   const base = SEGMENT_BASE[segment] || segment;
   const baseWorld = SEGMENT_BASE_WORLD[segment] || base;
   const effectiveBase = geo === 'mundo' ? baseWorld : base;
-
-  // 0 ── Firestore curated news (priority for segments with AI-curated content) — skip for 'mundo'
-  if (geo !== 'mundo' && FIRESTORE_NEWS_SEGMENTS.has(segment)) {
-    try {
-      const curated = await fetchSegmentNews(segment, category);
-      if (curated.length >= 3) {
-        // Blend with RSS for 'tudo' category, use curated-only for specific categories
-        if (category !== 'tudo') {
-          setCached(segment, category, geo, curated);
-          return curated;
-        }
-        // For 'tudo', fetch RSS too and merge
-        const rssItems = await fetchFromGoogleNews(base, 15, geo);
-        const merged = sortByDate(dedupeByTitle([...curated, ...rssItems])).slice(0, 25);
-        setCached(segment, category, geo, merged);
-        return merged;
-      }
-    } catch { /* offline fallback */ }
-  }
 
   // 1 ── RSS diretos por segmento+categoria — skip for 'mundo'
   if (geo !== 'mundo') {
@@ -616,10 +700,7 @@ export async function fetchNewsByCategory(segment: Segment, category: NewsCatego
       const allItems = results.flat();
       const deduped = dedupeByTitle(allItems);
       const sorted = sortByDate(deduped).slice(0, 25);
-      if (sorted.length >= 3) {
-        setCached(segment, category, geo, sorted);
-        return sorted;
-      }
+      if (sorted.length >= 3) return sorted;
       // fallback se feeds diretos vieram vazios
     }
   }
@@ -631,9 +712,7 @@ export async function fetchNewsByCategory(segment: Segment, category: NewsCatego
   // Para "tudo", faz uma query ampla
   if (category === 'tudo') {
     const items = await fetchFromGoogleNews(effectiveBase, 25, geo);
-    const result = sortByDate(dedupeByTitle(items));
-    if (result.length > 0) setCached(segment, category, geo, result);
-    return result;
+    return sortByDate(dedupeByTitle(items));
   }
 
   // Para categorias específicas, faz 3-4 queries em paralelo e junta
@@ -651,12 +730,9 @@ export async function fetchNewsByCategory(segment: Segment, category: NewsCatego
   // Se veio pouco, faz fallback pra query base
   if (sorted.length < 3) {
     const fallback = await fetchFromGoogleNews(effectiveBase, 20, geo);
-    const merged = sortByDate(dedupeByTitle([...sorted, ...fallback])).slice(0, 20);
-    if (merged.length > 0) setCached(segment, category, geo, merged);
-    return merged;
+    return sortByDate(dedupeByTitle([...sorted, ...fallback])).slice(0, 20);
   }
 
-  if (sorted.length > 0) setCached(segment, category, geo, sorted);
   return sorted;
 }
 

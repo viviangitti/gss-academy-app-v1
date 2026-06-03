@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import Onboarding from './components/Onboarding';
@@ -28,6 +28,7 @@ import Offers from './pages/Offers';
 import OffersAdmin from './pages/OffersAdmin';
 import CompetitorIntel from './pages/CompetitorIntel';
 import CompetitorAdmin from './pages/CompetitorAdmin';
+import NewsAdmin from './pages/NewsAdmin';
 import MarketingHub from './pages/MarketingHub';
 import Urgency from './pages/Urgency';
 import CommercialConditions from './pages/CommercialConditions';
@@ -37,6 +38,9 @@ import MarketingChat from './pages/MarketingChat';
 import BrandGuide from './pages/BrandGuide';
 import CampaignAnalysis from './pages/CampaignAnalysis';
 import CopyGenerator from './pages/CopyGenerator';
+import CampaignReview from './pages/CampaignReview';
+import CopyReview from './pages/CopyReview';
+import PreLaunch from './pages/PreLaunch';
 import Auth from './pages/Auth';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
@@ -48,6 +52,8 @@ import type { HistoryEntry } from './services/history';
 import type { Favorite } from './services/favorites';
 import type { LostSale } from './services/lostSales';
 import type { DayData } from './services/day';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import RequireAdmin from './components/RequireAdmin';
 import './App.css';
 
 function AppContent() {
@@ -56,6 +62,28 @@ function AppContent() {
   const [showOnboarding, setShowOnboarding] = useState(
     () => !localStorage.getItem('gss_onboarding_done')
   );
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const prevUserRef = useRef<typeof user | undefined>(undefined);
+
+  // Detect session expiry: user transitions from logged-in to null
+  useEffect(() => {
+    if (loading) return;
+    if (prevUserRef.current !== undefined && prevUserRef.current !== null && user === null) {
+      // User was logged in and is now signed out — check if they had a profile
+      const profile = localStorage.getItem('gss_profile');
+      if (profile) {
+        try {
+          const parsed = JSON.parse(profile);
+          if (parsed.name) {
+            setSessionExpired(true);
+          }
+        } catch {
+          // ignore malformed data
+        }
+      }
+    }
+    prevUserRef.current = user;
+  }, [user, loading]);
 
   // Quando usuário loga, garantimos que o perfil local reflete o remoto
   useEffect(() => {
@@ -140,7 +168,7 @@ function AppContent() {
 
   // Se Firebase está ativo e não há usuário logado → tela de auth
   if (firebaseEnabled && !user) {
-    return <Auth />;
+    return <Auth sessionExpired={sessionExpired} />;
   }
 
   if (showOnboarding) {
@@ -149,13 +177,11 @@ function AppContent() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
-  // Título fixo sem ponto
-  document.title = 'GSS';
-
   // Controladoria → só tela de metas
   if (profile.isControladoria) {
     return (
       <BrowserRouter>
+        <TitleManager />
         <div className="app">
           <Header />
           <main className="app-content">
@@ -173,6 +199,7 @@ function AppContent() {
   // Marketing/ambos têm acesso adicional ao hub de marketing dentro do mesmo app.
   return (
     <BrowserRouter>
+      <TitleManager />
       <div className="app">
         <Header />
         <main className="app-content">
@@ -199,18 +226,24 @@ function AppContent() {
             <Route path="/perfil" element={<Profile />} />
             <Route path="/controladoria" element={<Controladoria />} />
             <Route path="/ofertas" element={<Offers />} />
-            <Route path="/ofertas-admin" element={<OffersAdmin />} />
+            <Route path="/ofertas-admin" element={<RequireAdmin allowMarketing><OffersAdmin /></RequireAdmin>} />
             <Route path="/concorrencia" element={<CompetitorIntel />} />
-            <Route path="/concorrencia-admin" element={<CompetitorAdmin />} />
+            <Route path="/concorrencia-admin" element={<RequireAdmin allowMarketing><CompetitorAdmin /></RequireAdmin>} />
             <Route path="/gatilhos" element={<Urgency />} />
             <Route path="/condicoes" element={<CommercialConditions />} />
-            <Route path="/condicoes-admin" element={<CommercialConditionsAdmin />} />
+            <Route path="/condicoes-admin" element={<RequireAdmin allowMarketing><CommercialConditionsAdmin /></RequireAdmin>} />
             <Route path="/playbook" element={<Playbook />} />
             <Route path="/marketing-hub" element={<MarketingHub />} />
             <Route path="/marketing-chat" element={<MarketingChat />} />
             <Route path="/guia-marca" element={<BrandGuide />} />
             <Route path="/analise-campanha" element={<CampaignAnalysis />} />
             <Route path="/gerador-copy" element={<CopyGenerator />} />
+            <Route path="/pos-campanha" element={<CampaignReview />} />
+            <Route path="/revisar-copy" element={<CopyReview />} />
+            <Route path="/pre-lancamento" element={<PreLaunch />} />
+            <Route path="/noticias-admin" element={<RequireAdmin><NewsAdmin /></RequireAdmin>} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
         <BottomNav />
@@ -219,11 +252,59 @@ function AppContent() {
   );
 }
 
+const ROUTE_TITLES: Record<string, string> = {
+  '/':                  'GSS — Início',
+  '/noticias':          'GSS — Notícias',
+  '/noticias-admin':    'GSS — Admin Notícias',
+  '/biblioteca':        'GSS — Biblioteca',
+  '/objecoes':          'GSS — Objeções',
+  '/scripts':           'GSS — Scripts',
+  '/tecnicas':          'GSS — Técnicas',
+  '/favoritos':         'GSS — Favoritos',
+  '/treino-hub':        'GSS — Treino',
+  '/treino':            'GSS — Role-play',
+  '/pre-reuniao':       'GSS — Pré-reunião',
+  '/coach-mensagem':    'GSS — Revisar Mensagem',
+  '/analise-reuniao':   'GSS — Pós-reunião',
+  '/vendas-perdidas':   'GSS — Vendas Perdidas',
+  '/historico':         'GSS — Histórico',
+  '/vendas':            'GSS — Vendas',
+  '/ia-coach':          'GSS — IA Consultora',
+  '/perfil':            'GSS — Perfil',
+  '/ofertas':           'GSS — Ofertas',
+  '/concorrencia':      'GSS — Inteligência Competitiva',
+  '/condicoes':         'GSS — Condições Comerciais',
+  '/condicoes-admin':   'GSS — Campanhas e Condições',
+  '/playbook':          'GSS — Playbook',
+  '/marketing-hub':     'GSS — Marketing',
+  '/marketing-chat':    'GSS — Copiloto de Marketing',
+  '/guia-marca':        'GSS — Guia de Marca',
+  '/analise-campanha':  'GSS — Análise de Campanha',
+  '/gerador-copy':      'GSS — Gerador de Copy',
+  '/pos-campanha':      'GSS — Pós-campanha',
+  '/revisar-copy':      'GSS — Revisar Copy',
+  '/pre-lancamento':    'GSS — Pré-lançamento',
+  '/gatilhos':          'GSS — Gatilhos',
+  '/feedback':          'GSS — Feedback',
+  '/instalar':          'GSS — Instalar App',
+  '/privacidade':       'GSS — Privacidade',
+};
+
+function TitleManager() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    document.title = ROUTE_TITLES[pathname] ?? 'GSS';
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
