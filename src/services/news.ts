@@ -1,8 +1,7 @@
 import type { Segment, NewsItem } from '../types';
-import { fetchSegmentNews } from './firestore/segmentNews';
 
-// Nota: todos os segmentos agora tentam o Firestore primeiro (banco central de notícias),
-// com fallback automático para RSS/Google News quando o banco tem < 3 itens.
+// Notícias são buscadas AO VIVO do Google News (grátis, sempre frescas).
+// O banco central do Firestore (segmentNews) ficou reservado para casos que custam (ofertas via Gemini).
 
 export type NewsCategory = 'tudo' | 'lancamentos' | 'ofertas' | 'mercado' | 'marketing' | 'concorrentes';
 export type NewsGeo = 'brasil' | 'mundo';
@@ -236,8 +235,8 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v4'; // bump version to clear old generic queries
-const CACHE_TTL = 30 * 60 * 1000; // 30 min
+const CACHE_KEY = 'gss_news_cache_v5'; // bump version to clear old generic queries
+const CACHE_TTL = 20 * 60 * 1000; // 20 min — notícias ao vivo
 
 interface CacheEntry {
   ts: number;
@@ -657,23 +656,12 @@ export async function fetchNews(segment: Segment): Promise<NewsItem[]> {
 export async function fetchNewsByCategory(segment: Segment, category: NewsCategory, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
   if (!segment) return [];
 
-  // Cache primeiro
+  // Cache local de 30 min (evita refetch a cada navegação, mas mantém frescor)
   const cached = getCached(segment, category, geo);
   if (cached) return cached;
 
-  // 0 ── Banco central de notícias (Firestore) — prioridade para todos os segmentos e geos.
-  // Se o banco tem conteúdo suficiente, o usuário lê APENAS dele — sem chamadas RSS/Google
-  // por usuário. O admin é quem alimenta o banco em /noticias-admin.
-  try {
-    const curated = await fetchSegmentNews(segment, category, geo);
-    if (curated.length >= 3) {
-      const sorted = sortByDate(dedupeByTitle(curated)).slice(0, 25);
-      setCached(segment, category, geo, sorted);
-      return sorted;
-    }
-  } catch { /* offline → cai no fallback RSS abaixo */ }
-
-  // 1 ── Fallback: busca direto do RSS/Google News (banco vazio ou offline)
+  // Notícias AO VIVO do Google News — grátis e sempre frescas, atualizando sozinhas.
+  // (Banco central do Firestore é usado só para ofertas, que custam via Gemini.)
   const items = await fetchRawNews(segment, category, geo);
   if (items.length > 0) setCached(segment, category, geo, items);
   return items;
