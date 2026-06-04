@@ -235,7 +235,7 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v5'; // bump version to clear old generic queries
+const CACHE_KEY = 'gss_news_cache_v6'; // bump version to clear old generic queries
 const CACHE_TTL = 20 * 60 * 1000; // 20 min — notícias ao vivo
 
 interface CacheEntry {
@@ -603,7 +603,10 @@ function normalizeNewsLink(title: string, link: string, geo: NewsGeo): string {
 }
 
 async function fetchFromGoogleNews(query: string, limit: number, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
-  const encoded = encodeURIComponent(query);
+  // Filtro de recência: só notícias dos últimos 30 dias.
+  // Sem isso, o Google News devolve por relevância e mistura artigos antigos (até de anos atrás).
+  const queryWithRecency = `${query} when:30d`;
+  const encoded = encodeURIComponent(queryWithRecency);
   const geoParams = geo === 'mundo'
     ? 'hl=en&gl=US&ceid=US:en'
     : 'hl=pt-BR&gl=BR&ceid=BR:pt-419';
