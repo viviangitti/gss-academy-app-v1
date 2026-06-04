@@ -235,7 +235,7 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v6'; // bump version to clear old generic queries
+const CACHE_KEY = 'gss_news_cache_v7'; // bump version to clear old generic queries
 const CACHE_TTL = 20 * 60 * 1000; // 20 min — notícias ao vivo
 
 interface CacheEntry {
@@ -264,37 +264,40 @@ const SEGMENT_BASE_WORLD: Record<string, string> = {
 
 // Queries base por segmento — orientadas ao vendedor, não ao setor genérico
 // Foco: o que afeta o fechamento, o que o cliente está lendo, o que o concorrente está fazendo
+// Queries amplas, focadas em marcas/termos-chave do segmento + Brasil.
+// Mantidas simples de propósito: combinadas com o filtro "when:30d", queries muito
+// específicas retornam pouquíssimos resultados. Amplas garantem volume de notícia recente.
 const SEGMENT_BASE: Record<string, string> = {
   farmaceutico:
-    '(novo medicamento aprovado ANVISA OR genérico lançamento OR farmácia campanha promoção OR medicamento similar preço OR OTC automedicação Brasil)',
+    'medicamento OR farmácia OR ANVISA OR laboratório OR remédio OR genérico Brasil',
   automotivo:
-    'lançamento carro Brasil 2026 OR emplacamentos OR BYD Fiat Volkswagen Toyota oferta',
+    'carro OR montadora OR Fiat OR Volkswagen OR Toyota OR Chevrolet OR BYD OR Hyundai lançamento Brasil',
   automotivo_luxo:
-    '(carro luxo lançamento Brasil OR BMW OR Mercedes OR Porsche OR Audi OR Land Rover OR test drive OR importado câmbio)',
+    'carro de luxo OR BMW OR Mercedes OR Porsche OR Audi OR "Land Rover" OR Volvo OR Lexus Brasil',
   tecnologia:
-    '(software empresa lançamento OR SaaS preço OR transformação digital PME OR contrato tecnologia OR licença software Brasil)',
+    'tecnologia OR software OR SaaS OR startup OR transformação digital OR Totvs empresa Brasil',
   varejo:
-    '(promoção varejo Brasil OR consumidor compra OR crediário juros OR comércio vendas OR lojista campanha OR Black Friday OR liquidação)',
+    'varejo OR "Magazine Luiza" OR Americanas OR "Casas Bahia" OR comércio OR consumidor Brasil',
   imobiliario:
-    '(lançamento imóvel OR Selic impacto financiamento imóvel OR MCMV OR construtora condições OR FGTS imóvel OR permuta imóvel OR VGV)',
+    'imóvel OR imobiliário OR construtora OR MRV OR Cyrela OR financiamento imobiliário Brasil',
   financeiro:
-    '(seguro novo produto OR plano capitalização OR consórcio OR taxa corretagem OR sinistro OR seguradora campanha OR fundo investimento lançamento)',
+    'banco OR seguro OR fintech OR Nubank OR investimento OR consórcio OR seguradora Brasil',
   industria:
-    '(insumo industrial preço OR matéria-prima custo OR contrato fornecimento OR licitação OR importação insumo OR prazo entrega indústria)',
+    'indústria OR manufatura OR fábrica OR produção industrial OR WEG OR insumo Brasil',
   saude:
-    '(tratamento estético lançamento OR procedimento novo clínica OR plano saúde cobertura OR equipamento médico homologado OR odontologia implante preço)',
+    'saúde OR clínica OR hospital OR "plano de saúde" OR estética OR Unimed OR Hapvida Brasil',
   educacao:
-    '(bolsa estudo OR financiamento educacional OR curso novo lançamento OR ENEM matrícula OR mensalidade escola OR edtech plataforma)',
+    'educação OR universidade OR faculdade OR ensino OR escola OR EAD OR vestibular Brasil',
   servicos:
-    '(contrato consultoria OR outsourcing demanda OR terceirização tendência OR RH empresa serviços OR licita serviços OR contrato serviço renovação)',
+    'serviços OR consultoria OR terceirização OR outsourcing OR mercado de trabalho empresa Brasil',
   agro:
-    '(defensivo agrícola lançamento OR semente nova tecnologia OR safra previsão OR crédito rural condições OR cotação commodities OR insumo agro preço)',
+    'agro OR agronegócio OR safra OR agricultura OR Syngenta OR defensivo agrícola Brasil',
   energia:
-    '(energia solar instalação OR painéis fotovoltaicos preço OR financiamento solar OR distribuidora energia tarifa OR desconto energia renovável OR crédito BNDES)',
+    'energia solar OR fotovoltaica OR energia renovável OR distribuidora de energia OR tarifa Brasil',
   bebidas_alcoolicas:
-    '(cerveja lançamento Brasil OR destilado nova marca OR distribuidora bebidas PDV OR promoção bebidas supermercado OR bar restaurante consumo OR gin cachaça whisky)',
+    'cerveja OR bebida OR Ambev OR Heineken OR destilado OR gin OR whisky Brasil',
   bebidas_alcoolicas_vinho:
-    '(vinho importado lançamento OR vinícola nova safra OR importadora vinho promoção OR vinho nacional premiado OR harmonização restaurante OR enoturismo)',
+    'vinho OR vinícola OR enoturismo OR "importadora de vinho" OR safra vinho Brasil',
 };
 
 // Queries específicas por segmento+categoria — voltadas ao dia a dia do vendedor
@@ -611,19 +614,37 @@ async function fetchFromGoogleNews(query: string, limit: number, geo: NewsGeo = 
     ? 'hl=en&gl=US&ceid=US:en'
     : 'hl=pt-BR&gl=BR&ceid=BR:pt-419';
   const rssUrl = `https://news.google.com/rss/search?q=${encoded}&${geoParams}`;
-  // rss2json free não aceita 'count' — limitamos no cliente
-  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
-  try {
-    const res = await fetch(apiUrl);
-    const data = await res.json();
-    if (data.status !== 'ok' || !Array.isArray(data.items)) return [];
-    return data.items.slice(0, limit).map((item: { title: string; link: string; pubDate: string; description: string }) => ({
+  // 1ª opção: proxy próprio no Vercel (sem dependência de terceiros, sem rate limit).
+  // 2ª opção (fallback): rss2json, caso o proxy próprio falhe por algum motivo.
+  const ownProxy = `/api/news-proxy?rss=${encodeURIComponent(rssUrl)}`;
+  const rss2json = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+  const mapItems = (items: { title: string; link: string; pubDate: string; description: string }[]) =>
+    items.slice(0, limit).map(item => ({
       title: item.title,
       link: normalizeNewsLink(item.title, item.link, geo),
       pubDate: item.pubDate,
       description: item.description?.replace(/<[^>]*>/g, '').slice(0, 150) || '',
     }));
+
+  // Tenta o proxy próprio primeiro
+  try {
+    const res = await fetch(ownProxy);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
+        return mapItems(data.items);
+      }
+    }
+  } catch { /* cai no fallback */ }
+
+  // Fallback: rss2json
+  try {
+    const res = await fetch(rss2json);
+    const data = await res.json();
+    if (data.status !== 'ok' || !Array.isArray(data.items)) return [];
+    return mapItems(data.items);
   } catch {
     return [];
   }
