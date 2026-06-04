@@ -11,7 +11,12 @@ import { readFileSync } from 'fs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // ── Config ──────────────────────────────────────────────────────────────────
-const GEMINI_KEY = 'AIzaSyCrODFBrR7ACVHs-2TU-QDOu7fcbCTFj_k';
+// Lê a chave do ambiente — NUNCA hardcode chaves de API (vazam no git/público)
+const GEMINI_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+if (!GEMINI_KEY) {
+  console.error('Defina VITE_GEMINI_API_KEY no ambiente antes de rodar este script.');
+  process.exit(1);
+}
 const PROJECT_ID = 'maestria-vendas';
 const COLLECTION  = 'competitorOffers';
 
