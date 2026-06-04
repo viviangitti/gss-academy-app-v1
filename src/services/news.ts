@@ -669,7 +669,7 @@ export async function fetchNewsByCategory(segment: Segment, category: NewsCatego
 
 /**
  * Busca notícias DIRETO do RSS/Google News, ignorando cache e banco central.
- * Usado pelo admin (/noticias-admin) para alimentar o banco do Firestore.
+ * (Função mantida para uso futuro; não é usada no fluxo atual de notícias ao vivo.)
  * NÃO use no fluxo normal do usuário — isso faria cada usuário puxar notícias.
  */
 export async function fetchRawNews(segment: Segment, category: NewsCategory, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {

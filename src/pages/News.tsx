@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, TrendingUp, Globe, Search, X, MapPin, Calendar, Megaphone, Swords, Database } from 'lucide-react';
+import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, TrendingUp, Globe, Search, X, MapPin, Calendar, Megaphone, Swords } from 'lucide-react';
 import { fetchNewsByCategory, fetchMarketingNews, fetchCompetitorMarketingNews, clearNewsCache } from '../services/news';
 import { searchSegmentOffers, getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, clearOffersCache } from '../services/competitorScraper';
 import { loadData, saveData, KEYS } from '../services/storage';
@@ -182,7 +181,6 @@ function groupByDate(items: NewsItem[]): { label: string; items: NewsItem[] }[] 
 }
 
 export default function News() {
-  const navigate = useNavigate();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [offers, setOffers] = useState<ScrapedOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -190,7 +188,6 @@ export default function News() {
   const [offersError, setOffersError] = useState('');
   const [segment, setSegment] = useState('');
   const [userAccessType, setUserAccessType] = useState<string>('vendas');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [category, setCategory] = useState<NewsCategory>('tudo');
   const [geo, setGeo] = useState<NewsGeo>('brasil');
   const [refreshing, setRefreshing] = useState(false);
@@ -262,7 +259,6 @@ export default function News() {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setSegment(profile.segment);
     setUserAccessType(profile.userAccessType || 'vendas');
-    setIsAdmin(profile.isAdmin === true);
     setOfferRange(profile.priceRange || '');
     if (profile.segment) {
       loadNews(profile.segment, 'tudo', 'brasil');
@@ -344,15 +340,6 @@ export default function News() {
           <span className="news-segment">{segmentLabel}</span>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          {isAdmin && (
-            <button
-              className="btn btn-outline btn-sm"
-              onClick={() => navigate('/noticias-admin')}
-              title="Admin de notícias"
-            >
-              <Database size={14} /> Admin
-            </button>
-          )}
           <button className="btn btn-outline btn-sm" onClick={handleForceRefresh} disabled={loading || refreshing || offersLoading}>
             <RefreshCw size={14} className={loading || refreshing || offersLoading ? 'spinning' : ''} />
             {refreshing || offersLoading ? ' Buscando...' : ''}

@@ -28,7 +28,6 @@ import Offers from './pages/Offers';
 import OffersAdmin from './pages/OffersAdmin';
 import CompetitorIntel from './pages/CompetitorIntel';
 import CompetitorAdmin from './pages/CompetitorAdmin';
-import NewsAdmin from './pages/NewsAdmin';
 import MarketingHub from './pages/MarketingHub';
 import Urgency from './pages/Urgency';
 import CommercialConditions from './pages/CommercialConditions';
@@ -241,7 +240,6 @@ function AppContent() {
             <Route path="/pos-campanha" element={<CampaignReview />} />
             <Route path="/revisar-copy" element={<CopyReview />} />
             <Route path="/pre-lancamento" element={<PreLaunch />} />
-            <Route path="/noticias-admin" element={<RequireAdmin><NewsAdmin /></RequireAdmin>} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -255,7 +253,6 @@ function AppContent() {
 const ROUTE_TITLES: Record<string, string> = {
   '/':                  'GSS — Início',
   '/noticias':          'GSS — Notícias',
-  '/noticias-admin':    'GSS — Admin Notícias',
   '/biblioteca':        'GSS — Biblioteca',
   '/objecoes':          'GSS — Objeções',
   '/scripts':           'GSS — Scripts',
