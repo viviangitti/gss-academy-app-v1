@@ -227,7 +227,7 @@ Se não encontrar nenhuma oferta confirmada, retorne [].`;
   }
 }
 
-const OFFERS_CACHE_KEY = 'gss_offers_cache_v7'; // v7 — filtra index.html (homepage disfarçada)
+const OFFERS_CACHE_KEY = 'gss_offers_cache_v8'; // v7 — filtra index.html (homepage disfarçada)
 const OFFERS_CACHE_TTL   = 24 * 60 * 60 * 1000; // 24h — campanhas são mensais
 const OFFERS_CACHE_STALE =  1 * 60 * 60 * 1000; // 1h  — após 1h, atualiza em background
 
@@ -399,11 +399,10 @@ export function getStableOfferUrl(competitor: string): string | undefined {
   return BRAND_OFFER_URLS[key] || BRAND_OFFER_URLS[key.split(' ')[0]];
 }
 
-// Models with Google Search grounding support (verified available May 2026)
+// Models with Google Search grounding support (modelos 2.0 descontinuados — removidos)
 const GROUNDING_MODELS = [
   'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-001',
+  'gemini-2.5-flash-lite',
 ];
 
 function buildOffersPrompt(brands: string, today: string, endOfMonth: string, monthYear: string, extraContext = ''): string {
