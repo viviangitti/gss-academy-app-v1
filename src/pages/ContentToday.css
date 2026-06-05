@@ -153,3 +153,65 @@
   margin: 4px 0 0;
   line-height: 1.5;
 }
+
+/* Ranking da equipe */
+.ct-rank {
+  padding: 14px;
+}
+.ct-rank-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+.ct-rank-head svg { color: var(--accent); }
+.ct-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.ct-rank-row:last-child { border-bottom: none; }
+.ct-rank-row--me {
+  background: rgba(201, 168, 76, 0.1);
+  border-radius: var(--radius);
+  margin: 0 -6px;
+  padding: 8px 12px;
+}
+.ct-rank-pos {
+  width: 24px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+.ct-rank-pos--1, .ct-rank-pos--2, .ct-rank-pos--3 { font-size: 16px; }
+.ct-rank-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ct-rank-streak {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: #ff9d3c;
+  font-weight: 700;
+}
+.ct-rank-pts {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent-deep);
+  flex-shrink: 0;
+}

@@ -124,6 +124,21 @@ export interface ContentStats {
   streak: number;   // dias consecutivos com pelo menos 1 share
 }
 
+/** Chave do mês atual: "2026-06". */
+export function currentMonthKey(): string {
+  return new Date().toISOString().slice(0, 7);
+}
+
+/** Pontos e posts do MÊS atual (para o ranking). */
+export function getMonthlyStats(): { points: number; shares: number } {
+  const month = currentMonthKey();
+  const monthActivity = getActivity().filter(a => a.date.startsWith(month));
+  return {
+    points: monthActivity.reduce((s, a) => s + a.points, 0),
+    shares: monthActivity.length,
+  };
+}
+
 export function getContentStats(): ContentStats {
   const activity = getActivity();
   const today = new Date().toISOString().split('T')[0];

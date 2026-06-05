@@ -111,5 +111,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isCampaignManager();
     }
+
+    // /contentScores — placar de social selling (ranking da equipe)
+    // Leitura: qualquer usuário autenticado (pra ver o ranking)
+    // Escrita: só o dono do próprio placar (id = {uid}_{mes})
+    match /contentScores/{scoreId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    }
   }
 }

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Share2, Copy, Check, Flame, Trophy, Sparkles, MessageCircle } from 'lucide-react';
+import { Share2, Copy, Check, Flame, Trophy, Sparkles, MessageCircle, Medal } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getActiveOffers } from '../services/firestore/offers';
 import {
   buildDailyContent, logShare, hasSharedToday, getContentStats,
+  getMonthlyStats, currentMonthKey,
 } from '../services/socialContent';
 import type { ContentSuggestion, ContentStats } from '../services/socialContent';
+import { saveMyContentScore, getTeamRanking } from '../services/firestore/contentScores';
+import type { RankRow } from '../services/firestore/contentScores';
 import type { UserProfile } from '../types';
 import './ContentToday.css';
 
@@ -15,9 +18,36 @@ export default function ContentToday() {
   const [stats, setStats] = useState<ContentStats>({ totalPoints: 0, totalShares: 0, sharesToday: 0, streak: 0 });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sharedTick, setSharedTick] = useState(0); // força re-render após compartilhar
+  const [ranking, setRanking] = useState<RankRow[]>([]);
+
+  const loadRanking = () => {
+    if (!profile.uid) return;
+    getTeamRanking(profile.uid, profile.company || '', profile.segment, currentMonthKey())
+      .then(setRanking)
+      .catch(() => {});
+  };
+
+  // Sincroniza o placar do mês no Firestore e recarrega o ranking
+  const syncScore = () => {
+    if (!profile.uid) return;
+    const m = getMonthlyStats();
+    const s = getContentStats();
+    saveMyContentScore({
+      uid: profile.uid,
+      name: profile.name || 'Vendedor',
+      company: profile.company || '',
+      segment: profile.segment || '',
+      teamId: profile.teamId ?? null,
+      monthKey: currentMonthKey(),
+      points: m.points,
+      shares: m.shares,
+      streak: s.streak,
+    }).then(loadRanking).catch(() => {});
+  };
 
   useEffect(() => {
     setStats(getContentStats());
+    loadRanking();
     getActiveOffers(profile.segment || undefined)
       .then(offers => setItems(buildDailyContent(profile.segment, offers)))
       .catch(() => setItems(buildDailyContent(profile.segment, [])));
@@ -29,6 +59,7 @@ export default function ContentToday() {
       logShare(content);
       setStats(getContentStats());
       setSharedTick(t => t + 1);
+      syncScore(); // atualiza o ranking da equipe
     }
   };
 
@@ -145,6 +176,26 @@ export default function ContentToday() {
         <div className="ct-empty card">
           <Sparkles size={28} />
           <p>Preparando o conteúdo do dia…</p>
+        </div>
+      )}
+
+      {/* Ranking da equipe */}
+      {ranking.length > 0 && (
+        <div className="ct-rank card">
+          <div className="ct-rank-head">
+            <Medal size={18} />
+            <span>Ranking da equipe — {new Date().toLocaleDateString('pt-BR', { month: 'long' })}</span>
+          </div>
+          {ranking.slice(0, 8).map(r => (
+            <div key={r.uid} className={`ct-rank-row ${r.isMe ? 'ct-rank-row--me' : ''}`}>
+              <span className={`ct-rank-pos ct-rank-pos--${r.position <= 3 ? r.position : 'n'}`}>
+                {r.position <= 3 ? ['🥇', '🥈', '🥉'][r.position - 1] : r.position}
+              </span>
+              <span className="ct-rank-name">{r.isMe ? `${r.name} (você)` : r.name}</span>
+              {r.streak > 0 && <span className="ct-rank-streak"><Flame size={11} /> {r.streak}</span>}
+              <span className="ct-rank-pts">{r.points} pts</span>
+            </div>
+          ))}
         </div>
       )}
 
