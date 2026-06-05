@@ -40,6 +40,7 @@ import CopyGenerator from './pages/CopyGenerator';
 import CampaignReview from './pages/CampaignReview';
 import CopyReview from './pages/CopyReview';
 import PreLaunch from './pages/PreLaunch';
+import ContentToday from './pages/ContentToday';
 import Auth from './pages/Auth';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
@@ -240,6 +241,7 @@ function AppContent() {
             <Route path="/pos-campanha" element={<CampaignReview />} />
             <Route path="/revisar-copy" element={<CopyReview />} />
             <Route path="/pre-lancamento" element={<PreLaunch />} />
+            <Route path="/conteudo-dia" element={<ContentToday />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -281,6 +283,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/pos-campanha':      'GSS — Pós-campanha',
   '/revisar-copy':      'GSS — Revisar Copy',
   '/pre-lancamento':    'GSS — Pré-lançamento',
+  '/conteudo-dia':      'GSS — Conteúdo do Dia',
   '/gatilhos':          'GSS — Gatilhos',
   '/feedback':          'GSS — Feedback',
   '/instalar':          'GSS — Instalar App',

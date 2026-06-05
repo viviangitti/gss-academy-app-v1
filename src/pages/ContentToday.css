@@ -1,0 +1,155 @@
+.ct-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Hero */
+.ct-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: var(--white);
+  padding: 18px;
+}
+.ct-hero-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ct-hero-top h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.ct-hero-top p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.ct-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.ct-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.ct-stat-val {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+.ct-stat-lbl {
+  font-size: 10px;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.ct-flame { color: #ff9d3c; }
+
+/* Card de conteúdo */
+.ct-card {
+  padding: 14px;
+  transition: opacity 0.2s;
+}
+.ct-card--done {
+  opacity: 0.7;
+}
+.ct-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ct-card-emoji { font-size: 18px; }
+.ct-card-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  flex: 1;
+}
+.ct-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--accent-deep);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+.ct-done-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.ct-card-caption {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-line;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin: 0 0 12px;
+}
+
+.ct-card-actions {
+  display: flex;
+  gap: 6px;
+}
+.ct-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 6px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.ct-btn:active { transform: scale(0.97); }
+.ct-btn-share {
+  background: var(--primary);
+  color: var(--white);
+}
+.ct-btn-wpp {
+  background: #25d366;
+  color: var(--white);
+}
+.ct-btn-copy {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.ct-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ct-foot {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 4px 0 0;
+  line-height: 1.5;
+}

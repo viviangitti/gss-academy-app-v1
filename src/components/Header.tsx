@@ -39,6 +39,7 @@ const titles: Record<string, string> = {
   '/guia-marca': 'Guia de Marca',
   '/analise-campanha': 'Análise de Campanhas',
   '/gerador-copy': 'Gerador de Copy',
+  '/conteudo-dia': 'Conteúdo do Dia',
 };
 
 const LIBRARY_SUB_PAGES = [

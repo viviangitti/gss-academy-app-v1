@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone } from 'lucide-react';
+import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2 } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { fetchNews } from '../services/news';
 import { getFavorites } from '../services/favorites';
@@ -303,6 +303,16 @@ export default function Home() {
         </div>
       )}
 
+
+      {/* ── Conteúdo do Dia (social selling) ── */}
+      <button className="home-content-card card" onClick={() => navigate('/conteudo-dia')}>
+        <div className="home-content-icon"><Sparkles size={20} /></div>
+        <div className="home-content-text">
+          <strong>Conteúdo do Dia <Share2 size={13} /></strong>
+          <span>Poste nas suas redes e ganhe pontos</span>
+        </div>
+        <ArrowRight size={16} className="home-train-arrow" />
+      </button>
 
       {/* ── Acesso rápido: Vendas + Marketing (ambos) ou só um dos lados ── */}
       {profile.userAccessType === 'ambos' ? (
