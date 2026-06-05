@@ -235,7 +235,7 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v7'; // bump version to clear old generic queries
+const CACHE_KEY = 'gss_news_cache_v8'; // bump version to clear old generic queries
 const CACHE_TTL = 20 * 60 * 1000; // 20 min — notícias ao vivo
 
 interface CacheEntry {
@@ -620,12 +620,21 @@ async function fetchFromGoogleNews(query: string, limit: number, geo: NewsGeo = 
   const ownProxy = `/api/news-proxy?rss=${encodeURIComponent(rssUrl)}`;
   const rss2json = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
+  // Decodifica entidades ANTES de tirar tags (mesmo motivo do proxy: <a> codificado)
+  const cleanDesc = (s = '') => s
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 150);
+
   const mapItems = (items: { title: string; link: string; pubDate: string; description: string }[]) =>
     items.slice(0, limit).map(item => ({
       title: item.title,
       link: normalizeNewsLink(item.title, item.link, geo),
       pubDate: item.pubDate,
-      description: item.description?.replace(/<[^>]*>/g, '').slice(0, 150) || '',
+      description: cleanDesc(item.description || ''),
     }));
 
   // Tenta o proxy próprio primeiro

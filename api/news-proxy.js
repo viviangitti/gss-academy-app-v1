@@ -8,11 +8,15 @@
  * Resposta: { status: 'ok', items: [{ title, link, pubDate, description }] }
  */
 
-/** Decodifica entidades HTML básicas e remove tags. */
+/** Decodifica entidades HTML e remove tags.
+ * IMPORTANTE: decodifica as entidades ANTES de remover tags. Descrições do Google News
+ * vêm com <a> codificado (&lt;a&gt;) — se removêssemos tags primeiro e decodificássemos
+ * depois, o <a> reapareceria como texto. Decodificar antes garante que tags (reais ou
+ * codificadas) sejam removidas por completo. */
 function cleanText(s = '') {
   return s
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-    .replace(/<[^>]*>/g, '')
+    // 1. decodifica entidades primeiro
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -21,6 +25,9 @@ function cleanText(s = '') {
     .replace(/&apos;/g, "'")
     .replace(/&nbsp;/g, ' ')
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    // 2. agora remove TODAS as tags (reais e as que estavam codificadas)
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
