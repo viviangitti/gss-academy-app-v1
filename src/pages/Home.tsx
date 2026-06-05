@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2 } from 'lucide-react';
+import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { fetchNews } from '../services/news';
 import { getFavorites } from '../services/favorites';
@@ -303,6 +303,18 @@ export default function Home() {
         </div>
       )}
 
+
+      {/* ── Painel do Gestor (só gestor/admin) ── */}
+      {(profile.isGestor || profile.isAdmin) && (
+        <button className="home-content-card home-gestor-card card" onClick={() => navigate('/painel-gestor')}>
+          <div className="home-content-icon home-gestor-icon"><Users size={20} /></div>
+          <div className="home-content-text">
+            <strong>Painel do Gestor</strong>
+            <span>Veja o engajamento da equipe em conteúdo</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
+      )}
 
       {/* ── Conteúdo do Dia (social selling) ── */}
       <button className="home-content-card card" onClick={() => navigate('/conteudo-dia')}>

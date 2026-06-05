@@ -64,3 +64,39 @@ export async function getTeamRanking(
     return [];
   }
 }
+
+export interface TeamSummary {
+  totalPosts: number;
+  totalPoints: number;
+  activeMembers: number;   // membros com pelo menos 1 post no mês
+  members: ContentScore[]; // todos os membros com placar, ordenados por pontos
+}
+
+/**
+ * Resumo da equipe para o painel do gestor (mês atual).
+ * Mostra total de posts, membros ativos e o placar de cada um.
+ */
+export async function getTeamSummary(
+  company: string,
+  segment: string,
+  monthKey: string,
+): Promise<TeamSummary> {
+  if (!db) return { totalPosts: 0, totalPoints: 0, activeMembers: 0, members: [] };
+  try {
+    const snap = await getDocs(collection(db, COL));
+    const members = snap.docs
+      .map(d => d.data() as ContentScore)
+      .filter(s => s.monthKey === monthKey)
+      .filter(s => (company ? s.company === company : s.segment === segment))
+      .sort((a, b) => (b.points || 0) - (a.points || 0));
+
+    return {
+      totalPosts: members.reduce((s, m) => s + (m.shares || 0), 0),
+      totalPoints: members.reduce((s, m) => s + (m.points || 0), 0),
+      activeMembers: members.filter(m => (m.shares || 0) > 0).length,
+      members,
+    };
+  } catch {
+    return { totalPosts: 0, totalPoints: 0, activeMembers: 0, members: [] };
+  }
+}

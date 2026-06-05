@@ -66,6 +66,7 @@ export interface UserProfile {
   teamId?: string | null;
   isAdmin?: boolean;
   isControladoria?: boolean;
+  isGestor?: boolean;          // gestor de equipe — vê o painel do gestor (definido externamente)
   isMarketing?: boolean;
   userAccessType?: 'vendas' | 'marketing' | 'ambos';
   priceRange?: PriceRange;
