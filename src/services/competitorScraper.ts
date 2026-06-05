@@ -227,7 +227,7 @@ Se não encontrar nenhuma oferta confirmada, retorne [].`;
   }
 }
 
-const OFFERS_CACHE_KEY = 'gss_offers_cache_v10'; // v7 — filtra index.html (homepage disfarçada)
+const OFFERS_CACHE_KEY = 'gss_offers_cache_v11'; // v7 — filtra index.html (homepage disfarçada)
 const OFFERS_CACHE_TTL   = 24 * 60 * 60 * 1000; // 24h — campanhas são mensais
 const OFFERS_CACHE_STALE =  1 * 60 * 60 * 1000; // 1h  — após 1h, atualiza em background
 

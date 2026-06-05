@@ -92,12 +92,12 @@ function getBrandLogo(name: string): string | null {
   return `https://logo.clearbit.com/${domain}`;
 }
 
-// Páginas de OFERTAS verificadas manualmente (testadas, retornam 200 ou só bloqueiam bot).
-// Solução 4: quando a marca TEM página de ofertas real, linkamos direto pra ela.
-// Marcas de luxo (BMW, Audi, Mercedes, Volvo) NÃO têm página pública de ofertas →
-// ficam fora do mapa de propósito e caem na busca honesta.
+// Páginas verificadas MANUALMENTE — só domínios/páginas que EXISTEM de verdade
+// (nunca dão 404). NÃO confiamos nas URLs que o Gemini inventa, porque ele alucina
+// caminhos como "/ofertas-especiais.html" que não existem — e marcas de luxo bloqueiam
+// o validador, então a gente não consegue confirmar. Logo: usamos só este mapa + busca.
 const VERIFIED_OFFER_PAGES: Record<string, string> = {
-  // Automotivo massa — páginas de ofertas confirmadas funcionando
+  // Automotivo massa — páginas de ofertas reais
   fiat: 'https://ofertas.fiat.com.br/',
   volkswagen: 'https://ofertas.vw.com.br/', vw: 'https://ofertas.vw.com.br/',
   toyota: 'https://www.toyota.com.br/ofertas',
@@ -106,39 +106,33 @@ const VERIFIED_OFFER_PAGES: Record<string, string> = {
   jeep: 'https://www.jeep.com.br/ofertas.html',
   nissan: 'https://www.nissan.com.br/ofertas.html',
   honda: 'https://www.honda.com.br/automoveis/ofertas',
-  chevrolet: 'https://www.chevrolet.com.br/', // /ofertas dá 404 → homepage
+  chevrolet: 'https://www.chevrolet.com.br/',
   byd: 'https://www.byd.com.br/',
   'caoa chery': 'https://www.caoachery.com.br/ofertas', chery: 'https://www.caoachery.com.br/ofertas',
-  'land rover': 'https://www.landrover.com.br/', porsche: 'https://www.porsche.com/brazil/',
+  // Automotivo luxo — sem página de ofertas pública; usamos a HOMEPAGE oficial (existe, não 404)
+  bmw: 'https://www.bmw.com.br/',
+  audi: 'https://www.audi.com.br/',
+  'mercedes-benz': 'https://www.mercedes-benz.com.br/', mercedes: 'https://www.mercedes-benz.com.br/',
+  volvo: 'https://www.volvocars.com/br/',
+  'land rover': 'https://www.landrover.com.br/',
+  porsche: 'https://www.porsche.com/brazil/',
+  lexus: 'https://www.lexus.com.br/', jaguar: 'https://www.jaguar.com.br/',
 };
 
 type OfferLink = { url: string; label: string; official: boolean };
 
 /**
- * Decide o link da oferta em 3 níveis (Soluções 4, 7 e 8):
- *  1. sourceUrl específica VALIDADA pela IA (já passou pelo /api/check-url) → "Ver oferta"
- *  2. Página de ofertas verificada da marca (mapa manual) → "Ofertas {marca}"
- *  3. Busca honesta no Google (sempre retorna algo) → "🔍 Pesquisar"
- * Nunca devolve link que dá 404 — a validação acontece antes (Solução 7).
+ * Decide o link da oferta — à prova de 404:
+ *  1. Página/homepage VERIFICADA da marca (mapa manual, existe de verdade) → "Site {marca}"
+ *  2. Busca honesta no Google (sempre retorna algo) → "Pesquisar"
+ * NÃO usa a sourceUrl do Gemini (ele inventa caminhos que dão 404).
  */
 function buildOfferLink(offer: ScrapedOffer): OfferLink {
-  const src = offer.sourceUrl;
-
-  // Nível 1: URL específica e real (validada no fetch). Path com 2+ segmentos = página de verdade.
-  if (src && src.startsWith('http')) {
-    try {
-      const u = new URL(src);
-      const depth = u.pathname.replace(/\/$/, '').split('/').filter(Boolean).length;
-      if (depth >= 2) return { url: src, label: 'Ver oferta', official: true };
-    } catch { /* ignora */ }
-  }
-
-  // Nível 2: página de ofertas verificada da marca
   const key = (offer.competitor || '').toLowerCase().trim();
   const page = VERIFIED_OFFER_PAGES[key] || VERIFIED_OFFER_PAGES[key.split(' ')[0]];
-  if (page) return { url: page, label: `Ofertas ${offer.competitor}`, official: true };
+  if (page) return { url: page, label: `Site ${offer.competitor}`, official: true };
 
-  // Nível 3: busca honesta (ampla, sem site: — sempre acha resultado)
+  // Sem página confirmada → busca honesta (nunca dá 404)
   const terms = [offer.competitor, offer.model, offer.title].filter(Boolean).join(' ');
   return {
     url: `https://www.google.com/search?q=${encodeURIComponent(terms + ' oferta')}`,
