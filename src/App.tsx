@@ -266,7 +266,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/vendas-perdidas':   'GSS — Vendas Perdidas',
   '/historico':         'GSS — Histórico',
   '/vendas':            'GSS — Vendas',
-  '/ia-coach':          'GSS — IA Consultora',
+  '/ia-coach':          'GSS — Coaching',
   '/perfil':            'GSS — Perfil',
   '/ofertas':           'GSS — Ofertas',
   '/concorrencia':      'GSS — Inteligência Competitiva',

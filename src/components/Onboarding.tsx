@@ -123,7 +123,7 @@ export default function Onboarding({ onComplete }: Props) {
               <div className="onboarding-feature-icon"><Zap size={18} /></div>
               <div>
                 <strong>IA Coach & Gatilhos</strong>
-                <span>Consultor pessoal e gatilhos de fechamento</span>
+                <span>Coaching pessoal e gatilhos de fechamento</span>
               </div>
             </div>
           </div>

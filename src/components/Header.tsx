@@ -23,7 +23,7 @@ const titles: Record<string, string> = {
   '/instalar': 'Instalar o app',
   '/feedback': 'Feedback',
   '/vendas': 'Histórico de Vendas',
-  '/ia-coach': 'Consultor',
+  '/ia-coach': 'Coaching',
   '/perfil': 'Perfil',
   '/controladoria': 'Gestão de Metas',
   '/ofertas': 'Ofertas do Mês',

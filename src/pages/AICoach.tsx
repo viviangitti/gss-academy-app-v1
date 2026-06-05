@@ -402,8 +402,8 @@ export default function AICoach() {
   const hasSpeechRecognition = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  if (!isOnline) return <OfflineState feature="o Consultor" />;
-  if (!API_KEY) return <OfflineState feature="o Consultor" subtitle="Serviço indisponível no momento. Fale com o suporte." />;
+  if (!isOnline) return <OfflineState feature="o Coaching" />;
+  if (!API_KEY) return <OfflineState feature="o Coaching" subtitle="Serviço indisponível no momento. Fale com o suporte." />;
 
   const modeSwitcher = isAmbos ? (
     <div className="ai-mode-toggle">
@@ -411,13 +411,13 @@ export default function AICoach() {
         className={`ai-mode-btn ${aiMode === 'vendas' ? 'active' : ''}`}
         onClick={() => handleModeSwitch('vendas')}
       >
-        Consultor de Vendas
+        Coaching de Vendas
       </button>
       <button
         className={`ai-mode-btn ${aiMode === 'marketing' ? 'active' : ''}`}
         onClick={() => handleModeSwitch('marketing')}
       >
-        Consultor de Marketing
+        Coaching de Marketing
       </button>
     </div>
   ) : null;
@@ -428,7 +428,7 @@ export default function AICoach() {
         <div className="ai-welcome">
           {modeSwitcher}
           <div className="ai-welcome-icon"><Sparkles size={40} /></div>
-          <h3>{aiMode === 'marketing' ? 'Consultor de Marketing' : 'Consultor de Vendas'}</h3>
+          <h3>{aiMode === 'marketing' ? 'Coaching de Marketing' : 'Coaching de Vendas'}</h3>
           <p>{aiMode === 'marketing'
             ? 'Tire dúvidas sobre campanhas, branding, benchmarks e estratégia de marketing.'
             : 'Tire dúvidas sobre vendas, negociação e liderança comercial.'

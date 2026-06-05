@@ -13,7 +13,7 @@ const tabs = [
   { path: '/', icon: Home, label: 'Início' },
   { path: '/noticias', icon: Newspaper, label: 'Notícias' },
   { path: '/biblioteca', icon: BookOpen, label: 'Biblioteca' },
-  { path: '/ia-coach', icon: Sparkles, label: 'Consultor' },
+  { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
 ];
 
 export default function BottomNav() {

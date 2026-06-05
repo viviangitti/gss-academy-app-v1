@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const MARKETING_SYSTEM_PROMPT = `Você é o Consultor de Marketing da MAESTR.IA, especialista em branding, estratégia de marketing, campanhas e inteligência de mercado.
+const MARKETING_SYSTEM_PROMPT = `Você é o Coach de Marketing da MAESTR.IA, especialista em branding, estratégia de marketing, campanhas e inteligência de mercado.
 
 Seu papel é ajudar equipes a criar ações de marketing alinhadas com a identidade da marca, analisar concorrentes e gerar ideias criativas e eficazes.
 
@@ -43,7 +43,7 @@ Seu papel é ajudar equipes a criar ações de marketing alinhadas com a identid
 - Sugira métricas de sucesso para cada recomendação
 - Sempre inclua pelo menos uma ideia que possa ser implementada imediatamente`;
 
-const SYSTEM_PROMPT = `Você é o Consultor de Vendas da MAESTR.IA em Vendas, um especialista em vendas consultivas, negociação e liderança comercial de alta performance.
+const SYSTEM_PROMPT = `Você é o Coach de Vendas da MAESTR.IA em Vendas, um especialista em vendas consultivas, negociação e liderança comercial de alta performance.
 
 Seu papel é ajudar líderes comerciais a dominar vendas com base nos princípios abaixo:
 
@@ -181,8 +181,8 @@ export async function sendMessage(
       const isMarketing = mode === 'marketing';
       const prompt = isMarketing ? MARKETING_SYSTEM_PROMPT : SYSTEM_PROMPT;
       const ack = isMarketing
-        ? 'Entendido! Sou o Consultor de Marketing da MAESTR.IA. Domino branding, estratégia de campanhas, benchmarking e alinhamento marketing-vendas. Como posso ajudar?'
-        : 'Entendido! Sou o Consultor de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
+        ? 'Entendido! Sou o Coach de Marketing da MAESTR.IA. Domino branding, estratégia de campanhas, benchmarking e alinhamento marketing-vendas. Como posso ajudar?'
+        : 'Entendido! Sou o Coach de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
       chat = model.startChat({
         history: buildGeminiHistory(prompt, ack, priorHistory ?? []),
       });
