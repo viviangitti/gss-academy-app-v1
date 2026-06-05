@@ -92,42 +92,65 @@ function getBrandLogo(name: string): string | null {
   return `https://logo.clearbit.com/${domain}`;
 }
 
+// Páginas de OFERTAS verificadas manualmente (testadas, retornam 200 ou só bloqueiam bot).
+// Solução 4: quando a marca TEM página de ofertas real, linkamos direto pra ela.
+// Marcas de luxo (BMW, Audi, Mercedes, Volvo) NÃO têm página pública de ofertas →
+// ficam fora do mapa de propósito e caem na busca honesta.
+const VERIFIED_OFFER_PAGES: Record<string, string> = {
+  // Automotivo massa — páginas de ofertas confirmadas funcionando
+  fiat: 'https://ofertas.fiat.com.br/',
+  volkswagen: 'https://ofertas.vw.com.br/', vw: 'https://ofertas.vw.com.br/',
+  toyota: 'https://www.toyota.com.br/ofertas',
+  renault: 'https://www.renault.com.br/ofertas.html',
+  hyundai: 'https://www.hyundai.com.br/ofertas',
+  jeep: 'https://www.jeep.com.br/ofertas.html',
+  nissan: 'https://www.nissan.com.br/ofertas.html',
+  honda: 'https://www.honda.com.br/automoveis/ofertas',
+  chevrolet: 'https://www.chevrolet.com.br/', // /ofertas dá 404 → homepage
+  byd: 'https://www.byd.com.br/',
+  'caoa chery': 'https://www.caoachery.com.br/ofertas', chery: 'https://www.caoachery.com.br/ofertas',
+  'land rover': 'https://www.landrover.com.br/', porsche: 'https://www.porsche.com/brazil/',
+};
+
+type OfferLink = { url: string; label: string; official: boolean };
+
 /**
- * Retorna a URL da oferta:
- * 1. URL específica da IA (página real da oferta) — quando disponível e não é homepage genérica
- * 2. Fallback: busca Google com site:domínio — quando URL não existe ou é genérica
+ * Decide o link da oferta em 3 níveis (Soluções 4, 7 e 8):
+ *  1. sourceUrl específica VALIDADA pela IA (já passou pelo /api/check-url) → "Ver oferta"
+ *  2. Página de ofertas verificada da marca (mapa manual) → "Ofertas {marca}"
+ *  3. Busca honesta no Google (sempre retorna algo) → "🔍 Pesquisar"
+ * Nunca devolve link que dá 404 — a validação acontece antes (Solução 7).
  */
-function buildOfferUrl(offer: ScrapedOffer): string {
+function buildOfferLink(offer: ScrapedOffer): OfferLink {
   const src = offer.sourceUrl;
 
-  // Usa a URL específica se existir e não for uma homepage genérica
-  // (homepage = termina em / ou tem path com menos de 2 segmentos)
+  // Nível 1: URL específica e real (validada no fetch). Path com 2+ segmentos = página de verdade.
   if (src && src.startsWith('http')) {
     try {
       const u = new URL(src);
-      const pathDepth = u.pathname.replace(/\/$/, '').split('/').filter(Boolean).length;
-      if (pathDepth >= 2) return src; // URL específica com path real, ex: /pt/topics/ofertas
-    } catch { /* ignora URL malformada */ }
+      const depth = u.pathname.replace(/\/$/, '').split('/').filter(Boolean).length;
+      if (depth >= 2) return { url: src, label: 'Ver oferta', official: true };
+    } catch { /* ignora */ }
   }
 
-  // Fallback: busca Google restrita ao domínio da marca
+  // Nível 2: página de ofertas verificada da marca
   const key = (offer.competitor || '').toLowerCase().trim();
-  const domain = BRAND_DOMAINS[key] || BRAND_DOMAINS[key.split(' ')[0]];
-  const terms = [offer.model, offer.title].filter(Boolean).join(' ');
-  const query = domain
-    ? `${terms} site:${domain}`
-    : `${offer.competitor} ${terms} oferta brasil`;
+  const page = VERIFIED_OFFER_PAGES[key] || VERIFIED_OFFER_PAGES[key.split(' ')[0]];
+  if (page) return { url: page, label: `Ofertas ${offer.competitor}`, official: true };
 
-  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+  // Nível 3: busca honesta (ampla, sem site: — sempre acha resultado)
+  const terms = [offer.competitor, offer.model, offer.title].filter(Boolean).join(' ');
+  return {
+    url: `https://www.google.com/search?q=${encodeURIComponent(terms + ' oferta')}`,
+    label: 'Pesquisar',
+    official: false,
+  };
 }
-
-// Alias para compatibilidade com JSX existente
-const buildOfferSearchUrl = buildOfferUrl;
 
 const CATEGORIES: { value: NewsCategory; label: string; icon: React.ComponentType<{ size?: number }>; desc: string; marketingOnly?: boolean }[] = [
   { value: 'tudo',        label: 'Tudo',        icon: Globe,      desc: 'Todas as notícias do segmento' },
   { value: 'lancamentos', label: 'Lançamentos',  icon: Sparkles,   desc: 'Novos produtos, inovações e estreias' },
-  { value: 'ofertas',     label: 'Ofertas',      icon: Tag,        desc: 'Promoções e condições dos concorrentes agora' },
+  { value: 'ofertas',     label: 'Ofertas',      icon: Tag,        desc: 'Inteligência competitiva: o que os concorrentes oferecem este mês' },
   { value: 'mercado',     label: 'Tendências',   icon: TrendingUp, desc: 'Análises e movimentos do mercado' },
   { value: 'marketing',    label: 'Marketing',     icon: Megaphone,  desc: 'Eventos do setor, veiculação de mídia, parcerias e tendências de marketing', marketingOnly: true },
   { value: 'concorrentes', label: 'Concorrentes',  icon: Swords,     desc: 'O que os concorrentes estão fazendo em campanhas, mídia e ativações', marketingOnly: true },
@@ -464,7 +487,8 @@ export default function News() {
               if (brands.length < 2) return null;
               return (
                 <div className="offers-summary card">
-                  <p className="offers-summary-title">📊 Resumo do mês</p>
+                  <p className="offers-summary-title">📊 Inteligência competitiva — o que os concorrentes oferecem</p>
+                  <p className="offers-summary-sub">Use os dados para argumentar. O link leva à página de ofertas da marca ou a uma busca.</p>
                   <div className="offers-summary-scroll">
                     {brands.map(brand => {
                       const logo = getBrandLogo(brand);
@@ -483,13 +507,16 @@ export default function News() {
                             {brandOffers.map((o, i) => {
                               const hl = o.highlights?.[0] || '';
                               const modelName = o.model || o.title;
+                              const link = buildOfferLink(o);
                               return (
-                                <a key={i} href={buildOfferSearchUrl(o)} target="_blank" rel="noopener noreferrer" className="offers-summary-model-row" title={`Pesquisar: ${modelName} ${o.title}`}>
+                                <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="offers-summary-model-row" title={link.official ? `Abrir: ${link.label}` : `Pesquisar: ${modelName}`}>
                                   <div className="offers-summary-model-info">
                                     <span className="offers-summary-model-name">{modelName}</span>
                                     {hl && <span className="offers-summary-model-hl">{hl}</span>}
                                   </div>
-                                  <ExternalLink size={11} className="offers-summary-link-icon" />
+                                  {link.official
+                                    ? <ExternalLink size={11} className="offers-summary-link-icon" />
+                                    : <Search size={11} className="offers-summary-link-icon" />}
                                 </a>
                               );
                             })}
@@ -543,16 +570,21 @@ export default function News() {
                         </div>
                       )}
                     </div>
-                    {hasFooter && (
-                      <div className="offer-footer">
-                        {offer.legalText && (
-                          <p className="offer-legal">{offer.legalText}</p>
-                        )}
-                        <a href={buildOfferSearchUrl(offer)} target="_blank" rel="noopener noreferrer" className="offer-source-link" title={`Pesquisar: ${offer.competitor} ${offer.model} ${offer.title}`}>
-                          <Search size={12} /> Buscar oferta <ExternalLink size={11} />
-                        </a>
-                      </div>
-                    )}
+                    {hasFooter && (() => {
+                      const link = buildOfferLink(offer);
+                      return (
+                        <div className="offer-footer">
+                          {offer.legalText && (
+                            <p className="offer-legal">{offer.legalText}</p>
+                          )}
+                          <a href={link.url} target="_blank" rel="noopener noreferrer" className="offer-source-link" title={link.official ? link.label : `Pesquisar: ${offer.competitor} ${offer.model}`}>
+                            {link.official
+                              ? <><ExternalLink size={12} /> {link.label}</>
+                              : <><Search size={12} /> Pesquisar oferta</>}
+                          </a>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}

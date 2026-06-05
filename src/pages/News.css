@@ -651,3 +651,10 @@
   background: color-mix(in srgb, #c9a84c 12%, transparent);
   border-color: #c9a84c; color: #c9a84c; font-weight: 700;
 }
+
+.offers-summary-sub {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: -2px 0 10px;
+  line-height: 1.4;
+}
