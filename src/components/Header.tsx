@@ -6,7 +6,7 @@ import './Header.css';
 
 const titles: Record<string, string> = {
   '/': 'Maestria',
-  '/biblioteca': 'Biblioteca',
+  '/biblioteca': 'Painel',
   '/objecoes': 'Objeções',
   '/scripts': 'Roteiros',
   '/tecnicas': 'Técnicas',

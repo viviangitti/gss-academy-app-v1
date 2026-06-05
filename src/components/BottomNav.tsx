@@ -12,7 +12,7 @@ const LIBRARY_PATHS = [
 const tabs = [
   { path: '/', icon: Home, label: 'Início' },
   { path: '/noticias', icon: Newspaper, label: 'Notícias' },
-  { path: '/biblioteca', icon: BookOpen, label: 'Biblioteca' },
+  { path: '/biblioteca', icon: BookOpen, label: 'Painel' },
   { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
 ];
 

@@ -336,7 +336,7 @@ export default function Home() {
               <strong>Treino</strong>
               <span>Role-play, reuniões e mais</span>
             </button>
-            <button className="home-dual-card home-dual-mkt card" onClick={() => navigate('/marketing-hub')}>
+            <button className="home-dual-card home-dual-mkt card" onClick={() => navigate('/biblioteca')}>
               <div className="home-dual-icon"><Megaphone size={18} /></div>
               <strong>Marketing</strong>
               <span>Copy, guia e análise</span>
@@ -354,7 +354,7 @@ export default function Home() {
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
           {profile.userAccessType === 'marketing' && (
-            <button className="home-train-card home-mkt-card card" onClick={() => navigate('/marketing-hub')}>
+            <button className="home-train-card home-mkt-card card" onClick={() => navigate('/biblioteca')}>
               <div className="home-train-icon home-mkt-icon"><Megaphone size={18} /></div>
               <div className="home-train-text">
                 <strong>Painel Marketing</strong>

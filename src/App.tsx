@@ -28,7 +28,6 @@ import Offers from './pages/Offers';
 import OffersAdmin from './pages/OffersAdmin';
 import CompetitorIntel from './pages/CompetitorIntel';
 import CompetitorAdmin from './pages/CompetitorAdmin';
-import MarketingHub from './pages/MarketingHub';
 import Urgency from './pages/Urgency';
 import CommercialConditions from './pages/CommercialConditions';
 import CommercialConditionsAdmin from './pages/CommercialConditionsAdmin';
@@ -234,7 +233,7 @@ function AppContent() {
             <Route path="/condicoes" element={<CommercialConditions />} />
             <Route path="/condicoes-admin" element={<RequireAdmin allowMarketing><CommercialConditionsAdmin /></RequireAdmin>} />
             <Route path="/playbook" element={<Playbook />} />
-            <Route path="/marketing-hub" element={<MarketingHub />} />
+            <Route path="/marketing-hub" element={<Navigate to="/biblioteca" replace />} />
             <Route path="/marketing-chat" element={<MarketingChat />} />
             <Route path="/guia-marca" element={<BrandGuide />} />
             <Route path="/analise-campanha" element={<CampaignAnalysis />} />
@@ -257,7 +256,7 @@ function AppContent() {
 const ROUTE_TITLES: Record<string, string> = {
   '/':                  'GSS — Início',
   '/noticias':          'GSS — Notícias',
-  '/biblioteca':        'GSS — Biblioteca',
+  '/biblioteca':        'GSS — Painel',
   '/objecoes':          'GSS — Objeções',
   '/scripts':           'GSS — Scripts',
   '/tecnicas':          'GSS — Técnicas',
