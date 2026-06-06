@@ -10,6 +10,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Tokens de push (FCM). O id do doc é o próprio token.
+    // Cliente registra/atualiza o seu; o envio é feito pelo admin SDK (ignora rules).
+    match /pushTokens/{token} {
+      allow create, update: if isSignedIn();
+      allow read, delete: if false;
+    }
+
     // Função auxiliar: é o dono do documento?
     function isOwner(uid) {
       return isSignedIn() && request.auth.uid == uid;

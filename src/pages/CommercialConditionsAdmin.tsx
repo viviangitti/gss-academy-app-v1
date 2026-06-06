@@ -10,6 +10,9 @@ import {
 } from '../services/firestore/commercialConditions';
 import type { CommercialCondition } from '../services/firestore/commercialConditions';
 import { uploadConditionPdf } from '../services/uploadPdf';
+import { notifyTeam } from '../services/push';
+import { loadData, KEYS } from '../services/storage';
+import type { UserProfile } from '../types';
 import { SEGMENTS } from '../types';
 import './CommercialConditionsAdmin.css';
 
@@ -125,6 +128,18 @@ export default function CommercialConditionsAdmin() {
         await updateCommercialCondition(editingId, payload);
       } else {
         await createCommercialCondition(payload, user.uid);
+        // avisa a equipe de vendas que saiu condição nova
+        const me = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' as UserProfile['segment'] });
+        if (me.company) {
+          notifyTeam({
+            title: '🔥 Nova condição comercial',
+            body: payload.title || 'Confira as novas condições do mês.',
+            url: '/condicoes',
+            company: me.company,
+            segment: payload.segment || '',
+            audience: 'vendas',
+          });
+        }
       }
       await load();
       resetForm();

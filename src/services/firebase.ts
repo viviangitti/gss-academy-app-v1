@@ -39,3 +39,7 @@ if (firebaseEnabled) {
 }
 
 export { app, auth, db, storage };
+
+// Cloud Messaging (push) — instância do app exposta p/ push.ts carregar messaging sob demanda
+export function getFirebaseApp() { return app; }
+

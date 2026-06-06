@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2 } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell } from 'lucide-react';
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
@@ -8,6 +8,7 @@ import type { UserProfile, GoalItem, PriceRange } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
+import { enablePush, pushSupported, pushEnabledLocally, pushConfigured } from '../services/push';
 import { deleteUser } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import './Profile.css';
@@ -19,6 +20,22 @@ export default function Profile() {
   const [profile, setProfile] = useState<UserProfile>({ name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
   const [saved, setSaved] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('gss_theme') as Theme) || 'auto');
+  const [pushOn, setPushOn] = useState(false);
+  const [pushAvail, setPushAvail] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    pushSupported().then((ok) => { setPushAvail(ok); setPushOn(pushEnabledLocally()); });
+  }, []);
+
+  const handleEnablePush = async () => {
+    setPushBusy(true);
+    const p = loadData<UserProfile>(KEYS.PROFILE, profile);
+    const ok = await enablePush(p);
+    setPushOn(ok);
+    if (!ok) alert('Não foi possível ativar os avisos. Verifique se você permitiu notificações no navegador.');
+    setPushBusy(false);
+  };
 
   useEffect(() => {
     const p = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
@@ -317,6 +334,25 @@ export default function Profile() {
           </button>
         </div>
       </div>
+
+      {/* Notificações push */}
+      {pushConfigured() && (
+        <div className="card" style={{ padding: '16px' }}>
+          <h3 className="section-title" style={{ marginBottom: 6 }}><Bell size={15} /> Notificações</h3>
+          <p className="profile-hint" style={{ marginTop: 0 }}>
+            Receba avisos no celular quando sair uma condição nova, oferta ou conteúdo do dia — mesmo com o app fechado.
+          </p>
+          {pushOn ? (
+            <div className="push-active">✓ Avisos ativados neste aparelho</div>
+          ) : pushAvail ? (
+            <button className="btn btn-primary" onClick={handleEnablePush} disabled={pushBusy} style={{ width: '100%' }}>
+              <Bell size={16} /> {pushBusy ? 'Ativando…' : 'Ativar avisos'}
+            </button>
+          ) : (
+            <div className="profile-hint">Seu navegador não suporta avisos. No iPhone, instale o app na tela inicial primeiro.</div>
+          )}
+        </div>
+      )}
 
       {(profile.userAccessType === 'ambos') && (
         <div className="card" style={{ padding: '16px' }}>
