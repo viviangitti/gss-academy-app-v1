@@ -592,3 +592,24 @@
 .ai-mode-btn:not(.active):hover {
   color: var(--text);
 }
+
+/* Botão "Conversar por voz" — entrada pro modo voz-primeiro */
+.voice-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  margin: 4px auto 0;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  color: var(--primary);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-accent);
+}
+.voice-cta:active { transform: scale(0.98); }

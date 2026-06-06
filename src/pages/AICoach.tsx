@@ -434,6 +434,11 @@ export default function AICoach() {
             : 'Tire dúvidas sobre vendas, negociação e liderança comercial.'
           }</p>
 
+          <button className="voice-cta" onClick={() => navigate('/coach-voz')}>
+            <Mic size={18} />
+            <span>Conversar por voz 🎙️</span>
+          </button>
+
           {aiMode === 'vendas' && (
             <button className="roleplay-cta" onClick={() => navigate('/treino')}>
               <Swords size={18} />

@@ -41,6 +41,7 @@ import CopyReview from './pages/CopyReview';
 import PreLaunch from './pages/PreLaunch';
 import ContentToday from './pages/ContentToday';
 import GestorPanel from './pages/GestorPanel';
+import CoachVoice from './pages/CoachVoice';
 import Auth from './pages/Auth';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
@@ -243,6 +244,7 @@ function AppContent() {
             <Route path="/pre-lancamento" element={<PreLaunch />} />
             <Route path="/conteudo-dia" element={<ContentToday />} />
             <Route path="/painel-gestor" element={<GestorPanel />} />
+            <Route path="/coach-voz" element={<CoachVoice />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -286,6 +288,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/pre-lancamento':    'GSS — Pré-lançamento',
   '/conteudo-dia':      'GSS — Conteúdo do Dia',
   '/painel-gestor':     'GSS — Painel do Gestor',
+  '/coach-voz':         'GSS — Coach por Voz',
   '/gatilhos':          'GSS — Gatilhos',
   '/feedback':          'GSS — Feedback',
   '/instalar':          'GSS — Instalar App',

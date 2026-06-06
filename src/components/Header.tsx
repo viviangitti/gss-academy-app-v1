@@ -24,6 +24,7 @@ const titles: Record<string, string> = {
   '/feedback': 'Feedback',
   '/vendas': 'Histórico de Vendas',
   '/ia-coach': 'Coaching',
+  '/coach-voz': 'Coach por Voz',
   '/perfil': 'Perfil',
   '/controladoria': 'Gestão de Metas',
   '/ofertas': 'Ofertas do Mês',
