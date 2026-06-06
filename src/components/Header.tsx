@@ -14,6 +14,7 @@ const titles: Record<string, string> = {
   '/favoritos': 'Favoritos',
   '/treino-hub': 'Treino',
   '/treino': 'Treino',
+  '/treino-voz': 'Treino falado',
   '/pre-reuniao': 'Pré-reunião',
   '/coach-mensagem': 'Revisar Mensagem',
   '/analise-reuniao': 'Pós-reunião',
@@ -50,7 +51,7 @@ const LIBRARY_SUB_PAGES = [
   '/analise-campanha',
 ];
 // Treino sub-pages go back to /treino-hub
-const TRAINING_SUB_PAGES = ['/treino', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao', '/vendas-perdidas'];
+const TRAINING_SUB_PAGES = ['/treino', '/treino-voz', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao', '/vendas-perdidas'];
 // Treino hub itself goes back to /biblioteca
 const TRAINING_HUB_PAGES = ['/treino-hub'];
 // Marketing Hub sub-pages go back to /marketing-hub

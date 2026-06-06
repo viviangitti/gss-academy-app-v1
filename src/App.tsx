@@ -12,6 +12,7 @@ import Techniques from './pages/Techniques';
 import News from './pages/News';
 import Favorites from './pages/Favorites';
 import RolePlay from './pages/RolePlay';
+import RolePlayVoice from './pages/RolePlayVoice';
 import PreMeeting from './pages/PreMeeting';
 import MessageCoach from './pages/MessageCoach';
 import MeetingAnalysis from './pages/MeetingAnalysis';
@@ -214,6 +215,7 @@ function AppContent() {
             <Route path="/favoritos" element={<Favorites />} />
             <Route path="/treino-hub" element={<TrainingHub />} />
             <Route path="/treino" element={<RolePlay />} />
+            <Route path="/treino-voz" element={<RolePlayVoice />} />
             <Route path="/pre-reuniao" element={<PreMeeting />} />
             <Route path="/coach-mensagem" element={<MessageCoach />} />
             <Route path="/analise-reuniao" element={<MeetingAnalysis />} />
@@ -265,6 +267,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/favoritos':         'GSS — Favoritos',
   '/treino-hub':        'GSS — Treino',
   '/treino':            'GSS — Role-play',
+  '/treino-voz':        'GSS — Treino falado',
   '/pre-reuniao':       'GSS — Pré-reunião',
   '/coach-mensagem':    'GSS — Revisar Mensagem',
   '/analise-reuniao':   'GSS — Pós-reunião',

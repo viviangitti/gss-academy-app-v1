@@ -1,0 +1,49 @@
+/* Treino falado — usa o orb do CoachVoice.css + extras */
+
+/* Cliente: orb em tom "humano" (roxo/violeta) pra diferenciar do coach */
+.rpv-client-core {
+  background: radial-gradient(circle at 35% 30%, #c4b5fd, #8b5cf6 55%, #6d28d9) !important;
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4) !important;
+}
+.rpv-face { font-size: 52px; line-height: 1; }
+
+.cv-speaking .rpv-client-core { animation: cv-talk 0.5s ease-in-out infinite; }
+
+.rpv-back {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: none; color: var(--text-soft);
+  font-size: 13px; cursor: pointer; padding: 4px 0;
+}
+.rpv-progress {
+  font-size: 13px; font-weight: 700; color: var(--accent-deep);
+}
+
+/* Seleção */
+.rpv-select { padding: 20px 16px; }
+.rpv-hero {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+  color: #fff; padding: 18px; border-radius: var(--radius); margin-bottom: 18px;
+}
+.rpv-hero h3 { margin: 0; font-size: 18px; }
+.rpv-hero p { margin: 2px 0 0; font-size: 13px; opacity: 0.92; }
+.rpv-label { font-size: 14px; font-weight: 700; color: var(--text); margin: 0 0 10px; }
+.rpv-list { display: flex; flex-direction: column; gap: 10px; }
+.rpv-obj {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 16px; text-align: left; cursor: pointer;
+  font-size: 14px; font-weight: 600; color: var(--text);
+  border: 1px solid var(--border);
+}
+.rpv-obj svg { color: #8b5cf6; flex-shrink: 0; }
+.rpv-obj:active { transform: scale(0.99); }
+
+/* Avaliação */
+.rpv-eval-page { padding: 20px 16px; }
+.evaluation-card { padding: 18px; }
+.eval-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.eval-header svg { color: var(--accent); }
+.eval-header h4 { margin: 0; font-size: 16px; color: var(--text); }
+.eval-content { font-size: 14.5px; line-height: 1.6; color: var(--text); }
+.eval-content strong { color: var(--accent-deep); }

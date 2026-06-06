@@ -10,6 +10,7 @@ const BASE_ITEMS = [
   { path: '/coach-mensagem', icon: Wand2,         label: 'Revisar Mensagem',  desc: 'Cole seu WhatsApp ou e-mail e melhore antes de enviar', color: '#10b981' },
   { path: '/analise-reuniao',icon: Mic,           label: 'Pós-reunião',       desc: 'Fale 1 minuto sobre como foi — você recebe o resumo', color: '#8b5cf6' },
   { path: '/treino',         icon: Swords,        label: 'Treino',             desc: 'Pratique objeções como se fosse um cliente real', color: '#f59e0b' },
+  { path: '/treino-voz',     icon: Mic,           label: 'Treino falado 🎙️',   desc: 'Converse por voz com o cliente difícil e treine objeção falando', color: '#8b5cf6' },
 ];
 
 const MARKETING_ITEMS = [
