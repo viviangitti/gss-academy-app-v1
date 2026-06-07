@@ -1220,3 +1220,38 @@
 .home-gestor-icon {
   background: var(--primary);
 }
+
+/* Card "Falar com o Coach" (voz) */
+.home-voice-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+.home-voice-card:active { transform: scale(0.99); }
+.home-voice-orb {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  background: radial-gradient(circle at 35% 30%, var(--accent-light), var(--accent) 55%, var(--accent-deep));
+  box-shadow: 0 6px 18px rgba(201, 168, 76, 0.35);
+  animation: home-voice-breathe 3.5s ease-in-out infinite;
+}
+@keyframes home-voice-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.home-voice-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.home-voice-text strong { font-size: 15px; color: var(--text); }
+.home-voice-text span { font-size: 12.5px; color: var(--text-light); }
+.home-voice-card > svg { color: var(--text-soft); flex-shrink: 0; }

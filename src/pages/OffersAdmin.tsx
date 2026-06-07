@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Save, Megaphone, Edit3, RefreshCw, ToggleLeft, ToggleRight, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getAllOffers, createOffer, updateOffer, deleteOffer } from '../services/firestore/offers';
+import { notifyTeam } from '../services/push';
+import { loadData, KEYS } from '../services/storage';
 import { SEGMENTS } from '../types';
-import type { Offer, Segment } from '../types';
+import type { Offer, Segment, UserProfile } from '../types';
 import './OffersAdmin.css';
 
 const EMPTY_OFFER: Omit<Offer, 'id'> = {
@@ -78,6 +80,18 @@ export default function OffersAdmin() {
         await updateOffer(editingId, clean);
       } else {
         await createOffer(clean, user?.uid || '');
+        // avisa a equipe de vendas que saiu oferta nova
+        const me = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' as UserProfile['segment'] });
+        if (me.company) {
+          notifyTeam({
+            title: '🏷️ Nova oferta do mês',
+            body: clean.title || 'Confira as novas ofertas.',
+            url: '/ofertas',
+            company: me.company,
+            segment: clean.segments?.[0] || '',
+            audience: 'vendas',
+          });
+        }
       }
       setShowForm(false);
       setEditingId(null);
