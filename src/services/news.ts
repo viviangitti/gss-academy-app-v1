@@ -235,8 +235,8 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v8'; // bump version to clear old generic queries
-const CACHE_TTL = 20 * 60 * 1000; // 20 min — notícias ao vivo
+const CACHE_KEY = 'gss_news_cache_v9'; // v9: busca por marca em paralelo (corrige frescor)
+const CACHE_TTL = 10 * 60 * 1000; // 10 min — notícias ao vivo
 
 interface CacheEntry {
   ts: number;
@@ -299,6 +299,32 @@ const SEGMENT_BASE: Record<string, string> = {
   bebidas_alcoolicas_vinho:
     'vinho OR vinícola OR enoturismo OR "importadora de vinho" OR safra vinho Brasil',
 };
+
+// Termos INDIVIDUAIS por segmento (uma busca por marca/tema, em paralelo).
+// Por que: o Google News trava com queries longas cheias de "OR" e devolve poucos
+// resultados (e velhos). Buscando marca por marca, cada uma traz suas notícias mais
+// recentes; depois juntamos e ordenamos por data. Resultado: notícias de HOJE.
+const SEGMENT_TERMS: Record<string, string[]> = {
+  automotivo_luxo: ['BMW Brasil', 'Mercedes-Benz Brasil', 'Porsche Brasil', 'Audi Brasil', 'Volvo carros Brasil', 'Land Rover Brasil', 'Lexus Brasil', 'carro de luxo Brasil'],
+  automotivo: ['Fiat Brasil', 'Volkswagen Brasil', 'Toyota Brasil', 'Chevrolet Brasil', 'BYD Brasil', 'Hyundai Brasil', 'lançamento carro Brasil', 'montadora Brasil'],
+  farmaceutico: ['ANVISA medicamento', 'indústria farmacêutica Brasil', 'remédio genérico Brasil', 'farmácia Brasil', 'laboratório farmacêutico Brasil'],
+  tecnologia: ['startup Brasil', 'tecnologia software empresa Brasil', 'SaaS Brasil', 'Totvs', 'inteligência artificial empresa Brasil', 'transformação digital Brasil'],
+  varejo: ['Magazine Luiza', 'Americanas varejo', 'Casas Bahia', 'varejo Brasil', 'comércio varejista Brasil', 'consumo Brasil'],
+  imobiliario: ['mercado imobiliário Brasil', 'MRV', 'Cyrela', 'construtora Brasil', 'financiamento imobiliário Brasil', 'lançamento imóvel Brasil'],
+  financeiro: ['Nubank', 'fintech Brasil', 'banco notícia Brasil', 'seguro Brasil', 'investimento Brasil', 'consórcio Brasil'],
+  industria: ['indústria Brasil', 'WEG empresa', 'manufatura Brasil', 'produção industrial Brasil', 'fábrica Brasil'],
+  saude: ['plano de saúde Brasil', 'Hapvida OR Unimed', 'hospital Brasil', 'clínica saúde Brasil', 'estética Brasil'],
+  educacao: ['educação Brasil', 'universidade Brasil', 'ensino EAD Brasil', 'vestibular Brasil', 'faculdade Brasil'],
+  servicos: ['consultoria empresa Brasil', 'terceirização Brasil', 'mercado de trabalho Brasil', 'outsourcing Brasil'],
+  agro: ['agronegócio Brasil', 'safra Brasil', 'agricultura Brasil', 'Syngenta', 'defensivo agrícola Brasil'],
+  energia: ['energia solar Brasil', 'energia renovável Brasil', 'distribuidora de energia Brasil', 'tarifa de energia Brasil'],
+  bebidas_alcoolicas: ['Ambev', 'Heineken Brasil', 'cerveja Brasil', 'destilado Brasil', 'gin OR whisky Brasil'],
+  bebidas_alcoolicas_vinho: ['vinho Brasil', 'vinícola Brasil', 'enoturismo Brasil', 'importadora de vinho Brasil'],
+};
+
+// Ruído recorrente que polui marcas (ex.: "Mercedes-Benz Stadium" da Copa).
+// Removemos títulos claramente fora do tema (futebol/Copa/ingressos/games).
+const NOISE_BLOCK = /\b(copa do mundo|world cup|fifa|stadium|est[áa]dio|ingresso|tickets?|jogador|futebol|forza|gran turismo|video ?game|playstation|xbox)\b/i;
 
 // Queries específicas por segmento+categoria — voltadas ao dia a dia do vendedor
 const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCategory, string[]>>>> = {
@@ -730,8 +756,17 @@ export async function fetchRawNews(segment: Segment, category: NewsCategory, geo
   const overrides = SEGMENT_CATEGORY_OVERRIDES[segment];
   const categoryQueries = (overrides?.[category]) ?? CATEGORY_QUERIES[category];
 
-  // Para "tudo", faz uma query ampla
+  // Para "tudo": busca cada marca/tema em paralelo (em vez de uma query gigante com
+  // "OR", que o Google News trava e devolve poucas/velhas). Junta tudo e ordena por data.
   if (category === 'tudo') {
+    const terms = geo !== 'mundo' ? SEGMENT_TERMS[segment] : undefined;
+    if (terms && terms.length) {
+      const results = await Promise.all(terms.map(t => fetchFromGoogleNews(t, 6, geo)));
+      const merged = dedupeByTitle(results.flat()).filter(it => !NOISE_BLOCK.test(it.title));
+      const sorted = sortByDate(merged).slice(0, 25);
+      if (sorted.length >= 5) return sorted;
+    }
+    // fallback: query ampla original
     const items = await fetchFromGoogleNews(effectiveBase, 25, geo);
     return sortByDate(dedupeByTitle(items));
   }
