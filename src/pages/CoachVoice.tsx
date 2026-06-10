@@ -2,9 +2,14 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Mic, Square, Type } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { sendMessage } from '../services/gemini';
-import { loadData, KEYS } from '../services/storage';
+import type { PriorMessage } from '../services/gemini';
+import { loadData, saveData, KEYS } from '../services/storage';
+import { buildMemoryContext, remember } from '../services/memory';
 import type { UserProfile } from '../types';
 import './CoachVoice.css';
+
+interface ThreadMsg { id: string; role: 'user' | 'assistant'; content: string; timestamp: number; }
+const newId = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
@@ -32,6 +37,11 @@ export default function CoachVoice() {
   const stateRef = useRef<OrbState>('idle');
   const setOrb = (s: OrbState) => { stateRef.current = s; setState(s); };
 
+  // Continua o MESMO fio do Coach de texto (memória compartilhada): carrega o histórico salvo
+  const priorHistoryRef = useRef<PriorMessage[]>(
+    loadData<ThreadMsg[]>(KEYS.CHAT_HISTORY, []).map(m => ({ role: m.role, content: m.content }))
+  );
+
   const hasSpeech = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
@@ -56,8 +66,18 @@ export default function CoachVoice() {
     setOrb('thinking');
     setReply('');
     try {
-      const raw = await sendMessage(text, API_KEY, aiMode);
+      // memória + continuidade: injeta o que o app sabe e o fio anterior (1ª chamada)
+      const memCtx = buildMemoryContext();
+      remember(text, 'voz');
+      const prior = priorHistoryRef.current;
+      priorHistoryRef.current = [];
+      const raw = await sendMessage(text, API_KEY, aiMode, undefined, prior, memCtx);
       const clean = raw.replace(/\[SUGEST[ÕO]ES?:.*?\]/is, '').trim();
+      // persiste no MESMO histórico do Coach de texto (fio único)
+      const thread = loadData<ThreadMsg[]>(KEYS.CHAT_HISTORY, []);
+      thread.push({ id: newId(), role: 'user', content: text, timestamp: Date.now() });
+      thread.push({ id: newId(), role: 'assistant', content: clean, timestamp: Date.now() });
+      saveData(KEYS.CHAT_HISTORY, thread.slice(-60));
       setReply(clean);
       speak(clean);
     } catch {

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMessage, resetChat } from '../services/gemini';
 import type { ImageAttachment, PriorMessage } from '../services/gemini';
 import { loadData, saveData, KEYS } from '../services/storage';
+import { buildMemoryContext, remember } from '../services/memory';
 import type { ChatMessage, UserProfile } from '../types';
 import SpeakButton from '../components/SpeakButton';
 import OfflineState from '../components/OfflineState';
@@ -244,7 +245,10 @@ export default function AICoach() {
       // Passa histórico anterior apenas na primeira mensagem da sessão (restaura contexto)
       const prior = priorHistoryRef.current;
       priorHistoryRef.current = []; // limpa após primeira chamada — Gemini já tem o contexto
-      const response = await sendMessage(withSuggestions, API_KEY, aiMode, file?.attachment ?? undefined, prior);
+      // Memória: injeta o que o app sabe sobre a pessoa (gemini só usa ao criar o chat)
+      const memCtx = buildMemoryContext();
+      if (msg) remember(msg, 'coach'); // registra o que ela falou pra lembrar depois
+      const response = await sendMessage(withSuggestions, API_KEY, aiMode, file?.attachment ?? undefined, prior, memCtx);
       const { clean, suggestions: newSug } = parseSuggestions(response);
       setSuggestions(newSug);
 

@@ -166,6 +166,7 @@ export async function sendMessage(
   mode: 'vendas' | 'marketing' = 'vendas',
   image?: ImageAttachment,
   priorHistory?: PriorMessage[],
+  memoryContext?: string,
 ): Promise<string> {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -179,7 +180,9 @@ export async function sendMessage(
     if (!chat) {
       currentChatMode = mode;
       const isMarketing = mode === 'marketing';
-      const prompt = isMarketing ? MARKETING_SYSTEM_PROMPT : SYSTEM_PROMPT;
+      const base = isMarketing ? MARKETING_SYSTEM_PROMPT : SYSTEM_PROMPT;
+      // injeta a memória do usuário no contexto do sistema
+      const prompt = memoryContext ? `${base}\n\n${memoryContext}` : base;
       const ack = isMarketing
         ? 'Entendido! Sou o Coach de Marketing da MAESTR.IA. Domino branding, estratégia de campanhas, benchmarking e alinhamento marketing-vendas. Como posso ajudar?'
         : 'Entendido! Sou o Coach de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
