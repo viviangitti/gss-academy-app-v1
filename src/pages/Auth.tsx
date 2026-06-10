@@ -107,22 +107,10 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
     setLoading(true);
     try {
       const user = await signInWithGoogle();
-      // Se for signup e for novo usuário, vamos pro passo 2 pra coletar perfil
-      // Detectamos "novo" tentando buscar perfil no firestore (feito pelo App depois)
-      // Por enquanto, salvamos o básico e deixamos o App redirecionar pro perfil
-      const minimal: UserProfile = {
-        name: user.displayName || '',
-        role: existing.role || '',
-        company: existing.company || '',
-        segment: existing.segment || '',
-        email: user.email || '',
-        uid: user.uid,
-        teamId: null,
-        isAdmin: false,
-        createdAt: Date.now(),
-      };
-      saveData(KEYS.PROFILE, minimal);
-      await saveRemoteProfile(user.uid, minimal);
+      // No celular vai por redirect: user vem null e a página navega — o AuthContext
+      // conclui o login e cria o perfil mínimo no retorno. Mantém o loading.
+      if (!user) return;
+      // Desktop (popup): o AuthContext já cria/sincroniza o perfil no onAuthChange.
     } catch (e) {
       const code = (e as { code?: string })?.code || '';
       setError(translateAuthError(code));

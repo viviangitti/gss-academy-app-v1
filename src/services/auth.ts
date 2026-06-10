@@ -3,6 +3,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as fbSignOut,
   sendPasswordResetEmail,
@@ -11,6 +13,17 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth, firebaseEnabled } from './firebase';
+
+// No celular/PWA o popup do Google costuma ser bloqueado — usamos redirect.
+function prefersRedirect(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+  const isStandalone =
+    (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches) ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true;
+  return isMobile || Boolean(isStandalone);
+}
 
 export type AuthUser = User;
 
@@ -37,12 +50,44 @@ export async function signInWithEmail(email: string, password: string): Promise<
   return cred.user;
 }
 
-export async function signInWithGoogle(): Promise<AuthUser> {
+/**
+ * Login com Google. No desktop usa popup; no celular/PWA usa redirect (popup é bloqueado).
+ * Quando vai por redirect, a página navega e a função retorna null — o login é concluído
+ * no carregamento seguinte via completeGoogleRedirect() + onAuthChange.
+ */
+export async function signInWithGoogle(): Promise<AuthUser | null> {
   if (!auth) throw new Error('Firebase não configurado');
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
-  const cred = await signInWithPopup(auth, provider);
-  return cred.user;
+
+  if (prefersRedirect()) {
+    await signInWithRedirect(auth, provider);
+    return null; // navega para o Google; conclui no retorno
+  }
+
+  try {
+    const cred = await signInWithPopup(auth, provider);
+    return cred.user;
+  } catch (e) {
+    const code = (e as { code?: string })?.code || '';
+    // Popup bloqueado/não suportado → cai pro redirect
+    if (/popup|operation-not-supported|cancelled-popup|web-storage-unsupported/.test(code)) {
+      await signInWithRedirect(auth, provider);
+      return null;
+    }
+    throw e;
+  }
+}
+
+/** Conclui um login Google feito por redirect (chamar no boot). Retorna o usuário ou null. */
+export async function completeGoogleRedirect(): Promise<AuthUser | null> {
+  if (!auth) return null;
+  try {
+    const res = await getRedirectResult(auth);
+    return res?.user ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function signOut(): Promise<void> {

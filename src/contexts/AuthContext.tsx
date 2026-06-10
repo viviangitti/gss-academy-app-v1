@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { onAuthChange, type AuthUser } from '../services/auth';
+import { onAuthChange, completeGoogleRedirect, type AuthUser } from '../services/auth';
 import { firebaseEnabled } from '../services/firebase';
 import { resetChat } from '../services/gemini';
 import { getRemoteProfile, saveRemoteProfile } from '../services/firestore/profile';
@@ -27,6 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
+
+    // Conclui um eventual login Google por redirect (mobile/PWA)
+    completeGoogleRedirect();
 
     const unsub = onAuthChange(async u => {
       if (!u) {
