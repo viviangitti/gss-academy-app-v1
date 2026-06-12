@@ -1,6 +1,7 @@
 import { loadData, saveData } from './storage';
 import { auth } from './firebase';
 import { pushData } from './firestore/sync';
+import { logCase } from './firestore/salesCases';
 
 function syncLost(items: LostSale[]) {
   const uid = auth?.currentUser?.uid;
@@ -71,6 +72,23 @@ export function addLostSale(data: Omit<LostSale, 'id' | 'date'>): LostSale {
   const updated = [entry, ...all];
   saveData(KEY, updated);
   syncLost(updated);
+
+  // Cérebro coletivo: a perda vira um caso anônimo da empresa (motivo + aprendizado)
+  try {
+    const profile = JSON.parse(localStorage.getItem('gss_profile') || '{}');
+    if (profile.company) {
+      logCase({
+        kind: 'lost',
+        company: profile.company,
+        segment: profile.segment || '',
+        reason: REASON_LABELS[data.reason],
+        stage: STAGE_LABELS[data.stage],
+        learning: data.learning || undefined,
+        value: data.value || undefined,
+      });
+    }
+  } catch { /* sem perfil — ignora */ }
+
   return entry;
 }
 

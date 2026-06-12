@@ -1,6 +1,7 @@
 // Meta mensal e histórico de vendas registradas
 import { auth } from './firebase';
 import { pushData } from './firestore/sync';
+import { logCase } from './firestore/salesCases';
 
 function syncSales(sales: Sale[]) {
   const uid = auth?.currentUser?.uid;
@@ -60,6 +61,21 @@ export function addSale(amount: number, commission: number, client: string, note
   normalized.push(sale);
   localStorage.setItem(SALES_KEY, JSON.stringify(normalized));
   syncSales(normalized);
+
+  // Cérebro coletivo: a venda vira um caso anônimo da empresa
+  try {
+    const profile = JSON.parse(localStorage.getItem('gss_profile') || '{}');
+    if (profile.company) {
+      logCase({
+        kind: 'won',
+        company: profile.company,
+        segment: profile.segment || '',
+        approach: notes || undefined,
+        value: amount || undefined,
+      });
+    }
+  } catch { /* sem perfil — ignora */ }
+
   return sale;
 }
 

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { sendMessage } from '../services/gemini';
 import type { PriorMessage } from '../services/gemini';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { buildMemoryContext, remember } from '../services/memory';
+import { buildMemoryContext, remember, refreshTeamCases } from '../services/memory';
 import type { UserProfile } from '../types';
 import './CoachVoice.css';
 
@@ -129,6 +129,7 @@ export default function CoachVoice() {
   // Pré-carrega vozes (alguns navegadores precisam)
   useEffect(() => {
     window.speechSynthesis?.getVoices();
+    refreshTeamCases(); // cérebro coletivo em background
     return () => {
       try { recognitionRef.current?.abort?.(); } catch { /* */ }
       window.speechSynthesis?.cancel();

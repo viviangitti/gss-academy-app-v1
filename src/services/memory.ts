@@ -5,10 +5,13 @@
 
 import { loadData, saveData, KEYS } from './storage';
 import { getAllHistory } from './history';
+import { fetchRecentCases } from './firestore/salesCases';
 import type { UserProfile, GoalItem } from '../types';
 
 const FACTS_KEY = 'gss_memory_facts';
 const MAX_FACTS = 40;
+const TEAM_CASES_KEY = 'gss_team_cases_v1';
+const TEAM_CASES_TTL = 30 * 60 * 1000; // 30 min
 
 export interface MemoryFact {
   t: number;        // timestamp
@@ -47,6 +50,45 @@ export function getFacts(): MemoryFact[] {
 
 export function clearMemory(): void {
   saveData(FACTS_KEY, []);
+}
+
+/**
+ * Cérebro coletivo: atualiza (em background) o bloco de casos reais da empresa.
+ * Chamar ao abrir o Coach — o resultado fica em cache e entra no buildMemoryContext.
+ */
+export async function refreshTeamCases(): Promise<void> {
+  try {
+    const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+    if (!profile.company) return;
+    const cached = JSON.parse(localStorage.getItem(TEAM_CASES_KEY) || 'null');
+    if (cached && Date.now() - cached.ts < TEAM_CASES_TTL) return;
+
+    const cases = await fetchRecentCases(profile.company.trim().toLowerCase(), 30);
+    if (!cases.length) {
+      localStorage.setItem(TEAM_CASES_KEY, JSON.stringify({ ts: Date.now(), block: '' }));
+      return;
+    }
+    const lines: string[] = ['CASOS REAIS DA EQUIPE (anônimos — use como evidência do que funciona/falha NESTA empresa):'];
+    cases.slice(0, 20).forEach(c => {
+      if (c.kind === 'won') {
+        lines.push(`• FECHOU${c.value ? ` (R$ ${Math.round(c.value / 1000)}k)` : ''}: ${c.approach || c.objection || 'venda concluída'}`);
+      } else if (c.kind === 'objection_won') {
+        lines.push(`• OBJEÇÃO CONTORNADA "${c.objection || ''}": ${c.approach || ''}`);
+      } else {
+        lines.push(`• PERDEU (${c.reason || 'motivo não informado'}${c.stage ? `, na etapa ${c.stage}` : ''})${c.learning ? ` — aprendizado: ${c.learning}` : ''}`);
+      }
+    });
+    localStorage.setItem(TEAM_CASES_KEY, JSON.stringify({ ts: Date.now(), block: lines.join('\n') }));
+  } catch { /* offline — usa cache antigo */ }
+}
+
+function getTeamCasesBlock(): string {
+  try {
+    const cached = JSON.parse(localStorage.getItem(TEAM_CASES_KEY) || 'null');
+    return cached?.block || '';
+  } catch {
+    return '';
+  }
 }
 
 function goalsLine(profile: UserProfile): string {
@@ -93,6 +135,13 @@ export function buildMemoryContext(): string {
   if (facts.length) {
     lines.push('• O vendedor comentou recentemente:');
     facts.forEach(f => lines.push(`   - "${f.text}" (${relTime(f.t)})`));
+  }
+
+  // Cérebro coletivo: casos reais da empresa (cache atualizado em background)
+  const teamCases = getTeamCasesBlock();
+  if (teamCases) {
+    lines.push('');
+    lines.push(teamCases);
   }
 
   // Se não há nada além do nome, não vale injetar

@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMessage, resetChat } from '../services/gemini';
 import type { ImageAttachment, PriorMessage } from '../services/gemini';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { buildMemoryContext, remember } from '../services/memory';
+import { buildMemoryContext, remember, refreshTeamCases } from '../services/memory';
 import type { ChatMessage, UserProfile } from '../types';
 import SpeakButton from '../components/SpeakButton';
 import OfflineState from '../components/OfflineState';
@@ -163,6 +163,9 @@ export default function AICoach() {
 
   useEffect(() => {
     setMessages(loadData(KEYS.CHAT_HISTORY, []));
+
+    // Cérebro coletivo: atualiza os casos reais da empresa em background
+    refreshTeamCases();
 
     // Carrega ofertas ativas + concorrência para retroalimentar a IA
     Promise.all([

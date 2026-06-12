@@ -10,6 +10,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Cérebro coletivo: casos reais anônimos por empresa.
+    // Qualquer usuário logado registra/lê (filtro por empresa é feito na query).
+    // Sem update/delete — casos são imutáveis (apenas append).
+    match /salesCases/{caseId} {
+      allow create: if isSignedIn();
+      allow read: if isSignedIn();
+      allow update, delete: if false;
+    }
+
     // Tokens de push (FCM). O id do doc é o próprio token.
     // Cliente registra/atualiza o seu; o envio é feito pelo admin SDK (ignora rules).
     match /pushTokens/{token} {
