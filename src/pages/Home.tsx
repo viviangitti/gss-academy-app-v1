@@ -172,8 +172,8 @@ export default function Home() {
         </button>
       )}
 
-      {/* Follow-ups de hoje — onde está o dinheiro */}
-      {profile.userAccessType !== 'marketing' && (dueToday.length > 0 || dueOverdue.length > 0) && (
+      {/* Follow-ups de hoje — onde está o dinheiro (aparece pra quem usa o recurso) */}
+      {(dueToday.length > 0 || dueOverdue.length > 0) && (
         <button className="home-fu-card card" onClick={() => navigate('/follow-ups')}>
           <div className="home-fu-badge">{dueToday.length + dueOverdue.length}</div>
           <div className="home-fu-text">
