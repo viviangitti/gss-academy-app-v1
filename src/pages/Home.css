@@ -1255,3 +1255,24 @@
 .home-voice-text strong { font-size: 15px; color: var(--text); }
 .home-voice-text span { font-size: 12.5px; color: var(--text-light); }
 .home-voice-card > svg { color: var(--text-soft); flex-shrink: 0; }
+
+/* Card de follow-ups de hoje */
+.home-fu-card {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; padding: 14px 16px; margin-bottom: 14px;
+  cursor: pointer; text-align: left;
+  border: 1px solid rgba(201, 168, 76, 0.5);
+}
+.home-fu-badge {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent); color: var(--primary, #fff);
+  font-size: 17px; font-weight: 800;
+}
+.home-fu-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home-fu-text strong { font-size: 15px; color: var(--text); }
+.home-fu-text span {
+  font-size: 12.5px; color: var(--text-light);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.home-fu-card > svg { color: var(--text-soft); flex-shrink: 0; }

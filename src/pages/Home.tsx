@@ -8,6 +8,8 @@ import { getDay, addTask, toggleTask, removeTask } from '../services/day';
 import { getStats, addSale, getDailyAccumulation } from '../services/goal';
 import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
+import { getDueFollowUps } from '../services/followups';
+import type { FollowUp } from '../services/followups';
 import type { WeekStats } from '../services/history';
 import { SEGMENTS } from '../types';
 import type { UserProfile, NewsItem } from '../types';
@@ -25,6 +27,8 @@ export default function Home() {
   const navigate = useNavigate();
   const [greeting, setGreeting] = useState('');
   const [news, setNews] = useState<NewsItem[]>([]);
+  const [dueToday, setDueToday] = useState<FollowUp[]>([]);
+  const [dueOverdue, setDueOverdue] = useState<FollowUp[]>([]);
   const [segmentLabel, setSegmentLabel] = useState('');
   const [favs, setFavs] = useState<Favorite[]>([]);
   const [day, setDay] = useState<DayData>({ date: '', meetings: [], tasks: [] });
@@ -61,6 +65,10 @@ export default function Home() {
 
     setFavs(getFavorites().sort((a, b) => b.addedAt - a.addedAt).slice(0, 3));
     setDay(getDay());
+
+    const due = getDueFollowUps();
+    setDueToday(due.today);
+    setDueOverdue(due.overdue);
 
     const ws = getWeekStats();
     if (ws.totalInteractions > 0) setWeekStats(ws);
@@ -161,6 +169,26 @@ export default function Home() {
             <span>Ver todas as notícias</span>
             <ExternalLink size={13} />
           </div>
+        </button>
+      )}
+
+      {/* Follow-ups de hoje — onde está o dinheiro */}
+      {profile.userAccessType !== 'marketing' && (dueToday.length > 0 || dueOverdue.length > 0) && (
+        <button className="home-fu-card card" onClick={() => navigate('/follow-ups')}>
+          <div className="home-fu-badge">{dueToday.length + dueOverdue.length}</div>
+          <div className="home-fu-text">
+            <strong>
+              {dueOverdue.length > 0
+                ? `${dueOverdue.length} follow-up${dueOverdue.length > 1 ? 's' : ''} atrasado${dueOverdue.length > 1 ? 's' : ''}!`
+                : 'Follow-ups de hoje'}
+            </strong>
+            <span>
+              {[...dueOverdue, ...dueToday].slice(0, 2).map(f => f.clientName).join(', ')}
+              {dueToday.length + dueOverdue.length > 2 ? ` +${dueToday.length + dueOverdue.length - 2}` : ''}
+              {' — toque pra ver'}
+            </span>
+          </div>
+          <ArrowRight size={18} />
         </button>
       )}
 
