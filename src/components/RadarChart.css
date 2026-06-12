@@ -1,0 +1,30 @@
+.radar { width: 100%; height: auto; display: block; }
+.radar-ring {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.radar-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.radar-area {
+  fill: rgba(201, 168, 76, 0.25);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.radar-dot { fill: var(--accent-deep); }
+.radar-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: var(--text);
+}
+.radar-value {
+  font-size: 11px;
+  font-weight: 800;
+  fill: var(--text-soft);
+}
+.radar-value.low { fill: #ef4444; }
+.radar-value.high { fill: #16a34a; }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BarChart3, TrendingUp, TrendingDown, Crosshair, Lightbulb, RotateCcw } from 'lucide-react';
 import { getMyGapReport, hasEnoughDataForMyReport } from '../services/gapReport';
 import type { MyReport as Report } from '../services/gapReport';
+import RadarChart from '../components/RadarChart';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
 import './MyReport.css';
@@ -66,6 +67,28 @@ export default function MyReport() {
           <div className="myrep-block card myrep-resumo">
             <p>{report.resumo}</p>
           </div>
+
+          {/* Radar de competências — fortes e fracos de relance */}
+          {report.competencias?.length >= 3 && (
+            <div className="myrep-block card">
+              <h4><Crosshair size={15} /> Suas competências</h4>
+              <RadarChart items={report.competencias.map(c => ({ label: c.nome, value: c.nota }))} />
+              <div className="myrep-bars">
+                {[...report.competencias].sort((a, b) => b.nota - a.nota).map((c, i) => (
+                  <div key={i} className="myrep-bar-row">
+                    <span className="myrep-bar-name">{c.nome}</span>
+                    <div className="myrep-bar-track">
+                      <div
+                        className={`myrep-bar-fill ${c.nota < 50 ? 'low' : c.nota >= 70 ? 'high' : ''}`}
+                        style={{ width: `${Math.max(4, Math.min(100, c.nota))}%` }}
+                      />
+                    </div>
+                    <span className="myrep-bar-val">{c.nota}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="myrep-block card">
             <h4 className="myrep-h-win"><TrendingUp size={15} /> Onde você ganha</h4>

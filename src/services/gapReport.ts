@@ -13,12 +13,18 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export type GapKind = 'produto' | 'processo' | 'abordagem' | 'follow-up';
 
+export interface CompetencyScore {
+  nome: string;            // ex: "Produto"
+  nota: number;            // 0-100
+}
+
 export interface MyReport {
   resumo: string;          // 1-2 frases: o padrão central
   forte: string[];         // onde ganha (2-3)
   fraco: string[];         // onde perde (2-3)
   gap: GapKind;            // o gap principal
   recomendacao: string;    // o que treinar/fazer esta semana
+  competencias: CompetencyScore[];  // 6 competências-chave com nota (radar)
 }
 
 export interface SellerGap {
@@ -67,7 +73,7 @@ export async function getMyGapReport(): Promise<MyReport> {
   const prompt = `Você é um analista de performance comercial. Analise os dados REAIS deste vendedor e identifique POR QUE ele ganha e POR QUE ele perde.
 
 Responda APENAS com JSON válido:
-{"resumo":"...","forte":["...","..."],"fraco":["...","..."],"gap":"produto|processo|abordagem|follow-up","recomendacao":"..."}
+{"resumo":"...","forte":["...","..."],"fraco":["...","..."],"gap":"produto|processo|abordagem|follow-up","recomendacao":"...","competencias":[{"nome":"Produto","nota":70},{"nome":"Processo","nota":45},{"nome":"Abordagem","nota":60},{"nome":"Negociação","nota":55},{"nome":"Fechamento","nota":65},{"nome":"Follow-up","nota":40}]}
 
 Regras:
 - "resumo": o padrão central em 1-2 frases diretas (ex: "Você fecha bem à vista, mas perde quando entra financiamento").
@@ -75,6 +81,7 @@ Regras:
 - "fraco": 2-3 pontos onde ele perde (com base nos motivos das perdas).
 - "gap": classifique o gap PRINCIPAL: "produto" (não domina o que vende), "processo" (trava em simulação/financiamento/burocracia), "abordagem" (perde por preço/conexão), "follow-up" (perde por sumir/timing).
 - "recomendacao": UMA ação concreta pra esta semana.
+- "competencias": EXATAMENTE estas 6, nesta ordem: Produto, Processo, Abordagem, Negociação, Fechamento, Follow-up. Nota 0-100 baseada na EVIDÊNCIA dos dados (vitórias sobem a nota, perdas relacionadas derrubam). Sem evidência sobre uma competência → nota entre 50-60. Seja criterioso: notas devem variar entre as competências, refletindo os dados.
 - Português brasileiro, direto, sem rodeio. Se os dados forem poucos, diga isso no resumo mas analise mesmo assim.
 
 DADOS:
