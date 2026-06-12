@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
-import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap } from 'lucide-react';
-import { getBoost, reportBoostWin } from '../services/boost';
-import type { BoostPath } from '../services/boost';
+import { useNavigate } from 'react-router-dom';
+import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap, ClipboardCheck, Dumbbell, LifeBuoy } from 'lucide-react';
+import { getBoost, reportBoostWin, getDebrief } from '../services/boost';
+import type { BoostPath, DebriefResult } from '../services/boost';
 import { remember } from '../services/memory';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
@@ -18,6 +19,8 @@ const QUICK_SITUATIONS = [
 
 export default function Boost() {
   const isOnline = useOnline();
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<'sos' | 'debrief'>('sos');
   const [situation, setSituation] = useState('');
   const [paths, setPaths] = useState<BoostPath[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,6 +28,27 @@ export default function Boost() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [wonIdx, setWonIdx] = useState<number | null>(null);
   const askedRef = useRef('');
+
+  // Debrief pós-atendimento
+  const [deb, setDeb] = useState({ situacao: '', motivos: '', autocritica: '' });
+  const [debriefRes, setDebriefRes] = useState<DebriefResult | null>(null);
+
+  const fireDebrief = async () => {
+    if (!deb.situacao.trim() || !deb.motivos.trim() || loading) return;
+    setLoading(true);
+    setError('');
+    remember(`Pós-atendimento: cliente não fechou (${deb.motivos}). Autocrítica: ${deb.autocritica}`.slice(0, 250), 'debrief');
+    try {
+      setDebriefRes(await getDebrief({
+        situacao: deb.situacao.trim(),
+        motivos: deb.motivos.trim(),
+        autocritica: deb.autocritica.trim() || 'não informou',
+      }));
+    } catch {
+      setError('Não consegui analisar agora. Tenta de novo.');
+    }
+    setLoading(false);
+  };
 
   const fire = async (text: string) => {
     const sit = text.trim();
@@ -60,7 +84,45 @@ export default function Boost() {
 
   return (
     <div className="boost-page">
-      {!paths && !loading && (
+      {/* Seletor de modo */}
+      {!paths && !debriefRes && !loading && (
+        <div className="boost-modes">
+          <button className={`boost-mode ${mode === 'sos' ? 'active' : ''}`} onClick={() => setMode('sos')}>
+            <Zap size={15} /> Travei AGORA
+          </button>
+          <button className={`boost-mode ${mode === 'debrief' ? 'active' : ''}`} onClick={() => setMode('debrief')}>
+            <ClipboardCheck size={15} /> Pós-atendimento
+          </button>
+        </div>
+      )}
+
+      {mode === 'debrief' && !debriefRes && !loading && (
+        <>
+          <div className="boost-hero">
+            <div className="boost-hero-icon boost-hero-debrief"><ClipboardCheck size={26} /></div>
+            <h3>Quer dar um boost na sua argumentação?</h3>
+            <p>Conte como foi — você recebe a leitura honesta do que faltou, 2 falas pra próxima vez e como treinar.</p>
+          </div>
+          <div className="boost-debrief-form">
+            <label>Como foi a situação?</label>
+            <textarea rows={2} placeholder='Ex: "cliente veio decidido, fez test-drive, gostou, mas no fim não fechou"'
+              value={deb.situacao} onChange={e => setDeb({ ...deb, situacao: e.target.value })} />
+            <label>Motivos que o cliente alegou pra não fechar</label>
+            <textarea rows={2} placeholder='Ex: "disse que a parcela ficou alta e que vai ver com o banco dele"'
+              value={deb.motivos} onChange={e => setDeb({ ...deb, motivos: e.target.value })} />
+            <label>Autocrítica: o que você sente que faltou em VOCÊ?</label>
+            <textarea rows={2} placeholder='Ex: "acho que não defendi o valor, fui direto pro desconto"'
+              value={deb.autocritica} onChange={e => setDeb({ ...deb, autocritica: e.target.value })} />
+            <button className="boost-fire" onClick={fireDebrief} disabled={!deb.situacao.trim() || !deb.motivos.trim()}>
+              <Rocket size={18} /> Analisar meu atendimento
+            </button>
+            <p className="boost-debrief-note">Seu relato alimenta o seu Raio-X e ajuda a equipe toda — a IA aprende com cada caso.</p>
+          </div>
+          {error && <p className="boost-error">{error}</p>}
+        </>
+      )}
+
+      {mode === 'sos' && !paths && !loading && (
         <>
           <div className="boost-hero">
             <div className="boost-hero-icon"><Rocket size={26} /></div>
@@ -93,6 +155,44 @@ export default function Boost() {
         <div className="boost-loading">
           <div className="boost-loading-orb"><Rocket size={28} /></div>
           <p>Montando seus 3 caminhos…</p>
+        </div>
+      )}
+
+      {debriefRes && (
+        <div className="boost-results">
+          <div className="boost-card card">
+            <div className="boost-card-head"><span className="boost-card-num">👁</span><h4>A leitura honesta</h4></div>
+            <p className="boost-deb-text">{debriefRes.leitura}</p>
+          </div>
+          <div className="boost-card card">
+            <div className="boost-card-head"><span className="boost-card-num">🎯</span><h4>O que de fato faltou</h4></div>
+            <p className="boost-deb-text">{debriefRes.oQueFaltou}</p>
+          </div>
+          <div className="boost-card card">
+            <div className="boost-card-head"><span className="boost-card-num">💬</span><h4>Na próxima vez, fale assim</h4></div>
+            {debriefRes.falas.map((f, i) => <p key={i} className="boost-say">"{f}"</p>)}
+          </div>
+          <div className="boost-card card">
+            <div className="boost-card-head"><span className="boost-card-num">🏋️</span><h4>Treino de 5 minutos</h4></div>
+            <p className="boost-deb-text">{debriefRes.exercicio}</p>
+            <button className="boost-act" style={{ marginTop: 10, width: '100%' }} onClick={() => navigate('/treino-voz')}>
+              <Dumbbell size={14} /> Treinar agora por voz
+            </button>
+          </div>
+          {debriefRes.aindaDaTempo && (
+            <div className="boost-card card boost-deb-rescue">
+              <div className="boost-card-head"><span className="boost-card-num">🛟</span><h4>Esse cliente ainda dá</h4></div>
+              <p className="boost-deb-text">{debriefRes.aindaDaTempo}</p>
+              <button className="boost-act" style={{ marginTop: 10, width: '100%' }}
+                onClick={() => navigate('/rescue', { state: { context: `${deb.situacao}. Cliente alegou: ${deb.motivos}` } })}>
+                <LifeBuoy size={14} /> Montar o resgate
+              </button>
+            </div>
+          )}
+          <p className="boost-won-note">✅ Registrado! Isso alimentou seu Raio-X e o cérebro da equipe.</p>
+          <button className="boost-again" onClick={() => { setDebriefRes(null); setDeb({ situacao: '', motivos: '', autocritica: '' }); }}>
+            <RotateCcw size={15} /> Outro atendimento
+          </button>
         </div>
       )}
 

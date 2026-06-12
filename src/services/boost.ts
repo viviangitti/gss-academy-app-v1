@@ -75,6 +75,70 @@ export async function getBoost(situation: string): Promise<BoostPath[]> {
   return parsed.paths.slice(0, 3);
 }
 
+// ── Debrief pós-atendimento: o vendedor conta o que houve e recebe coaching na hora ──
+
+export interface DebriefInput {
+  situacao: string;      // como foi a situação
+  motivos: string;       // motivos alegados pelo cliente pra não fechar
+  autocritica: string;   // o que ele sente que faltou nele
+}
+
+export interface DebriefResult {
+  leitura: string;       // a leitura honesta do que aconteceu (2-3 frases)
+  oQueFaltou: string;    // o que de fato faltou (validando ou corrigindo a autocrítica)
+  falas: string[];       // 2 falas prontas pra usar na próxima vez
+  exercicio: string;     // 1 micro-exercício pra treinar isso
+  aindaDaTempo: string;  // se der pra resgatar ESTE cliente, como; senão, vazio
+}
+
+const DEBRIEF_PROMPT = `Você é um coach de vendas experiente fazendo o pós-jogo de um atendimento que NÃO fechou. O vendedor teve a coragem de fazer autocrítica — honre isso: seja honesto, específico e construtivo (nunca genérico).
+
+Responda APENAS com JSON válido:
+{"leitura":"...","oQueFaltou":"...","falas":["...","..."],"exercicio":"...","aindaDaTempo":"..."}
+
+Regras:
+- "leitura": sua leitura honesta do que aconteceu (2-3 frases). Use os casos reais da equipe se ajudarem.
+- "oQueFaltou": valide OU corrija a autocrítica dele — às vezes o vendedor se culpa do motivo errado. Diga o que de fato faltou.
+- "falas": exatamente 2 falas PRONTAS (na boca do vendedor) pra situação equivalente na próxima vez.
+- "exercicio": 1 micro-exercício de 5 minutos pra treinar a lacuna (pode citar o Treino falado do app).
+- "aindaDaTempo": se ESTE cliente ainda for recuperável, diga o próximo passo concreto (ex: mensagem amanhã com a condição X). Se não, string vazia "".
+- Português brasileiro, direto, tom de treinador que respeita o atleta.`;
+
+export async function getDebrief(input: DebriefInput): Promise<DebriefResult> {
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+
+  const memory = buildMemoryContext();
+  const ammo = await buildAmmo();
+  const situacao = [
+    'O ATENDIMENTO:',
+    `- Como foi: ${input.situacao}`,
+    `- Motivos que o cliente alegou pra não fechar: ${input.motivos}`,
+    `- Autocrítica do vendedor (o que ele sente que faltou): ${input.autocritica}`,
+  ].join('\n');
+
+  const prompt = [DEBRIEF_PROMPT, memory, ammo, situacao].filter(Boolean).join('\n\n');
+  const result = await model.generateContent(prompt);
+  const text = result.response.text().trim().replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
+  const parsed = JSON.parse(text) as DebriefResult;
+  if (!parsed.leitura) throw new Error('debrief vazio');
+
+  // O registro alimenta o cérebro coletivo e o Raio-X — o ganho composto do app
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  if (profile.company) {
+    logCase({
+      kind: 'lost',
+      authorName: profile.name || '',
+      company: profile.company,
+      segment: profile.segment || '',
+      objection: input.motivos.slice(0, 140),
+      reason: input.motivos.slice(0, 100),
+      learning: input.autocritica.slice(0, 200),
+    });
+  }
+  return parsed;
+}
+
 /** O vendedor marcou que um caminho FUNCIONOU → vira caso real do cérebro coletivo. */
 export function reportBoostWin(situation: string, path: BoostPath): void {
   addWin('boost');

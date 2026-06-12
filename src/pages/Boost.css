@@ -90,3 +90,28 @@
   border: 1px solid var(--border); border-radius: var(--radius);
   background: none; color: var(--text-soft); font-size: 14px; font-weight: 600; cursor: pointer;
 }
+
+/* Seletor de modo (SOS x Pós-atendimento) */
+.boost-modes { display: flex; gap: 8px; margin-bottom: 18px; }
+.boost-mode {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: none; color: var(--text-soft); font-size: 13.5px; font-weight: 700; cursor: pointer;
+}
+.boost-mode.active {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  border-color: transparent; color: #fff;
+}
+
+/* Debrief pós-atendimento */
+.boost-hero-debrief { background: linear-gradient(135deg, #8b5cf6, #6366f1) !important; box-shadow: 0 8px 24px rgba(99,102,241,0.35) !important; }
+.boost-debrief-form { display: flex; flex-direction: column; gap: 6px; }
+.boost-debrief-form label { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 8px; }
+.boost-debrief-form textarea {
+  padding: 11px 12px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font-size: 14px; font-family: inherit; resize: none;
+}
+.boost-debrief-form .boost-fire { margin-top: 14px; }
+.boost-debrief-note { font-size: 12px; color: var(--text-soft); text-align: center; margin: 8px 0 0; }
+.boost-deb-text { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--text); }
+.boost-deb-rescue { border-left: 3px solid #0ea5e9; }
