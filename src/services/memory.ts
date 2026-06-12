@@ -61,7 +61,9 @@ export async function refreshTeamCases(): Promise<void> {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     if (!profile.company) return;
     const cached = JSON.parse(localStorage.getItem(TEAM_CASES_KEY) || 'null');
-    if (cached && Date.now() - cached.ts < TEAM_CASES_TTL) return;
+    // Cache vazio expira mais cedo (5 min) — pode ter sido falha temporária (offline, índice)
+    const ttl = cached?.block ? TEAM_CASES_TTL : 5 * 60 * 1000;
+    if (cached && Date.now() - cached.ts < ttl) return;
 
     const cases = await fetchRecentCases(profile.company.trim().toLowerCase(), 30);
     if (!cases.length) {
