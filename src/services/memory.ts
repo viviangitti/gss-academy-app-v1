@@ -67,9 +67,14 @@ export async function refreshTeamCases(): Promise<void> {
 
     const cases = await fetchRecentCases(profile.company.trim().toLowerCase(), 30);
     if (!cases.length) {
-      localStorage.setItem(TEAM_CASES_KEY, JSON.stringify({ ts: Date.now(), block: '' }));
+      localStorage.setItem(TEAM_CASES_KEY, JSON.stringify({ ts: Date.now(), block: '', raw: [] }));
       return;
     }
+    // guarda também os casos crus (playbook vivo usa pra casar com as objeções)
+    const raw = cases.map(c => ({
+      kind: c.kind, objection: c.objection || '', approach: c.approach || '',
+      reason: c.reason || '', learning: c.learning || '',
+    }));
     const lines: string[] = ['CASOS REAIS DA EQUIPE (anônimos — use como evidência do que funciona/falha NESTA empresa):'];
     cases.slice(0, 20).forEach(c => {
       if (c.kind === 'won') {
@@ -80,8 +85,39 @@ export async function refreshTeamCases(): Promise<void> {
         lines.push(`• PERDEU (${c.reason || 'motivo não informado'}${c.stage ? `, na etapa ${c.stage}` : ''})${c.learning ? ` — aprendizado: ${c.learning}` : ''}`);
       }
     });
-    localStorage.setItem(TEAM_CASES_KEY, JSON.stringify({ ts: Date.now(), block: lines.join('\n') }));
+    localStorage.setItem(TEAM_CASES_KEY, JSON.stringify({ ts: Date.now(), block: lines.join('\n'), raw }));
   } catch { /* offline — usa cache antigo */ }
+}
+
+export interface TeamCaseRaw {
+  kind: string;
+  objection: string;
+  approach: string;
+  reason: string;
+  learning: string;
+}
+
+/** Casos crus do cache (playbook vivo). */
+export function getTeamCasesRaw(): TeamCaseRaw[] {
+  try {
+    const cached = JSON.parse(localStorage.getItem(TEAM_CASES_KEY) || 'null');
+    return cached?.raw || [];
+  } catch {
+    return [];
+  }
+}
+
+/** Casos de objeção contornada que "casam" com o texto de uma objeção da biblioteca. */
+export function getWinningApproaches(objectionText: string): TeamCaseRaw[] {
+  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const words = norm(objectionText).split(/\W+/).filter(w => w.length > 3);
+  return getTeamCasesRaw()
+    .filter(c => c.kind === 'objection_won' && c.approach)
+    .filter(c => {
+      const target = norm(c.objection);
+      return words.some(w => target.includes(w));
+    })
+    .slice(0, 3);
 }
 
 function getTeamCasesBlock(): string {
@@ -112,6 +148,21 @@ export function buildMemoryContext(): string {
   const facts = getFacts().slice(-12);
 
   const lines: string[] = [];
+
+  // Persona do assistente (o vendedor batizou e escolheu o tom)
+  if (profile.assistantName || profile.assistantTone) {
+    const tones: Record<string, string> = {
+      direto: 'Seja DIRETO ao ponto: respostas curtas, zero enrolação, foco em ação.',
+      motivador: 'Seja MOTIVADOR: energia alta, reconheça o esforço, termine puxando pra cima.',
+      tecnico: 'Seja TÉCNICO: dados, números e o porquê das coisas, sem perder a clareza.',
+    };
+    const parts: string[] = [];
+    if (profile.assistantName) parts.push(`Seu nome é ${profile.assistantName} — é assim que o vendedor te chama.`);
+    if (profile.assistantTone && tones[profile.assistantTone]) parts.push(tones[profile.assistantTone]);
+    if (profile.name) parts.push(`Chame o vendedor pelo primeiro nome (${profile.name.split(' ')[0]}).`);
+    lines.push(`PERSONA: ${parts.join(' ')}`);
+  }
+
   lines.push('MEMÓRIA — o que você já sabe sobre este vendedor (use para personalizar de forma natural; NÃO repita isso de forma robótica):');
 
   // Perfil

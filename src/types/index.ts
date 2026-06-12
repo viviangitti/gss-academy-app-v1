@@ -68,6 +68,8 @@ export interface UserProfile {
   isControladoria?: boolean;
   isGestor?: boolean;          // gestor de equipe — vê o painel do gestor (definido externamente)
   isMarketing?: boolean;
+  assistantName?: string;      // nome que o vendedor deu ao assistente de IA
+  assistantTone?: 'direto' | 'motivador' | 'tecnico';  // tom de fala do assistente
   userAccessType?: 'vendas' | 'marketing' | 'ambos';
   priceRange?: PriceRange;
   uid?: string;

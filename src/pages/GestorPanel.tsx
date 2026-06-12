@@ -4,6 +4,8 @@ import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw }
 import { loadData, KEYS } from '../services/storage';
 import { getTeamSummary } from '../services/firestore/contentScores';
 import { getTeamGapReport } from '../services/gapReport';
+import { getWeeklyReport } from '../services/weeklyReport';
+import type { WeeklyReport } from '../services/weeklyReport';
 import type { TeamReport } from '../services/gapReport';
 import type { TeamSummary } from '../services/firestore/contentScores';
 import type { UserProfile } from '../types';
@@ -28,6 +30,31 @@ export default function GestorPanel() {
   const [gaps, setGaps] = useState<TeamReport | null>(null);
   const [gapsLoading, setGapsLoading] = useState(false);
   const [gapsError, setGapsError] = useState('');
+
+  const [weekly, setWeekly] = useState<WeeklyReport | null>(null);
+  const [weeklyLoading, setWeeklyLoading] = useState(false);
+  const [weeklyError, setWeeklyError] = useState('');
+  const [copiedWeekly, setCopiedWeekly] = useState(false);
+
+  const generateWeekly = async () => {
+    setWeeklyLoading(true);
+    setWeeklyError('');
+    try {
+      setWeekly(await getWeeklyReport());
+    } catch {
+      setWeeklyError('Ainda não há atividade registrada pela equipe esta semana.');
+    }
+    setWeeklyLoading(false);
+  };
+
+  const copyWeekly = async () => {
+    if (!weekly) return;
+    try {
+      await navigator.clipboard.writeText(weekly.mensagemGrupo);
+      setCopiedWeekly(true);
+      setTimeout(() => setCopiedWeekly(false), 1500);
+    } catch { /* */ }
+  };
 
   const generateGaps = async () => {
     setGapsLoading(true);
@@ -122,6 +149,38 @@ export default function GestorPanel() {
           ))}
         </div>
       )}
+
+      {/* Relatório de segunda — pronto pra colar no grupo */}
+      <div className="gp-gaps card">
+        <div className="gp-rank-head"><TrendingUp size={16} /> Resumo da semana</div>
+        {!weekly && !weeklyLoading && (
+          <>
+            <p className="gp-gaps-desc">A IA monta o resumo da semana da equipe — pronto pra colar no grupo — com destaque da semana e elogio pronto.</p>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={generateWeekly}>
+              Gerar resumo da semana
+            </button>
+            {weeklyError && <p className="gp-gaps-error">{weeklyError}</p>}
+          </>
+        )}
+        {weeklyLoading && <p className="gp-gaps-desc">Montando o resumo…</p>}
+        {weekly && (
+          <>
+            <p className="gp-weekly-msg">{weekly.mensagemGrupo}</p>
+            <button className="btn btn-primary" style={{ width: '100%', marginBottom: 10 }} onClick={copyWeekly}>
+              {copiedWeekly ? '✓ Copiado!' : 'Copiar mensagem pro grupo'}
+            </button>
+            <div className="gp-gap-row">
+              <div className="gp-gap-top">
+                <strong>🏆 Destaque: {weekly.destaque}</strong>
+              </div>
+              <p className="gp-gap-resumo">Elogio pronto (manda no privado): "{weekly.elogio}"</p>
+            </div>
+            <div className="gp-gap-row">
+              <p className="gp-gap-rec">🎯 Foco da semana: {weekly.focoSemana}</p>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Mapa de gaps — por que cada vendedor ganha/perde */}
       <div className="gp-gaps card">

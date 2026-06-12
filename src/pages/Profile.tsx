@@ -335,6 +335,41 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Seu assistente — nome e tom (personalização da IA) */}
+      <div className="card" style={{ padding: '16px' }}>
+        <h3 className="section-title" style={{ marginBottom: 6 }}><Sparkles size={15} /> Seu assistente</h3>
+        <p className="profile-hint" style={{ marginTop: 0 }}>
+          Dê um nome e escolha o jeito dele falar com você — vale pro Coaching, voz, Boost e Rescue.
+        </p>
+        <div className="form-group">
+          <label className="profile-label">Nome do assistente</label>
+          <input
+            type="text"
+            placeholder="Ex: Max, Bia, Tony…"
+            value={profile.assistantName || ''}
+            onChange={e => setProfile({ ...profile, assistantName: e.target.value })}
+          />
+        </div>
+        <div className="form-group" style={{ marginTop: 10 }}>
+          <label className="profile-label">Tom de fala</label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
+            {([['direto', '⚡ Direto'], ['motivador', '🔥 Motivador'], ['tecnico', '📊 Técnico']] as const).map(([val, label]) => (
+              <button
+                key={val}
+                type="button"
+                className={`theme-opt ${profile.assistantTone === val ? 'active' : ''}`}
+                onClick={() => setProfile({ ...profile, assistantTone: val })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={handleSave}>
+          <Save size={15} /> {saved ? 'Salvo!' : 'Salvar assistente'}
+        </button>
+      </div>
+
       {/* Notificações push */}
       {pushConfigured() && (
         <div className="card" style={{ padding: '16px' }}>

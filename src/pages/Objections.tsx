@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, Shield, AlertTriangle, Copy, Check } from 'lucide-react';
 import { getObjections, STAGES } from '../services/content';
 import { loadData, KEYS } from '../services/storage';
+import { getWinningApproaches, refreshTeamCases } from '../services/memory';
 import { SEGMENTS } from '../types';
 import type { UserProfile } from '../types';
 import type { Objection, Stage } from '../services/content';
@@ -22,6 +23,7 @@ export default function Objections() {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setAllObjections(getObjections(profile.segment));
     setSegmentLabel(SEGMENTS.find(s => s.value === profile.segment)?.label || '');
+    refreshTeamCases(); // playbook vivo: atualiza casos reais em background
   }, []);
 
   const handleCopy = async (text: string, id: string) => {
@@ -152,6 +154,21 @@ export default function Objections() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Playbook vivo: o que está funcionando NESTA empresa */}
+                  {(() => {
+                    const wins = getWinningApproaches(obj.objection);
+                    if (!wins.length) return null;
+                    return (
+                      <div className="objection-live">
+                        <span className="responses-label">🔥 O que está funcionando aqui ({wins.length})</span>
+                        {wins.map((w, i) => (
+                          <p key={i} className="objection-live-item">{w.approach}</p>
+                        ))}
+                        <span className="objection-live-note">Casos reais da sua equipe, registrados no Boost.</span>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
