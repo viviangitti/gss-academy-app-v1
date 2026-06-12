@@ -170,7 +170,7 @@ export default function Boost() {
           </div>
           <div className="boost-card card">
             <div className="boost-card-head"><span className="boost-card-num">💬</span><h4>Na próxima vez, fale assim</h4></div>
-            {debriefRes.falas.map((f, i) => <p key={i} className="boost-say">"{f}"</p>)}
+            {debriefRes.falas.map((f, i) => <p key={i} className="boost-say">"{f.replace(/^["']+|["']+$/g, '')}"</p>)}
           </div>
           <div className="boost-card card">
             <div className="boost-card-head"><span className="boost-card-num">🏋️</span><h4>Treino de 5 minutos</h4></div>
