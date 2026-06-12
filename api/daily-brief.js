@@ -40,10 +40,10 @@ export default async function handler(req, res) {
       const r = await messaging.sendEachForMulticast({
         tokens: batch,
         notification: {
-          title: '☀️ Seu briefing do dia chegou',
+          title: '☀️ Seu resumo do dia chegou',
           body: 'Meta, follow-ups e a munição de hoje — 30 segundos e você sai na frente.',
         },
-        data: { url: '/', title: 'Briefing do dia', body: '' },
+        data: { url: '/', title: 'Resumo do dia', body: '' },
         webpush: {
           notification: { icon: '/icon-192.png', badge: '/icon-192.png' },
           fcmOptions: { link: '/' },

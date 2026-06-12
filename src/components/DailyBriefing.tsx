@@ -117,7 +117,7 @@ export default function DailyBriefing() {
   return (
     <div className="brief card">
       <button className="brief-head" onClick={toggle}>
-        <span className="brief-title"><Sun size={16} /> Briefing do dia</span>
+        <span className="brief-title"><Sun size={16} /> Resumo do dia</span>
         {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
       {open && (
