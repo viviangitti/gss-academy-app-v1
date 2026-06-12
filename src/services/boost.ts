@@ -35,7 +35,7 @@ function monthKey(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-async function buildAmmo(): Promise<string> {
+export async function buildAmmo(): Promise<string> {
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const parts: string[] = [];
   try {

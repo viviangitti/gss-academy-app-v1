@@ -237,6 +237,18 @@ export default function LostSales() {
                     </div>
                   )}
                   <div className="lost-item-footer">
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => navigate('/rescue', {
+                        state: {
+                          interest: sale.opportunity,
+                          context: `Venda perdida por: ${REASON_LABELS[sale.reason]} (etapa ${STAGE_LABELS[sale.stage]}). ${sale.notes || ''}`.trim(),
+                          daysSince: Math.max(1, Math.round((Date.now() - new Date(sale.date).getTime()) / 86400000)),
+                        },
+                      })}
+                    >
+                      🎯 Rescue
+                    </button>
                     {REASON_OBJECTION_LINK[sale.reason] && (
                       <button className="btn btn-outline btn-sm" onClick={() => navigate('/objecoes')}>
                         <BookOpen size={12} /> Ver objeções

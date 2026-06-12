@@ -128,9 +128,22 @@ export default function FollowUps() {
           <button className="fu-btn fu-btn-won" onClick={() => handleWon(f)}>
             <Flame size={14} /> Fechou!
           </button>
-          <button className="fu-btn fu-btn-lost" onClick={() => handleLost(f)}>
-            <TrendingDown size={14} /> Perdi
-          </button>
+          {(f.nextDate < todayStr() || f.stage === 'esfriou') ? (
+            <button className="fu-btn fu-btn-rescue" onClick={() => navigate('/rescue', {
+              state: {
+                clientName: f.clientName,
+                interest: f.interest,
+                context: `Cliente esfriou (${STAGE_LABELS[f.stage]}). ${f.note || ''}`.trim(),
+                daysSince: Math.max(1, Math.round((Date.now() - (f.lastTouchAt || f.updatedAt)) / 86400000)),
+              },
+            })}>
+              🎯 Rescue
+            </button>
+          ) : (
+            <button className="fu-btn fu-btn-lost" onClick={() => handleLost(f)}>
+              <TrendingDown size={14} /> Perdi
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -15,6 +15,7 @@ import RolePlay from './pages/RolePlay';
 import RolePlayVoice from './pages/RolePlayVoice';
 import FollowUps from './pages/FollowUps';
 import Boost from './pages/Boost';
+import Rescue from './pages/Rescue';
 import PreMeeting from './pages/PreMeeting';
 import MessageCoach from './pages/MessageCoach';
 import MeetingAnalysis from './pages/MeetingAnalysis';
@@ -220,6 +221,7 @@ function AppContent() {
             <Route path="/treino-voz" element={<RolePlayVoice />} />
             <Route path="/follow-ups" element={<FollowUps />} />
             <Route path="/boost" element={<Boost />} />
+            <Route path="/rescue" element={<Rescue />} />
             <Route path="/pre-reuniao" element={<PreMeeting />} />
             <Route path="/coach-mensagem" element={<MessageCoach />} />
             <Route path="/analise-reuniao" element={<MeetingAnalysis />} />
@@ -274,6 +276,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/treino-voz':        'GSS — Treino falado',
   '/follow-ups':        'GSS — Follow-ups',
   '/boost':             'GSS — Boost',
+  '/rescue':            'GSS — Rescue',
   '/pre-reuniao':       'GSS — Pré-reunião',
   '/coach-mensagem':    'GSS — Revisar Mensagem',
   '/analise-reuniao':   'GSS — Pós-reunião',
