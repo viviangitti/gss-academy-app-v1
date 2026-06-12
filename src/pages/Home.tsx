@@ -10,6 +10,7 @@ import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
 import type { FollowUp } from '../services/followups';
+import DailyBriefing from '../components/DailyBriefing';
 import type { WeekStats } from '../services/history';
 import { SEGMENTS } from '../types';
 import type { UserProfile, NewsItem } from '../types';
@@ -149,6 +150,9 @@ export default function Home() {
           {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </p>
       </div>
+
+      {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
+      <DailyBriefing />
 
       {welcomeBack && (
         <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>
