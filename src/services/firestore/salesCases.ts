@@ -12,6 +12,7 @@ export interface SalesCase {
   kind: CaseKind;
   company: string;        // chave da empresa (minúsculo)
   segment: string;
+  authorName?: string;    // nome do vendedor — usado no mapa de gaps do gestor
   objection?: string;     // objeção enfrentada (ex: "está caro")
   approach?: string;      // o que foi feito/falado (anônimo)
   reason?: string;        // motivo da perda (label legível)

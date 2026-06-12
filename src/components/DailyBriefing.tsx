@@ -3,7 +3,8 @@
 // condição mais recente e a comissão em jogo na carteira.
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sun, Target, CalendarClock, Tag, Wallet, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sun, Target, CalendarClock, Tag, Wallet, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
+import { getMonthWins, hasAnyWin } from '../services/wins';
 import { loadData, KEYS } from '../services/storage';
 import { getStats } from '../services/goal';
 import { getDueFollowUps, getPipelineValue } from '../services/followups';
@@ -94,6 +95,20 @@ export default function DailyBriefing() {
       icon: <Tag size={15} />,
       to: '/condicoes',
       text: <>Munição do mês: <strong>{latestCondition}</strong></>,
+    });
+  }
+
+  // Placar de ganho: o ROI do app em números — por que continuar usando
+  if (hasAnyWin()) {
+    const w = getMonthWins();
+    const bits: string[] = [];
+    if (w.boostWins) bits.push(`${w.boostWins} objeç${w.boostWins > 1 ? 'ões viradas' : 'ão virada'} no Boost`);
+    if (w.fuWon) bits.push(`${w.fuWon} venda${w.fuWon > 1 ? 's' : ''} via follow-up${w.fuCommission ? ` (${brl(w.fuCommission)})` : ''}`);
+    if (w.rescuesSent) bits.push(`${w.rescuesSent} resgate${w.rescuesSent > 1 ? 's' : ''} enviado${w.rescuesSent > 1 ? 's' : ''}`);
+    rows.push({
+      icon: <Trophy size={15} />,
+      to: '/historico',
+      text: <>Este mês o app te ajudou: <strong>{bits.join(' · ')}</strong></>,
     });
   }
 

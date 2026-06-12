@@ -4,6 +4,7 @@ import { Target, Copy, Check, MessageCircle, Clock, Anchor, LifeBuoy, RotateCcw 
 import { getRescuePlan } from '../services/rescue';
 import type { RescueTarget, RescuePlan } from '../services/rescue';
 import { remember } from '../services/memory';
+import { addWin } from '../services/wins';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
 import './Rescue.css';
@@ -48,6 +49,7 @@ export default function Rescue() {
 
   const handleWhatsApp = () => {
     if (!plan) return;
+    addWin('rescue');
     window.open(`https://wa.me/?text=${encodeURIComponent(plan.message)}`, '_blank');
   };
 

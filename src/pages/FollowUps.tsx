@@ -10,6 +10,7 @@ import {
 } from '../services/followups';
 import type { FollowUp, FollowUpStage } from '../services/followups';
 import { addSale } from '../services/goal';
+import { addWin } from '../services/wins';
 import './FollowUps.css';
 
 function formatBRL(v: number): string {
@@ -82,6 +83,7 @@ export default function FollowUps() {
 
   const handleWon = (f: FollowUp) => {
     closeFollowUp(f.id, 'won');
+    addWin('fuWon', f.estCommission || 0);
     if (f.estValue || f.estCommission) {
       addSale(f.estValue || 0, f.estCommission || 0, f.clientName, `Follow-up: ${f.interest}`);
     }

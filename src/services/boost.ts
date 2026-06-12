@@ -7,6 +7,7 @@ import { getActiveOffers } from './firestore/offers';
 import { getActiveConditionsForMonth } from './firestore/commercialConditions';
 import { loadData, KEYS } from './storage';
 import { logCase } from './firestore/salesCases';
+import { addWin } from './wins';
 import type { UserProfile } from '../types';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -76,10 +77,12 @@ export async function getBoost(situation: string): Promise<BoostPath[]> {
 
 /** O vendedor marcou que um caminho FUNCIONOU → vira caso real do cérebro coletivo. */
 export function reportBoostWin(situation: string, path: BoostPath): void {
+  addWin('boost');
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   if (!profile.company) return;
   logCase({
     kind: 'objection_won',
+        authorName: profile.name || '',
     company: profile.company,
     segment: profile.segment || '',
     objection: situation.slice(0, 140),

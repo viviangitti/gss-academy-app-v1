@@ -79,6 +79,7 @@ export function addLostSale(data: Omit<LostSale, 'id' | 'date'>): LostSale {
     if (profile.company) {
       logCase({
         kind: 'lost',
+        authorName: profile.name || '',
         company: profile.company,
         segment: profile.segment || '',
         reason: REASON_LABELS[data.reason],

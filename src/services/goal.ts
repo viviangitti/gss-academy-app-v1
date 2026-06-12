@@ -68,6 +68,7 @@ export function addSale(amount: number, commission: number, client: string, note
     if (profile.company) {
       logCase({
         kind: 'won',
+        authorName: profile.name || '',
         company: profile.company,
         segment: profile.segment || '',
         approach: notes || undefined,

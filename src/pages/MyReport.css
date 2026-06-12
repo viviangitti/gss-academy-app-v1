@@ -1,0 +1,62 @@
+.myrep-page { padding: 20px 16px 90px; }
+
+.myrep-hero { text-align: center; }
+.myrep-hero-icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px;
+  background: linear-gradient(135deg, #10b981, #0ea5e9);
+  color: #fff; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+}
+.myrep-hero h3 { margin: 0 0 6px; font-size: 20px; color: var(--text); }
+.myrep-hero p { margin: 0 0 16px; font-size: 14px; color: var(--text-light); line-height: 1.5; }
+.myrep-fire {
+  padding: 14px 28px; border: none; border-radius: var(--radius); cursor: pointer;
+  background: linear-gradient(135deg, #10b981, #0ea5e9);
+  color: #fff; font-size: 15px; font-weight: 800;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+}
+.myrep-empty { padding: 16px; }
+.myrep-empty p { font-size: 14px !important; margin-bottom: 10px !important; }
+.myrep-error { color: #ef4444; font-size: 13.5px; margin-top: 12px; }
+
+.myrep-loading { text-align: center; padding: 60px 0; }
+.myrep-loading-orb {
+  width: 70px; height: 70px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px; color: #fff;
+  background: linear-gradient(135deg, #10b981, #0ea5e9);
+  animation: myrep-pulse 0.9s ease-in-out infinite;
+}
+@keyframes myrep-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.myrep-loading p { color: var(--text-light); font-size: 14px; }
+
+.myrep-block { padding: 14px 16px; margin-bottom: 12px; }
+.myrep-block h4 {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 8px; font-size: 13px; font-weight: 700;
+  color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.4px;
+}
+.myrep-h-win svg { color: #16a34a; }
+.myrep-h-lose svg { color: #ef4444; }
+.myrep-block ul { margin: 0; padding-left: 18px; }
+.myrep-block li { font-size: 14px; line-height: 1.55; color: var(--text); margin-bottom: 4px; }
+.myrep-block p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--text); }
+
+.myrep-resumo {
+  border-left: 3px solid var(--accent);
+  font-weight: 600;
+}
+.myrep-gap h4 svg { color: #f59e0b; }
+.myrep-gap-label { font-weight: 700; font-size: 15px !important; }
+.myrep-action h4 svg { color: var(--accent); }
+
+.myrep-again {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; margin-top: 4px; padding: 12px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: none; color: var(--text-soft); font-size: 14px; font-weight: 600; cursor: pointer;
+}

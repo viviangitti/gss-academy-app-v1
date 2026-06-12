@@ -26,6 +26,15 @@ export default function Library() {
           <span className="lib-intel-desc">Seus clientes e o próximo passo de cada um</span>
         </div>
       </button>
+      <button className="lib-playbook-card card" onClick={() => navigate('/meu-raiox')}>
+        <div className="lib-intel-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>
+          <BarChart2 size={20} />
+        </div>
+        <div className="lib-playbook-text">
+          <span className="lib-intel-title">Meu Raio-X</span>
+          <span className="lib-intel-desc">Por que você ganha e por que perde — seu gap</span>
+        </div>
+      </button>
 
       {/* ── Intel do mês (todos) ── */}
       <div className="lib-section-label">Intel do mês</div>

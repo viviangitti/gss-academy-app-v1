@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Share2, Trophy, Medal, Flame, TrendingUp } from 'lucide-react';
+import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getTeamSummary } from '../services/firestore/contentScores';
+import { getTeamGapReport } from '../services/gapReport';
+import type { TeamReport } from '../services/gapReport';
 import type { TeamSummary } from '../services/firestore/contentScores';
 import type { UserProfile } from '../types';
 import './GestorPanel.css';
+
+const GAP_BADGES: Record<string, string> = {
+  produto: '📦 Produto',
+  processo: '⚙️ Processo',
+  abordagem: '🤝 Abordagem',
+  'follow-up': '📞 Follow-up',
+};
 
 function monthKey() {
   return new Date().toISOString().slice(0, 7);
@@ -16,6 +25,20 @@ export default function GestorPanel() {
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const [summary, setSummary] = useState<TeamSummary>({ totalPosts: 0, totalPoints: 0, activeMembers: 0, members: [] });
   const [loading, setLoading] = useState(true);
+  const [gaps, setGaps] = useState<TeamReport | null>(null);
+  const [gapsLoading, setGapsLoading] = useState(false);
+  const [gapsError, setGapsError] = useState('');
+
+  const generateGaps = async () => {
+    setGapsLoading(true);
+    setGapsError('');
+    try {
+      setGaps(await getTeamGapReport());
+    } catch {
+      setGapsError('Ainda não há casos registrados pela equipe (vendas/perdas). Os dados aparecem conforme o time usa o app.');
+    }
+    setGapsLoading(false);
+  };
 
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
 
@@ -99,6 +122,39 @@ export default function GestorPanel() {
           ))}
         </div>
       )}
+
+      {/* Mapa de gaps — por que cada vendedor ganha/perde */}
+      <div className="gp-gaps card">
+        <div className="gp-rank-head"><Crosshair size={16} /> Mapa de gaps da equipe</div>
+        {!gaps && !gapsLoading && (
+          <>
+            <p className="gp-gaps-desc">A IA cruza as vendas e perdas registradas pela equipe e mostra o gap de cada vendedor: produto, processo, abordagem ou follow-up.</p>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={generateGaps}>
+              Gerar análise da equipe
+            </button>
+            {gapsError && <p className="gp-gaps-error">{gapsError}</p>}
+          </>
+        )}
+        {gapsLoading && <p className="gp-gaps-desc">Analisando os casos da equipe…</p>}
+        {gaps && (
+          <>
+            <p className="gp-gaps-resumo">{gaps.resumoEquipe}</p>
+            {gaps.porVendedor.map((s, i) => (
+              <div key={i} className="gp-gap-row">
+                <div className="gp-gap-top">
+                  <strong>{s.nome}</strong>
+                  <span className="gp-gap-badge">{GAP_BADGES[s.gap] || s.gap}</span>
+                </div>
+                <p className="gp-gap-resumo">{s.resumo}</p>
+                <p className="gp-gap-rec">→ {s.recomendacao}</p>
+              </div>
+            ))}
+            <button className="btn btn-outline btn-sm" style={{ width: '100%', marginTop: 8 }} onClick={generateGaps}>
+              <RefreshCw size={13} /> Atualizar análise
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Inativos — pra cobrar */}
       {inativos.length > 0 && (
