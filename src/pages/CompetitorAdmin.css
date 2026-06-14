@@ -264,3 +264,32 @@ textarea.ca-input { resize: vertical; min-height: 70px; }
   color: #16a34a;
   font-weight: 600;
 }
+
+/* Chip de marca personalizada (com X pra remover) */
+.ca-brand-custom {
+  display: inline-flex; align-items: center; gap: 2px; padding: 0 4px 0 0;
+}
+.ca-brand-custom-label {
+  background: none; border: none; cursor: pointer; font: inherit; color: inherit;
+  padding: 6px 4px 6px 14px;
+}
+.ca-brand-custom-x {
+  background: none; border: none; cursor: pointer; color: inherit;
+  display: flex; align-items: center; padding: 3px; border-radius: 50%; opacity: 0.7;
+}
+.ca-brand-custom-x:hover { opacity: 1; }
+
+/* Campo de adicionar outra marca */
+.ca-add-brand { display: flex; gap: 8px; margin-bottom: 14px; }
+.ca-add-brand input {
+  flex: 1; padding: 10px 12px; border-radius: var(--radius);
+  border: 1.5px solid var(--border); background: var(--surface);
+  color: var(--text); font-size: 14px;
+}
+.ca-add-brand-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 10px 14px; border-radius: var(--radius);
+  border: 1.5px solid var(--accent); background: none; color: var(--accent-deep);
+  font-size: 13.5px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+}
+.ca-add-brand-btn:disabled { opacity: 0.5; cursor: not-allowed; }

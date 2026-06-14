@@ -70,6 +70,11 @@ export default function CompetitorAdmin() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>(
     TOYOTA_COMPETITORS.map(c => c.id),
   );
+  // Marcas personalizadas adicionadas pelo usuário (ex: BMW, Mercedes, Porsche) — persistidas
+  const [customBrands, setCustomBrands] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('gss_custom_competitors') || '[]'); } catch { return []; }
+  });
+  const [newBrand, setNewBrand] = useState('');
   const [scanning, setScanning] = useState(false);
   const [scanCurrent, setScanCurrent] = useState('');
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
@@ -114,13 +119,40 @@ export default function CompetitorAdmin() {
     );
   };
 
+  const persistCustom = (list: string[]) => {
+    setCustomBrands(list);
+    localStorage.setItem('gss_custom_competitors', JSON.stringify(list));
+  };
+
+  const addCustomBrand = () => {
+    const name = newBrand.trim();
+    if (!name) return;
+    // evita duplicar (case-insensitive) com fixas ou já adicionadas
+    const exists = [...TOYOTA_COMPETITORS.map(c => c.label), ...customBrands]
+      .some(b => b.toLowerCase() === name.toLowerCase());
+    if (!exists) {
+      persistCustom([...customBrands, name]);
+      setSelectedBrands(prev => [...prev, 'custom:' + name]); // já entra selecionada
+    }
+    setNewBrand('');
+  };
+
+  const removeCustomBrand = (name: string) => {
+    persistCustom(customBrands.filter(b => b !== name));
+    setSelectedBrands(prev => prev.filter(id => id !== 'custom:' + name));
+  };
+
   const handleAutoScan = async () => {
     if (selectedBrands.length === 0) return;
     setScanning(true);
     setScanResults([]);
     setScanDone(false);
 
-    const brands = TOYOTA_COMPETITORS.filter(c => selectedBrands.includes(c.id));
+    const fixedLabels = TOYOTA_COMPETITORS
+      .filter(c => selectedBrands.includes(c.id))
+      .map(c => c.label);
+    const customLabels = customBrands.filter(b => selectedBrands.includes('custom:' + b));
+    const brands = [...fixedLabels, ...customLabels].map(label => ({ label }));
     const results: ScanResult[] = [];
 
     for (const brand of brands) {
@@ -334,6 +366,31 @@ export default function CompetitorAdmin() {
               {c.label}
             </button>
           ))}
+          {customBrands.map(b => (
+            <span key={b} className={`ca-brand-chip ca-brand-custom ${selectedBrands.includes('custom:' + b) ? 'active' : ''}`}>
+              <button type="button" className="ca-brand-custom-label" onClick={() => toggleBrand('custom:' + b)} disabled={scanning}>
+                {b}
+              </button>
+              <button type="button" className="ca-brand-custom-x" onClick={() => removeCustomBrand(b)} disabled={scanning} aria-label={`Remover ${b}`}>
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+
+        {/* Adicionar marca personalizada (ex: BMW, Mercedes, Porsche) */}
+        <div className="ca-add-brand">
+          <input
+            type="text"
+            placeholder="Outra marca (ex: BMW, Mercedes, Porsche...)"
+            value={newBrand}
+            onChange={e => setNewBrand(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addCustomBrand()}
+            disabled={scanning}
+          />
+          <button type="button" className="ca-add-brand-btn" onClick={addCustomBrand} disabled={!newBrand.trim() || scanning}>
+            <Plus size={16} /> Adicionar
+          </button>
         </div>
 
         {scanning && (
