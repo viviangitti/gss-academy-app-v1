@@ -545,9 +545,9 @@
 }
 
 .task-check {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   border: 2px solid var(--border-strong);
   background: none;
   cursor: pointer;
@@ -558,6 +558,17 @@
   color: var(--white);
   transition: all 0.2s var(--ease);
 }
+.task-check:active { transform: scale(0.9); }
+
+/* Reordenar (subir/descer) */
+.task-reorder { display: flex; flex-direction: column; flex-shrink: 0; }
+.task-move {
+  background: none; border: none; cursor: pointer; padding: 0;
+  color: var(--text-soft); display: flex; align-items: center; justify-content: center;
+  height: 15px; line-height: 0;
+}
+.task-move:disabled { opacity: 0.25; cursor: default; }
+.task-move:not(:disabled):active { color: var(--accent); }
 
 .task-row.done .task-check {
   background: var(--success);

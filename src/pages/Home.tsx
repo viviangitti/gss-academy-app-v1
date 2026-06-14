@@ -4,7 +4,7 @@ import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, Messag
 import { loadData, KEYS } from '../services/storage';
 import { fetchNews } from '../services/news';
 import { getFavorites } from '../services/favorites';
-import { getDay, addTask, toggleTask, removeTask } from '../services/day';
+import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
 import { getStats, addSale, getDailyAccumulation } from '../services/goal';
 import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
@@ -457,13 +457,21 @@ export default function Home() {
               Nenhuma tarefa. Adicione abaixo.
             </div>
           )}
-          {day.tasks.map(t => (
+          {day.tasks.map((t, i) => (
             <div key={t.id} className={`task-row ${t.done ? 'done' : ''} ${t.fromYesterday ? 'from-yesterday' : ''}`}>
               <button className="task-check" onClick={() => setDay(toggleTask(t.id))} aria-label={t.done ? 'Desmarcar tarefa' : 'Concluir tarefa'}>
-                {t.done && <Check size={12} />}
+                {t.done && <Check size={13} />}
               </button>
               <span className="task-text">{t.text}</span>
               {t.fromYesterday && <span className="yesterday-badge">ontem</span>}
+              <div className="task-reorder">
+                <button className="task-move" onClick={() => setDay(moveTask(t.id, -1))} disabled={i === 0} aria-label="Subir tarefa">
+                  <ChevronUp size={14} />
+                </button>
+                <button className="task-move" onClick={() => setDay(moveTask(t.id, 1))} disabled={i === day.tasks.length - 1} aria-label="Descer tarefa">
+                  <ChevronDown size={14} />
+                </button>
+              </div>
               <button className="task-remove" onClick={() => setDay(removeTask(t.id))} aria-label="Remover tarefa">
                 <X size={12} />
               </button>

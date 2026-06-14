@@ -131,3 +131,15 @@ export function removeTask(id: string): DayData {
   saveDay(day);
   return day;
 }
+
+/** Move uma tarefa pra cima (-1) ou pra baixo (1) na ordem. */
+export function moveTask(id: string, dir: -1 | 1): DayData {
+  const day = getDay();
+  const i = day.tasks.findIndex(t => t.id === id);
+  const j = i + dir;
+  if (i >= 0 && j >= 0 && j < day.tasks.length) {
+    [day.tasks[i], day.tasks[j]] = [day.tasks[j], day.tasks[i]];
+    saveDay(day);
+  }
+  return day;
+}
