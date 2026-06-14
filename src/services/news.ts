@@ -43,99 +43,31 @@ const MARKETING_QUERIES_WORLD = [
 ];
 
 // Queries de ações de marketing da concorrência — por segmento
+// Notícias dos CONCORRENTES — por marca/empresa (queries curtas retornam de verdade;
+// queries longas de "campanha/marketing" voltavam vazias). Mostra movimentos,
+// lançamentos e novidades das marcas concorrentes.
 const COMPETITOR_MKT_QUERIES: Partial<Record<string, string[]>> = {
-  automotivo: [
-    'campanha publicitária marketing Volkswagen Fiat Toyota Hyundai Honda concessionária Brasil',
-    'ação marketing digital BYD GWM Chery Changan lançamento campanha anúncio',
-    'campanha TV internet marketing automóvel concorrente Brasil 2025',
-    'patrocínio evento ativação marca automotiva concorrente Brasil',
-  ],
-  automotivo_luxo: [
-    'campanha marketing BMW Mercedes Porsche Audi Land Rover Range Rover Brasil',
-    'ativação evento experiência marca luxo automotivo concorrente',
-    'publicidade digital premium luxury car campanha Brasil 2025',
-    'lançamento campanha marca luxo event ação concorrente automotivo',
-  ],
-  farmaceutico: [
-    'campanha marketing laboratório farmácia medicamento publicidade Brasil',
-    'ação marketing digital farmácias Drogasil Raia Pacheco campanha',
-    'marketing farmacêutico campanha consciência saúde publicidade concorrente',
-    'laboratório campanha produto publicidade divulgação mídia Brasil',
-  ],
-  varejo: [
-    'campanha marketing Magazine Luiza Americanas Casas Bahia Renner concorrente',
-    'ação marketing digital varejo promoção publicidade loja campanha Brasil',
-    'influencer parceria marca varejo concorrente campanha digital',
-    'campanha retail varejo Black Friday promoção anúncio concorrente',
-  ],
-  tecnologia: [
-    'campanha marketing software SaaS empresa tecnologia concorrente Brasil',
-    'ação marketing B2B tecnologia publicidade digital campanha 2025',
-    'evento tech marketing empresa software concorrente lançamento',
-    'marketing tecnologia Google Microsoft SAP Totvs campanha Brasil',
-  ],
-  imobiliario: [
-    'campanha marketing MRV Cyrela Trisul construtora incorporadora concorrente',
-    'ação marketing digital imobiliária lançamento campanha anúncio publicidade',
-    'marketing imóvel branding incorporadora evento lançamento concorrente',
-    'publicidade TV digital imobiliário campanha concorrente Brasil 2025',
-  ],
-  financeiro: [
-    'campanha marketing banco seguradora fintech concorrente publicidade Brasil',
-    'ação marketing digital Nubank Itaú Bradesco XP campanha publicidade',
-    'marketing seguros consórcio campanha publicidade influencer parceria',
-    'evento patrocínio branding banco fintech campanha concorrente Brasil',
-  ],
-  saude: [
-    'campanha marketing clínica hospital plano saúde Unimed Hapvida concorrente',
-    'ação marketing digital saúde estética publicidade campanha Brasil',
-    'marketing saúde consciência campanha publicidade mídia concorrente',
-    'patrocínio evento saúde marca campanha concorrente Brasil 2025',
-  ],
-  educacao: [
-    'campanha marketing universidade escola faculdade EAD concorrente Brasil',
-    'ação marketing digital educação plataforma publicidade campanha',
-    'marketing educacional edtech campanha publicidade influencer',
-    'evento branding escola faculdade lançamento campanha concorrente',
-  ],
-  agro: [
-    'campanha marketing defensivo agrícola semente fertilizante concorrente Syngenta BASF',
-    'ação marketing agronegócio publicidade campanha feiras concorrente',
-    'marketing agro evento Agrishow Expointer campanha marca concorrente',
-    'publicidade agro digital campanha agricultor produtor concorrente Brasil',
-  ],
-  energia: [
-    'campanha marketing energia solar concorrente publicidade instaladora Brasil',
-    'ação marketing digital solar campanha publicidade influencer parceria',
-    'marketing energia renovável evento campanha publicidade concorrente Brasil',
-    'publicidade solar patrocínio evento marca campanha concorrente 2025',
-  ],
-  bebidas_alcoolicas: [
-    'campanha marketing Ambev Heineken Diageo concorrente publicidade Brasil',
-    'ação marketing digital cerveja destilado campanha influencer parceria',
-    'patrocínio evento cerveja spirits marca campanha concorrente Brasil',
-    'publicidade bebida alcoólica campanha TV digital mídia concorrente',
-  ],
-  bebidas_alcoolicas_vinho: [
-    'campanha marketing vinho vinícola importadora concorrente publicidade Brasil',
-    'ação marketing digital vinho influencer sommelier campanha',
-    'evento enogastronomia vinho marketing campanha concorrente Brasil',
-    'publicidade vinho digital TV marketing marca concorrente Brasil 2025',
-  ],
+  automotivo: ['Volkswagen Brasil', 'Fiat Brasil', 'Chevrolet Brasil', 'Hyundai Brasil', 'BYD Brasil', 'Renault Brasil'],
+  automotivo_luxo: ['BMW Brasil', 'Mercedes-Benz Brasil', 'Porsche Brasil', 'Audi Brasil', 'Volvo carros Brasil', 'Land Rover Brasil'],
+  farmaceutico: ['Drogasil OR Raia', 'Pague Menos farmácia', 'EMS OR Eurofarma', 'medicamento lançamento Brasil'],
+  varejo: ['Magazine Luiza', 'Americanas varejo', 'Casas Bahia', 'Renner OR Riachuelo'],
+  tecnologia: ['Totvs', 'SAP OR Oracle Brasil', 'startup Brasil novidade', 'software empresa Brasil'],
+  imobiliario: ['MRV', 'Cyrela', 'construtora lançamento Brasil', 'incorporadora Brasil'],
+  financeiro: ['Nubank', 'Itaú OR Bradesco', 'fintech Brasil', 'seguradora Brasil'],
+  saude: ['Hapvida OR Unimed', 'plano de saúde Brasil', 'rede hospitalar Brasil', 'clínica estética Brasil'],
+  educacao: ['universidade Brasil', 'faculdade EAD Brasil', 'Kroton OR YDUQS', 'edtech Brasil'],
+  agro: ['Syngenta OR BASF agro', 'agronegócio Brasil', 'John Deere Brasil', 'defensivo agrícola Brasil'],
+  energia: ['energia solar Brasil', 'distribuidora de energia Brasil', 'Enel OR Neoenergia', 'painel solar Brasil'],
+  bebidas_alcoolicas: ['Ambev', 'Heineken Brasil', 'cerveja lançamento Brasil', 'destilado Brasil'],
+  bebidas_alcoolicas_vinho: ['vinícola Brasil', 'vinho importado Brasil', 'enoturismo Brasil', 'vinho lançamento Brasil'],
 };
 
 const COMPETITOR_MKT_QUERIES_WORLD: string[] = [
-  'competitor marketing campaign automotive luxury brand 2025',
-  'brand activation event experiential marketing competitor',
-  'competitor digital marketing campaign social media influencer',
-  'advertising campaign competitor brand strategy launch 2025',
+  'car brand launch 2026', 'automotive industry news', 'EV launch global', 'luxury car brand news',
 ];
 
 const COMPETITOR_MKT_FALLBACK_BR = [
-  'campanha marketing concorrente publicidade ação marca Brasil 2025',
-  'ação marketing digital concorrente campanha publicidade influencer',
-  'ativação evento branding concorrente campanha mídia Brasil',
-  'publicidade concorrente TV digital redes sociais campanha 2025',
+  'empresa Brasil lançamento', 'mercado Brasil novidade', 'marca Brasil notícia', 'setor Brasil concorrência',
 ];
 
 export async function fetchCompetitorMarketingNews(segment: string, geo: NewsGeo = 'brasil'): Promise<NewsItem[]> {
@@ -235,7 +167,7 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v9'; // v9: busca por marca em paralelo (corrige frescor)
+const CACHE_KEY = 'gss_news_cache_v10'; // v10: aba Concorrentes por marca (corrige vazio)
 const CACHE_TTL = 10 * 60 * 1000; // 10 min — notícias ao vivo
 
 interface CacheEntry {

@@ -147,7 +147,7 @@ const CATEGORIES: { value: NewsCategory; label: string; icon: React.ComponentTyp
   { value: 'ofertas',     label: 'Ofertas',      icon: Tag,        desc: 'Inteligência competitiva: o que os concorrentes oferecem este mês' },
   { value: 'mercado',     label: 'Tendências',   icon: TrendingUp, desc: 'Análises e movimentos do mercado' },
   { value: 'marketing',    label: 'Marketing',     icon: Megaphone,  desc: 'Eventos do setor, veiculação de mídia, parcerias e tendências de marketing', marketingOnly: true },
-  { value: 'concorrentes', label: 'Concorrentes',  icon: Swords,     desc: 'O que os concorrentes estão fazendo em campanhas, mídia e ativações', marketingOnly: true },
+  { value: 'concorrentes', label: 'Concorrentes',  icon: Swords,     desc: 'Movimentos, lançamentos e novidades das marcas concorrentes', marketingOnly: true },
 ];
 
 function relativeTime(dateStr: string): string {
