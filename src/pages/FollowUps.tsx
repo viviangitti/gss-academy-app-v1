@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, X, Phone, CalendarClock, CheckCircle2, TrendingDown,
@@ -205,8 +206,8 @@ export default function FollowUps() {
         </div>
       )}
 
-      {/* Form (bottom sheet) */}
-      {showForm && (
+      {/* Form (bottom sheet) — portal pro body, fora do stacking context do app-content */}
+      {showForm && createPortal(
         <div className="fu-overlay" onClick={() => setShowForm(false)}>
           <div className="fu-sheet" onClick={e => e.stopPropagation()}>
             <div className="fu-sheet-handle" />
@@ -289,7 +290,8 @@ export default function FollowUps() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
