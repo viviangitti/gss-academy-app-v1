@@ -154,6 +154,22 @@ export default function Home() {
       {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
       <DailyBriefing />
 
+      {/* Acabou um atendimento? Registra ganho OU perda — a IA aprende com os dois */}
+      {profile.userAccessType !== 'marketing' && (
+        <div className="home-outcome card">
+          <p className="home-outcome-q">Acabou um atendimento? Como foi?</p>
+          <div className="home-outcome-btns">
+            <button className="home-outcome-btn won" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }}>
+              <Check size={18} /> Vendi!
+            </button>
+            <button className="home-outcome-btn lost" onClick={() => navigate('/vendas-perdidas')}>
+              <X size={18} /> Não fechou
+            </button>
+          </div>
+          <p className="home-outcome-note">Registrar os dois faz a IA aprender e melhora seu Raio-X.</p>
+        </div>
+      )}
+
       {welcomeBack && (
         <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>
           <span>👋 {welcomeBack}</span>

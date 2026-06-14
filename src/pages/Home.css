@@ -1295,3 +1295,19 @@
 .home-boost-text strong { font-size: 15px; color: var(--text); }
 .home-boost-text span { font-size: 12.5px; color: var(--text-light); }
 .home-boost-card > svg { color: var(--text-soft); flex-shrink: 0; }
+
+/* "Acabou um atendimento?" — registrar ganho ou perda */
+.home-outcome { padding: 14px 16px; margin-bottom: 14px; }
+.home-outcome-q { margin: 0 0 10px; font-size: 14.5px; font-weight: 700; color: var(--text); }
+.home-outcome-btns { display: flex; gap: 10px; }
+.home-outcome-btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 13px; border-radius: var(--radius); border: 1.5px solid var(--border);
+  background: var(--surface); font-size: 15px; font-weight: 800; cursor: pointer;
+}
+.home-outcome-btn:active { transform: scale(0.98); }
+.home-outcome-btn.won { color: #16a34a; border-color: rgba(22,163,74,0.4); }
+.home-outcome-btn.won:active { background: rgba(22,163,74,0.08); }
+.home-outcome-btn.lost { color: #ef4444; border-color: rgba(239,68,68,0.35); }
+.home-outcome-btn.lost:active { background: rgba(239,68,68,0.08); }
+.home-outcome-note { margin: 9px 0 0; font-size: 11.5px; color: var(--text-soft); text-align: center; }
