@@ -115,3 +115,11 @@
 .boost-debrief-note { font-size: 12px; color: var(--text-soft); text-align: center; margin: 8px 0 0; }
 .boost-deb-text { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--text); }
 .boost-deb-rescue { border-left: 3px solid #0ea5e9; }
+
+/* Linha de label com o botão de microfone à direita */
+.boost-label-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-top: 8px;
+}
+.boost-label-row label { margin-top: 0 !important; }
+.boost-input-label { font-size: 13px; font-weight: 700; color: var(--text); }

@@ -4,6 +4,7 @@ import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap, ClipboardCheck, Dumbbell
 import { getBoost, reportBoostWin, getDebrief } from '../services/boost';
 import type { BoostPath, DebriefResult } from '../services/boost';
 import { remember } from '../services/memory';
+import MicButton from '../components/MicButton';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
 import './Boost.css';
@@ -104,13 +105,22 @@ export default function Boost() {
             <p>Conte como foi — você recebe a leitura honesta do que faltou, 2 falas pra próxima vez e como treinar.</p>
           </div>
           <div className="boost-debrief-form">
-            <label>Como foi a situação?</label>
+            <div className="boost-label-row">
+              <label>Como foi a situação?</label>
+              <MicButton value={deb.situacao} onChange={v => setDeb(d => ({ ...d, situacao: v }))} />
+            </div>
             <textarea rows={2} placeholder='Ex: "cliente veio decidido, fez test-drive, gostou, mas no fim não fechou"'
               value={deb.situacao} onChange={e => setDeb({ ...deb, situacao: e.target.value })} />
-            <label>Motivos que o cliente alegou pra não fechar</label>
+            <div className="boost-label-row">
+              <label>Motivos que o cliente alegou pra não fechar</label>
+              <MicButton value={deb.motivos} onChange={v => setDeb(d => ({ ...d, motivos: v }))} />
+            </div>
             <textarea rows={2} placeholder='Ex: "disse que a parcela ficou alta e que vai ver com o banco dele"'
               value={deb.motivos} onChange={e => setDeb({ ...deb, motivos: e.target.value })} />
-            <label>Autocrítica: o que você sente que faltou em VOCÊ?</label>
+            <div className="boost-label-row">
+              <label>Autocrítica: o que você sente que faltou em VOCÊ?</label>
+              <MicButton value={deb.autocritica} onChange={v => setDeb(d => ({ ...d, autocritica: v }))} />
+            </div>
             <textarea rows={2} placeholder='Ex: "acho que não defendi o valor, fui direto pro desconto"'
               value={deb.autocritica} onChange={e => setDeb({ ...deb, autocritica: e.target.value })} />
             <button className="boost-fire" onClick={fireDebrief} disabled={!deb.situacao.trim() || !deb.motivos.trim()}>
@@ -130,6 +140,10 @@ export default function Boost() {
             <p>Descreva em 1 frase o que o cliente disse — você recebe 3 caminhos prontos pra falar agora.</p>
           </div>
 
+          <div className="boost-label-row">
+            <label className="boost-input-label">Fala ou digita o que rolou:</label>
+            <MicButton value={situation} onChange={setSituation} />
+          </div>
           <textarea
             className="boost-input"
             placeholder='Ex: "ele quer levar o do concorrente por 20 mil a menos"'
