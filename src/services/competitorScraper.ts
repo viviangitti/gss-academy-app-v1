@@ -51,6 +51,15 @@ function stripHtml(html: string, maxLen = 9000): string {
   return text.slice(0, maxLen);
 }
 
+/** Extrai o array JSON da resposta da IA, mesmo com texto/markdown em volta.
+ * Pega do primeiro "[" ao último "]" — robusto a arrays internos (highlights). */
+function extractJsonArray(raw: string): string {
+  const start = raw.indexOf('[');
+  const end = raw.lastIndexOf(']');
+  if (start >= 0 && end > start) return raw.slice(start, end + 1);
+  return raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+}
+
 export interface ScrapedOffer {
   title: string;
   model?: string;        // ex: "Civic EX", "Taos Comfortline", "HRV Touring"
@@ -131,11 +140,7 @@ Exemplo: [{"title":"Oferta X","description":"...","highlights":["Taxa 0%"],"lega
     throw new Error(`Falha na IA: ${msg}`);
   }
 
-  // Strip markdown fences if present
-  const jsonStr = raw
-    .replace(/^```json?\s*/i, '')
-    .replace(/\s*```$/i, '')
-    .trim();
+  const jsonStr = extractJsonArray(raw);
 
   try {
     const parsed = JSON.parse(jsonStr) as ScrapedOffer[];
@@ -204,14 +209,7 @@ Se não encontrar nenhuma oferta confirmada, retorne [].`;
     throw new Error(`Falha na busca com IA: ${msg}`);
   }
 
-  // Strip markdown fences if present
-  const jsonStr = raw
-    .replace(/^```json?\s*/i, '')
-    .replace(/\s*```$/i, '')
-    // Sometimes the model wraps in a code block with extra text before — find first [
-    .replace(/^[\s\S]*?(\[)/m, '$1')
-    .replace(/(\])[^]*$/m, '$1')
-    .trim();
+  const jsonStr = extractJsonArray(raw);
 
   try {
     const parsed = JSON.parse(jsonStr) as ScrapedOffer[];
