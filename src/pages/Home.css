@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  /* respiro pro botão flutuante de registrar venda não cobrir a última linha
+     (ex: o "+" de adicionar tarefa) ao rolar até o fim */
+  padding-bottom: 150px;
 }
 
 /* Greeting card - gradient moderno */
