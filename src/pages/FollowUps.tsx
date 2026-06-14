@@ -11,6 +11,7 @@ import {
 import type { FollowUp, FollowUpStage } from '../services/followups';
 import { addSale } from '../services/goal';
 import { addWin } from '../services/wins';
+import CurrencyInput from '../components/CurrencyInput';
 import './FollowUps.css';
 
 function formatBRL(v: number): string {
@@ -258,13 +259,21 @@ export default function FollowUps() {
               <div className="fu-row">
                 <div className="fu-field">
                   <label>Valor estimado R$</label>
-                  <input type="number" inputMode="numeric" placeholder="250000" value={form.estValue}
-                    onChange={e => setForm({ ...form, estValue: e.target.value })} />
+                  <CurrencyInput
+                    value={Number(form.estValue) || 0}
+                    onChange={v => setForm({ ...form, estValue: v ? String(v) : '' })}
+                    presets={[]}
+                    placeholder="800.000"
+                  />
                 </div>
                 <div className="fu-field">
                   <label>Sua comissão R$</label>
-                  <input type="number" inputMode="numeric" placeholder="2500" value={form.estCommission}
-                    onChange={e => setForm({ ...form, estCommission: e.target.value })} />
+                  <CurrencyInput
+                    value={Number(form.estCommission) || 0}
+                    onChange={v => setForm({ ...form, estCommission: v ? String(v) : '' })}
+                    presets={[]}
+                    placeholder="40.000"
+                  />
                 </div>
               </div>
               <div className="fu-field">
@@ -272,6 +281,9 @@ export default function FollowUps() {
                 <input type="text" placeholder="Ex: esposa precisa aprovar, quer taxa menor" value={form.note}
                   onChange={e => setForm({ ...form, note: e.target.value })} />
               </div>
+            </div>
+            {/* Rodapé fixo — Salvar sempre acessível (não some atrás do teclado) */}
+            <div className="fu-sheet-footer">
               <button className="btn btn-primary fu-confirm" onClick={handleAdd} disabled={!form.clientName.trim()}>
                 Salvar follow-up
               </button>

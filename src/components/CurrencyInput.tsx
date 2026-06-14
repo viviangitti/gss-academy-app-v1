@@ -61,19 +61,21 @@ export default function CurrencyInput({ value, onChange, placeholder = '0', pres
 
   return (
     <div className="ci-wrap">
-      {/* Chips de atalho */}
-      <div className="ci-presets">
-        {presets.map(p => (
-          <button
-            key={p}
-            type="button"
-            className={`ci-chip ${value === p ? 'active' : ''}`}
-            onClick={() => handlePreset(p)}
-          >
-            {labelPreset(p)}
-          </button>
-        ))}
-      </div>
+      {/* Chips de atalho (ocultos quando presets vazio) */}
+      {presets.length > 0 && (
+        <div className="ci-presets">
+          {presets.map(p => (
+            <button
+              key={p}
+              type="button"
+              className={`ci-chip ${value === p ? 'active' : ''}`}
+              onClick={() => handlePreset(p)}
+            >
+              {labelPreset(p)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Input formatado */}
       <div className="ci-input-wrap">
