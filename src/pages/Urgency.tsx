@@ -20,6 +20,8 @@ interface Category {
   triggers: Trigger[];
 }
 
+const AUTO = ['automotivo', 'automotivo_luxo'];
+
 const CATEGORIES: Category[] = [
   {
     id: 'prazo',
@@ -28,11 +30,17 @@ const CATEGORIES: Category[] = [
     subtitle: 'Crie urgência com limite de tempo',
     color: '#ef4444',
     triggers: [
-      { text: 'Essa condição é válida só até sexta-feira — depois os juros voltam ao normal.' },
-      { text: 'Temos vagas abertas só até o fim do mês. Depois disso a próxima turma começa em 3 meses.' },
+      // Automotivo
+      { text: 'Essa taxa de financiamento é válida só até sexta — depois volta pra tabela normal.', segments: AUTO },
+      { text: 'A condição desse mês fecha na virada. No próximo lote o preço já sobe.', segments: AUTO },
+      { text: 'Tenho essa unidade, na cor que você quer, reservada até amanhã. Depois ela volta pro estoque.', segments: AUTO },
+      { text: 'O bônus na sua troca vale só essa semana — não depende de mim prorrogar.', segments: AUTO },
+      { text: 'Se emplacar ainda esse mês, você pega o ano-modelo atual pelo preço de hoje.', segments: AUTO },
+      // Genérico (outros segmentos)
+      { text: 'Essa condição é válida só até sexta-feira — depois volta ao normal.' },
       { text: 'O preço especial vence na próxima semana. Posso garantir ele para você se fecharmos agora.' },
       { text: 'A campanha encerra na virada do mês. Se deixar para depois, saímos dessa condição.' },
-      { text: 'Essa taxa promocional foi negociada com validade até amanhã. Não depende de mim prorrogar.' },
+      { text: 'Essa condição foi negociada com validade até amanhã. Não depende de mim prorrogar.' },
     ],
   },
   {
@@ -42,11 +50,16 @@ const CATEGORIES: Category[] = [
     subtitle: 'Mostre que nem todos têm acesso',
     color: '#8b5cf6',
     triggers: [
-      { text: 'Isso não está disponível para todo mundo — é uma condição que conseguimos para clientes que fecham direto conosco.' },
-      { text: 'Esse modelo está reservado para quem quer tirar o licenciamento ainda esse mês. Tenho apenas uma unidade separada.' },
-      { text: 'Esse plano não aparece no site. Eu consigo para quem fecha pessoalmente comigo.' },
+      // Automotivo
+      { text: 'Essa condição eu consigo pra quem fecha direto comigo — não está no anúncio.', segments: AUTO },
+      { text: 'Tenho só uma unidade dessa versão separada. Reservo pra você se decidirmos hoje.', segments: AUTO },
+      { text: 'Esse valor na sua troca não é pra todo mundo — consegui aprovar pro seu caso.', segments: AUTO },
+      { text: 'Essa taxa eu negociei com o banco pra fechamentos dessa semana. Não é a de balcão.', segments: AUTO },
+      // Genérico
+      { text: 'Isso não está disponível para todo mundo — é uma condição para quem fecha direto comigo.' },
+      { text: 'Essa condição não aparece no anúncio. Eu consigo para quem fecha pessoalmente comigo.' },
       { text: 'A maioria dos clientes não tem acesso a essa condição — estou te oferecendo porque vejo fit aqui.' },
-      { text: 'Essa é uma oferta que fizemos para os 10 primeiros clientes do mês. Ainda temos 2 vagas.' },
+      { text: 'Essa é uma oferta para os primeiros clientes do mês. Ainda restam poucas vagas.' },
     ],
   },
   {
@@ -56,11 +69,15 @@ const CATEGORIES: Category[] = [
     subtitle: 'O custo de não decidir agora',
     color: '#f97316',
     triggers: [
-      { text: 'Cada semana que passa sem isso é uma semana que seu concorrente está na frente.' },
-      { text: 'Se você deixar para o próximo mês, já vai ter perdido 4 semanas de resultado.' },
+      // Automotivo
+      { text: 'Cada mês que passa, seu carro atual desvaloriza — quanto mais espera, menos ele vale na troca.', segments: AUTO },
+      { text: 'Se deixar pra próxima tabela, você paga mais caro pelo mesmo modelo.', segments: AUTO },
+      { text: 'Enquanto você decide, essa unidade pode sair pra outro cliente — é a última nessa cor.', segments: AUTO },
+      { text: 'Adiar a troca é continuar gastando com manutenção de um carro que já te dá dor de cabeça.', segments: AUTO },
+      // Genérico
       { text: 'O que você está perdendo hoje, enquanto ainda está avaliando, já não volta.' },
       { text: 'O preço vai subir na próxima tabela — você pagaria mais pelo mesmo produto.' },
-      { text: 'Todo mês que passa sem resolver isso custa [X] para o seu negócio. Faz sentido esperar?' },
+      { text: 'Cada semana que passa sem decidir é uma semana a mais com o problema que isso resolve.' },
     ],
   },
   {
@@ -70,11 +87,15 @@ const CATEGORIES: Category[] = [
     subtitle: 'Contextualize o valor da decisão',
     color: '#3b82f6',
     triggers: [
-      { text: 'O quanto você gasta por mês com [problema que resolve]? Esse investimento é menor do que isso.' },
-      { text: 'Clientes que esperaram 6 meses me disseram que o único arrependimento foi não ter fechado antes.' },
-      { text: 'Pense assim: quanto vale uma venda a mais por mês para você? Isso resolve isso.' },
+      // Automotivo
+      { text: 'Pensa na parcela como o que você já gasta hoje com combustível e manutenção — quase se paga.', segments: AUTO },
+      { text: 'A diferença pra versão de cima sai por poucos reais na parcela, mas muda toda a experiência.', segments: AUTO },
+      { text: 'O que você economiza esperando é menos do que perde na desvalorização do seu carro atual.', segments: AUTO },
+      { text: 'Clientes que adiaram a troca me disseram que só se arrependeram de não ter feito antes.', segments: AUTO },
+      // Genérico
+      { text: 'O quanto você gasta por mês com isso hoje? Esse investimento é menor do que isso.' },
+      { text: 'Pense assim: quanto vale resolver isso de vez para você? A conta fecha.' },
       { text: 'O custo de não tomar essa decisão é maior do que o custo de tomar.' },
-      { text: 'Três meses atrás, um cliente tinha a mesma dúvida. Hoje ele está colhendo resultado. O que mudou? Ele decidiu.' },
     ],
   },
   {
@@ -84,11 +105,15 @@ const CATEGORIES: Category[] = [
     subtitle: 'Mostre que outros já decidiram',
     color: '#16a34a',
     triggers: [
-      { text: 'Dois clientes do seu segmento fecharam essa semana. Os dois me disseram que queriam ter fechado antes.' },
-      { text: 'Temos X clientes ativos. A média de retorno no primeiro mês é de [resultado].' },
-      { text: 'O [nome genérico do setor] aqui do bairro fechou mês passado. Já está vendo resultado.' },
-      { text: 'Essa semana já confirmamos 3 contratos. As vagas do mês estão quase no limite.' },
-      { text: 'Posso te apresentar um cliente nosso que estava na mesma situação que você — para você ouvir diretamente como foi.' },
+      // Automotivo
+      { text: 'Dois clientes fecharam esse mesmo modelo essa semana — saiu rápido nessa condição.', segments: AUTO },
+      { text: 'Essa versão é a que mais vende aqui. Quem leva, volta elogiando.', segments: AUTO },
+      { text: 'Acabei de entregar um aqui do seu bairro. Posso te conectar pra ele te contar como foi.', segments: AUTO },
+      { text: 'As unidades dessa cor estão acabando — foi a mais procurada do mês.', segments: AUTO },
+      // Genérico
+      { text: 'Dois clientes parecidos com você fecharam essa semana. Os dois disseram que queriam ter fechado antes.' },
+      { text: 'Posso te apresentar um cliente nosso que estava na mesma situação — para você ouvir diretamente como foi.' },
+      { text: 'Essa semana já confirmamos vários fechamentos. As condições do mês estão quase no limite.' },
     ],
   },
 ];
@@ -106,12 +131,13 @@ export default function Urgency() {
     } catch { /* fallback */ }
   };
 
-  const visibleCategories = CATEGORIES.map(cat => ({
-    ...cat,
-    triggers: cat.triggers.filter(t =>
-      !t.segments || t.segments.length === 0 || t.segments.includes(profile.segment || '')
-    ),
-  }));
+  const seg = profile.segment || '';
+  const visibleCategories = CATEGORIES.map(cat => {
+    const specific = cat.triggers.filter(t => t.segments?.includes(seg));
+    const generic = cat.triggers.filter(t => !t.segments || t.segments.length === 0);
+    // Se o segmento tem gatilhos próprios, mostra só eles; senão, os genéricos
+    return { ...cat, triggers: specific.length ? specific : generic };
+  });
 
   return (
     <div className="urgency-page">
