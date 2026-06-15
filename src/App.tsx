@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import Onboarding from './components/Onboarding';
+import WelcomeIntro from './components/WelcomeIntro';
 import Home from './pages/Home';
 import Library from './pages/Library';
 import TrainingHub from './pages/TrainingHub';
@@ -68,6 +69,9 @@ function AppContent() {
   const [profileReady, setProfileReady] = useState(!firebaseEnabled);
   const [showOnboarding, setShowOnboarding] = useState(
     () => !localStorage.getItem('gss_onboarding_done')
+  );
+  const [showIntro, setShowIntro] = useState(
+    () => !localStorage.getItem('gss_intro_seen')
   );
   const [sessionExpired, setSessionExpired] = useState(false);
   const prevUserRef = useRef<typeof user | undefined>(undefined);
@@ -180,6 +184,11 @@ function AppContent() {
 
   if (showOnboarding) {
     return <Onboarding onComplete={() => setShowOnboarding(false)} />;
+  }
+
+  // Boas-vindas introdutória — só na primeira vez (depois do onboarding)
+  if (showIntro) {
+    return <WelcomeIntro onClose={() => setShowIntro(false)} />;
   }
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
