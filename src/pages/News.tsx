@@ -33,11 +33,36 @@ const COMPETITOR_RANGES: Record<string, PriceRange[]> = {
  * Muito mais útil que a homepage genérica da marca —
  * o usuário encontra a oferta exata com resultados atuais.
  */
-function offerMatchesRange(competitor: string, range: PriceRange): boolean {
-  const key = competitor.toLowerCase().trim();
-  const ranges = COMPETITOR_RANGES[key];
+/** Extrai o preço REAL do carro na oferta: o maior valor R$ relevante (≥ 30 mil,
+ * pra ignorar parcela/taxa/bônus pequenos). Retorna null se não achar. */
+function extractOfferPrice(offer: ScrapedOffer): number | null {
+  const text = [offer.title, offer.description, ...(offer.highlights || []), offer.legalText]
+    .filter(Boolean).join(' ');
+  const matches = text.match(/R\$\s*[\d.]+(?:,\d{2})?/g) || [];
+  let max = 0;
+  for (const m of matches) {
+    const n = Number(m.replace(/[R$\s.]/g, '').replace(',', '.'));
+    if (n >= 30000 && n > max) max = n;
+  }
+  return max > 0 ? max : null;
+}
+
+function priceToRange(price: number): PriceRange {
+  if (price < 80000) return 'ate-80k';
+  if (price < 200000) return '80k-200k';
+  if (price < 500000) return '200k-500k';
+  return 'acima-500k';
+}
+
+/** Casa a oferta com a faixa: primeiro pelo PREÇO real do carro; se não houver preço,
+ * cai no mapeamento por marca (comportamento antigo). */
+function offerMatchesRange(offer: ScrapedOffer, range: PriceRange): boolean {
+  if (!range) return true;
+  const price = extractOfferPrice(offer);
+  if (price != null) return priceToRange(price) === range;
+  const ranges = COMPETITOR_RANGES[(offer.competitor || '').toLowerCase().trim()];
   if (ranges) return ranges.includes(range);
-  return true; // marca desconhecida: mostra em todas
+  return true; // sem preço e marca desconhecida: mostra
 }
 
 // Brand → domínio oficial — usado para logos (Clearbit) E para links de busca site:domínio
@@ -328,7 +353,7 @@ export default function News() {
   };
 
   const filteredOffers = offerRange
-    ? offers.filter(o => offerMatchesRange(o.competitor || '', offerRange))
+    ? offers.filter(o => offerMatchesRange(o, offerRange))
     : offers;
 
   const segmentLabel = SEGMENTS.find(s => s.value === segment)?.label || '';
