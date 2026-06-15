@@ -70,6 +70,7 @@ export interface UserProfile {
   isMarketing?: boolean;
   assistantName?: string;      // nome que o vendedor deu ao assistente de IA
   assistantTone?: 'direto' | 'motivador' | 'tecnico';  // tom de fala do assistente
+  introSeen?: boolean;         // já viu a tela de boas-vindas (controle por conta, no Firestore)
   userAccessType?: 'vendas' | 'marketing' | 'ambos';
   priceRange?: PriceRange;
   uid?: string;

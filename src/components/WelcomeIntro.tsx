@@ -17,8 +17,7 @@ export default function WelcomeIntro({ onClose }: Props) {
   const firstName = profile.name ? profile.name.split(' ')[0] : '';
 
   const finish = () => {
-    localStorage.setItem('gss_intro_seen', 'true');
-    onClose();
+    onClose(); // o App grava introSeen no perfil (local + Firestore)
   };
 
   return (

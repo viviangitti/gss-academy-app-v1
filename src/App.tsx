@@ -70,9 +70,7 @@ function AppContent() {
   const [showOnboarding, setShowOnboarding] = useState(
     () => !localStorage.getItem('gss_onboarding_done')
   );
-  const [showIntro, setShowIntro] = useState(
-    () => !localStorage.getItem('gss_intro_seen')
-  );
+  const [introDismissed, setIntroDismissed] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const prevUserRef = useRef<typeof user | undefined>(undefined);
 
@@ -186,12 +184,17 @@ function AppContent() {
     return <Onboarding onComplete={() => setShowOnboarding(false)} />;
   }
 
-  // Boas-vindas introdutória — só na primeira vez (depois do onboarding)
-  if (showIntro) {
-    return <WelcomeIntro onClose={() => setShowIntro(false)} />;
-  }
-
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+
+  // Boas-vindas introdutória — só no PRIMEIRO acesso da conta (controle no perfil/Firestore)
+  if (!profile.introSeen && !introDismissed) {
+    return <WelcomeIntro onClose={() => {
+      const updated = { ...profile, introSeen: true };
+      saveData(KEYS.PROFILE, updated);
+      if (user) saveRemoteProfile(user.uid, updated).catch(() => {});
+      setIntroDismissed(true);
+    }} />;
+  }
 
   // Controladoria → só tela de metas
   if (profile.isControladoria) {
