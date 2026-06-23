@@ -135,5 +135,17 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
     }
+
+    // /feedbacks — feedback geral do app (formulário). Só cria; ninguém lê pelo app.
+    match /feedbacks/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if false;
+    }
+
+    // /aiFeedback — 👍/👎 nas respostas da IA (Boost, Coach). Cria e anexa motivo.
+    match /aiFeedback/{docId} {
+      allow create, update: if isSignedIn();
+      allow read, delete: if false;
+    }
   }
 }

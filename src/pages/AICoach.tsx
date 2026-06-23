@@ -7,6 +7,7 @@ import { loadData, saveData, KEYS } from '../services/storage';
 import { buildMemoryContext, remember, refreshTeamCases } from '../services/memory';
 import type { ChatMessage, UserProfile } from '../types';
 import SpeakButton from '../components/SpeakButton';
+import AIFeedback from '../components/AIFeedback';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
 import { getActiveOffers } from '../services/firestore/offers';
@@ -498,6 +499,7 @@ export default function AICoach() {
                         : <><Copy size={12} /> Copiar</>
                       }
                     </button>
+                    <AIFeedback feature="coach" response={msg.content} />
                   </div>
                 )}
               </div>

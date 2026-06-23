@@ -5,6 +5,7 @@ import { getBoost, reportBoostWin, getDebrief } from '../services/boost';
 import type { BoostPath, DebriefResult } from '../services/boost';
 import { remember } from '../services/memory';
 import MicButton from '../components/MicButton';
+import AIFeedback from '../components/AIFeedback';
 import OfflineState from '../components/OfflineState';
 import { useOnline } from '../hooks/useOnline';
 import './Boost.css';
@@ -204,6 +205,7 @@ export default function Boost() {
             </div>
           )}
           <p className="boost-won-note">✅ Registrado! Isso alimentou seu Raio-X e o cérebro da equipe.</p>
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '2px 0 12px' }}><AIFeedback feature="boost-debrief" context={deb.situacao} response={debriefRes.leitura} /></div>
           <button className="boost-again" onClick={() => { setDebriefRes(null); setDeb({ situacao: '', motivos: '', autocritica: '' }); }}>
             <RotateCcw size={15} /> Outro atendimento
           </button>
@@ -237,6 +239,7 @@ export default function Boost() {
           {wonIdx !== null && (
             <p className="boost-won-note">💪 Boa! Esse caso agora ajuda toda a equipe — a IA aprendeu com você.</p>
           )}
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '2px 0 12px' }}><AIFeedback feature="boost" context={askedRef.current} response={paths.map(p => `${p.title}: ${p.say}`).join(' | ')} /></div>
           <button className="boost-again" onClick={() => { setPaths(null); setSituation(''); }}>
             <RotateCcw size={15} /> Outra situação
           </button>
