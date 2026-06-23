@@ -1,55 +1,56 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import Onboarding from './components/Onboarding';
-import WelcomeIntro from './components/WelcomeIntro';
+import AppTour from './components/AppTour';
 import Home from './pages/Home';
-import Library from './pages/Library';
-import TrainingHub from './pages/TrainingHub';
-import Objections from './pages/Objections';
-import Scripts from './pages/Scripts';
-import Techniques from './pages/Techniques';
-import News from './pages/News';
-import Favorites from './pages/Favorites';
-import RolePlay from './pages/RolePlay';
-import RolePlayVoice from './pages/RolePlayVoice';
-import FollowUps from './pages/FollowUps';
-import Boost from './pages/Boost';
-import Rescue from './pages/Rescue';
-import MyReport from './pages/MyReport';
-import AppMap from './pages/AppMap';
-import PreMeeting from './pages/PreMeeting';
-import MessageCoach from './pages/MessageCoach';
-import MeetingAnalysis from './pages/MeetingAnalysis';
-import LostSales from './pages/LostSales';
-import History from './pages/History';
-import Privacy from './pages/Privacy';
-import Install from './pages/Install';
-import Feedback from './pages/Feedback';
-import Sales from './pages/Sales';
-import AICoach from './pages/AICoach';
-import Profile from './pages/Profile';
-import Controladoria from './pages/Controladoria';
-import Offers from './pages/Offers';
-import OffersAdmin from './pages/OffersAdmin';
-import CompetitorIntel from './pages/CompetitorIntel';
-import CompetitorAdmin from './pages/CompetitorAdmin';
-import Urgency from './pages/Urgency';
-import CommercialConditions from './pages/CommercialConditions';
-import CommercialConditionsAdmin from './pages/CommercialConditionsAdmin';
-import Playbook from './pages/Playbook';
-import MarketingChat from './pages/MarketingChat';
-import BrandGuide from './pages/BrandGuide';
-import CampaignAnalysis from './pages/CampaignAnalysis';
-import CopyGenerator from './pages/CopyGenerator';
-import CampaignReview from './pages/CampaignReview';
-import CopyReview from './pages/CopyReview';
-import PreLaunch from './pages/PreLaunch';
-import ContentToday from './pages/ContentToday';
-import GestorPanel from './pages/GestorPanel';
-import CoachVoice from './pages/CoachVoice';
 import Auth from './pages/Auth';
+// Demais páginas carregadas sob demanda (code-splitting) — acelera a 1ª abertura.
+const Library = lazy(() => import('./pages/Library'));
+const TrainingHub = lazy(() => import('./pages/TrainingHub'));
+const Objections = lazy(() => import('./pages/Objections'));
+const Scripts = lazy(() => import('./pages/Scripts'));
+const Techniques = lazy(() => import('./pages/Techniques'));
+const News = lazy(() => import('./pages/News'));
+const Favorites = lazy(() => import('./pages/Favorites'));
+const RolePlay = lazy(() => import('./pages/RolePlay'));
+const RolePlayVoice = lazy(() => import('./pages/RolePlayVoice'));
+const FollowUps = lazy(() => import('./pages/FollowUps'));
+const Boost = lazy(() => import('./pages/Boost'));
+const Rescue = lazy(() => import('./pages/Rescue'));
+const MyReport = lazy(() => import('./pages/MyReport'));
+const AppMap = lazy(() => import('./pages/AppMap'));
+const PreMeeting = lazy(() => import('./pages/PreMeeting'));
+const MessageCoach = lazy(() => import('./pages/MessageCoach'));
+const MeetingAnalysis = lazy(() => import('./pages/MeetingAnalysis'));
+const LostSales = lazy(() => import('./pages/LostSales'));
+const History = lazy(() => import('./pages/History'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Install = lazy(() => import('./pages/Install'));
+const Feedback = lazy(() => import('./pages/Feedback'));
+const Sales = lazy(() => import('./pages/Sales'));
+const AICoach = lazy(() => import('./pages/AICoach'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Controladoria = lazy(() => import('./pages/Controladoria'));
+const Offers = lazy(() => import('./pages/Offers'));
+const OffersAdmin = lazy(() => import('./pages/OffersAdmin'));
+const CompetitorIntel = lazy(() => import('./pages/CompetitorIntel'));
+const CompetitorAdmin = lazy(() => import('./pages/CompetitorAdmin'));
+const Urgency = lazy(() => import('./pages/Urgency'));
+const CommercialConditions = lazy(() => import('./pages/CommercialConditions'));
+const CommercialConditionsAdmin = lazy(() => import('./pages/CommercialConditionsAdmin'));
+const Playbook = lazy(() => import('./pages/Playbook'));
+const MarketingChat = lazy(() => import('./pages/MarketingChat'));
+const BrandGuide = lazy(() => import('./pages/BrandGuide'));
+const CampaignAnalysis = lazy(() => import('./pages/CampaignAnalysis'));
+const CopyGenerator = lazy(() => import('./pages/CopyGenerator'));
+const CampaignReview = lazy(() => import('./pages/CampaignReview'));
+const CopyReview = lazy(() => import('./pages/CopyReview'));
+const PreLaunch = lazy(() => import('./pages/PreLaunch'));
+const ContentToday = lazy(() => import('./pages/ContentToday'));
+const GestorPanel = lazy(() => import('./pages/GestorPanel'));
+const CoachVoice = lazy(() => import('./pages/CoachVoice'));
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getRemoteProfile, saveRemoteProfile } from './services/firestore/profile';
 import { pullData } from './services/firestore/sync';
@@ -186,15 +187,15 @@ function AppContent() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
-  // Boas-vindas introdutória — só no PRIMEIRO acesso da conta (controle no perfil/Firestore)
-  if (!profile.introSeen && !introDismissed) {
-    return <WelcomeIntro onClose={() => {
-      const updated = { ...profile, introSeen: true };
-      saveData(KEYS.PROFILE, updated);
-      if (user) saveRemoteProfile(user.uid, updated).catch(() => {});
-      setIntroDismissed(true);
-    }} />;
-  }
+  // Tour guiado de boas-vindas — só no PRIMEIRO acesso da conta (controle no perfil/Firestore).
+  // Renderizado SOBRE a Início real (coach-marks), por isso não é mais um return antecipado.
+  const showTour = !profile.isControladoria && !profile.introSeen && !introDismissed;
+  const dismissTour = () => {
+    const updated = { ...profile, introSeen: true };
+    saveData(KEYS.PROFILE, updated);
+    if (user) saveRemoteProfile(user.uid, updated).catch(() => {});
+    setIntroDismissed(true);
+  };
 
   // Controladoria → só tela de metas
   if (profile.isControladoria) {
@@ -204,10 +205,12 @@ function AppContent() {
         <div className="app">
           <Header />
           <main className="app-content">
-            <Routes>
-              <Route path="*" element={<Controladoria />} />
-              <Route path="/perfil" element={<Profile />} />
-            </Routes>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="*" element={<Controladoria />} />
+                <Route path="/perfil" element={<Profile />} />
+              </Routes>
+            </Suspense>
           </main>
         </div>
       </BrowserRouter>
@@ -222,6 +225,7 @@ function AppContent() {
       <div className="app">
         <Header />
         <main className="app-content">
+          <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/biblioteca" element={<Library />} />
@@ -272,8 +276,10 @@ function AppContent() {
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </Suspense>
         </main>
         <BottomNav />
+        {showTour && <AppTour onClose={dismissTour} />}
       </div>
     </BrowserRouter>
   );
@@ -324,6 +330,14 @@ const ROUTE_TITLES: Record<string, string> = {
   '/instalar':          'GSS — Instalar App',
   '/privacidade':       'GSS — Privacidade',
 };
+
+function PageFallback() {
+  return (
+    <div className="app-loading" style={{ minHeight: '70vh' }}>
+      <div className="app-loading-logo">GSS</div>
+    </div>
+  );
+}
 
 function TitleManager() {
   const { pathname } = useLocation();

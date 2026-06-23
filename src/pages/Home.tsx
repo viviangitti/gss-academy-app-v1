@@ -156,7 +156,7 @@ export default function Home() {
 
       {/* Acabou um atendimento? Registra ganho OU perda — a IA aprende com os dois */}
       {profile.userAccessType !== 'marketing' && (
-        <div className="home-outcome card">
+        <div className="home-outcome card" data-tour="outcome">
           <p className="home-outcome-q">Acabou um atendimento? Como foi?</p>
           <div className="home-outcome-btns">
             <button className="home-outcome-btn won" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }}>
@@ -214,7 +214,7 @@ export default function Home() {
 
       {/* Boost — SOS de argumentação */}
       {profile.userAccessType !== 'marketing' && (
-        <button className="home-boost-card card" onClick={() => navigate('/boost')}>
+        <button className="home-boost-card card" data-tour="boost" onClick={() => navigate('/boost')}>
           <div className="home-boost-icon"><Rocket size={22} /></div>
           <div className="home-boost-text">
             <strong>Boost 🚀</strong>

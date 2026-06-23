@@ -115,7 +115,7 @@ export default function DailyBriefing() {
   if (!rows.length) return null;
 
   return (
-    <div className="brief card">
+    <div className="brief card" data-tour="briefing">
       <button className="brief-head" onClick={toggle}>
         <span className="brief-title"><Sun size={16} /> Resumo do dia</span>
         {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

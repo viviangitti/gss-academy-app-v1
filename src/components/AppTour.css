@@ -1,0 +1,115 @@
+/* Coach-mark tour — destaca elementos reais da tela com balões "Próximo". */
+
+.tour-block {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background: transparent;
+}
+
+/* dim de tela cheia (passos centralizados, sem alvo) */
+.tour-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 4001;
+  background: rgba(10, 10, 20, 0.74);
+  animation: tour-fade 0.2s ease;
+}
+
+/* recorte/spotlight sobre o elemento alvo */
+.tour-spot {
+  position: fixed;
+  z-index: 4001;
+  border-radius: 14px;
+  border: 2px solid var(--accent, #c9a84c);
+  box-shadow: 0 0 0 9999px rgba(10, 10, 20, 0.74);
+  pointer-events: none;
+  /* sem transição de posição: o spotlight aparece direto no alvo (evita "deslizar"
+     por elementos no meio do caminho quando os passos são distantes). */
+  animation: tour-fade 0.18s ease;
+}
+
+.tour-card {
+  position: fixed;
+  z-index: 4002;
+  background: #fff;
+  color: #1a1a2e;
+  border-radius: 16px;
+  padding: 16px 17px 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+  animation: tour-pop 0.22s ease;
+}
+
+.tour-card h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 5px;
+  color: #14141f;
+}
+
+.tour-card p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #4b4b5e;
+  margin: 0;
+}
+
+.tour-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tour-dots {
+  display: flex;
+  gap: 5px;
+  margin-right: auto;
+}
+.tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d9d6ce;
+  transition: background 0.2s, width 0.2s;
+}
+.tour-dot.on {
+  background: var(--accent, #c9a84c);
+  width: 16px;
+  border-radius: 4px;
+}
+
+.tour-skip {
+  background: none;
+  border: none;
+  color: #9b9aa8;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+.tour-back {
+  background: none;
+  border: 1px solid #e4e1d8;
+  color: #5e5d72;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9px;
+  padding: 8px 13px;
+  cursor: pointer;
+}
+.tour-next {
+  background: linear-gradient(120deg, #c9a84c, #dcbf63);
+  border: none;
+  color: #1a1a2e;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 9px;
+  padding: 9px 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@keyframes tour-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tour-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }

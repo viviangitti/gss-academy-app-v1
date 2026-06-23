@@ -30,6 +30,7 @@ export default function BottomNav() {
         return (
           <button
             key={path}
+            data-tour={path === '/noticias' ? 'nav-noticias' : path === '/biblioteca' ? 'nav-painel' : path === '/ia-coach' ? 'nav-coaching' : undefined}
             className={`nav-item ${isActive ? 'active' : ''}`}
             onClick={() => navigate(path)}
           >
