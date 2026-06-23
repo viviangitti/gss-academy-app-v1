@@ -1,7 +1,7 @@
 // Report "Por que ganho / por que perco" (vendedor) e Mapa de gaps (gestor).
 // A IA cruza vendas, perdas e treinos e classifica o gap:
 // produto / processo / abordagem / follow-up — com recomendação acionável.
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText } from './ai';
 import { getCurrentMonthSales, getSales } from './goal';
 import { getLostSales, REASON_LABELS, STAGE_LABELS } from './lostSales';
 import { getAllHistory } from './history';
@@ -37,11 +37,6 @@ export interface SellerGap {
 export interface TeamReport {
   resumoEquipe: string;
   porVendedor: SellerGap[];
-}
-
-function model() {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  return genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 }
 
 function parseJson<T>(raw: string): T {
@@ -87,8 +82,7 @@ Regras:
 DADOS:
 ${data}`;
 
-  const result = await model().generateContent(prompt);
-  return parseJson<MyReport>(result.response.text());
+  return parseJson<MyReport>(await generateText(API_KEY, prompt));
 }
 
 export async function getTeamGapReport(): Promise<TeamReport> {
@@ -124,6 +118,5 @@ Regras:
 CASOS POR VENDEDOR:
 ${data}`;
 
-  const result = await model().generateContent(prompt);
-  return parseJson<TeamReport>(result.response.text());
+  return parseJson<TeamReport>(await generateText(API_KEY, prompt));
 }

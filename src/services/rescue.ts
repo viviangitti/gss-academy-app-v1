@@ -1,7 +1,7 @@
 // Rescue 🎯 — resgate de cliente perdido ou esfriado.
 // Gera o plano de reaproximação: mensagem de WhatsApp pronta, melhor momento
 // e o gancho certo (condição/oferta do mês como pretexto de contato).
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText } from './ai';
 import { buildMemoryContext } from './memory';
 import { buildAmmo } from './boost';
 
@@ -35,9 +35,6 @@ Regras:
 - NUNCA invente desconto/condição que não esteja no contexto.`;
 
 export async function getRescuePlan(target: RescueTarget): Promise<RescuePlan> {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
   const memory = buildMemoryContext();
   const ammo = await buildAmmo();
   const situation = [
@@ -49,8 +46,7 @@ export async function getRescuePlan(target: RescueTarget): Promise<RescuePlan> {
   ].filter(Boolean).join('\n');
 
   const prompt = [RESCUE_PROMPT, memory, ammo, situation].filter(Boolean).join('\n\n');
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim()
+  const text = (await generateText(API_KEY, prompt)).trim()
     .replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
   const plan = JSON.parse(text) as RescuePlan;
   if (!plan.message) throw new Error('plano vazio');

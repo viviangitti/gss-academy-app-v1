@@ -1,6 +1,6 @@
 // Relatório de segunda do gestor: resumo da semana pronto pra colar no grupo,
 // com destaque da semana e elogio pronto. O app faz o trabalho chato do gestor.
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText } from './ai';
 import { fetchRecentCases } from './firestore/salesCases';
 import { getTeamSummary } from './firestore/contentScores';
 import { loadData, KEYS } from './storage';
@@ -64,9 +64,6 @@ ${caseLines.join('\n') || '(nenhum caso registrado)'}
 CONTEÚDO/ENGAJAMENTO DO MÊS:
 ${contentLines.join('\n') || '(sem dados)'}`;
 
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim().replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
+  const text = (await generateText(API_KEY, prompt)).trim().replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
   return JSON.parse(text) as WeeklyReport;
 }

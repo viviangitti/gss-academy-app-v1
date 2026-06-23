@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { isOverloaded, aiErrorMessage } from './ai';
 
 const MARKETING_SYSTEM_PROMPT = `Você é o Coach de Marketing da MAESTR.IA, especialista em branding, estratégia de marketing, campanhas e inteligência de mercado.
 
@@ -99,8 +100,11 @@ Seu papel é ajudar líderes comerciais a dominar vendas com base nos princípio
 - Sugira técnicas como Perguntas Estratégicas, Venda Desafiadora, Qualificação em 4 Passos, Conexão e Confiança, Histórias que Vendem, Fechamento Alternativo, Método Sanduíche
 - Sempre inclua um elemento de ação prática que o vendedor possa aplicar imediatamente`;
 
+const PRIMARY_MODEL = 'gemini-2.5-flash-lite';   // rápido
+const FALLBACK_MODEL = 'gemini-2.5-flash';       // reserva quando o lite congestiona (503)
 let chat: ReturnType<ReturnType<GoogleGenerativeAI['getGenerativeModel']>['startChat']> | null = null;
 let currentChatMode: 'vendas' | 'marketing' = 'vendas';
+let currentModel: string = PRIMARY_MODEL;
 
 export interface ImageAttachment {
   base64: string;
@@ -170,7 +174,6 @@ export async function sendMessage(
 ): Promise<string> {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
     // Reset chat if mode changed
     if (chat && currentChatMode !== mode) {
@@ -179,6 +182,7 @@ export async function sendMessage(
 
     if (!chat) {
       currentChatMode = mode;
+      currentModel = PRIMARY_MODEL;
       const isMarketing = mode === 'marketing';
       const base = isMarketing ? MARKETING_SYSTEM_PROMPT : SYSTEM_PROMPT;
       // injeta a memória do usuário no contexto do sistema
@@ -186,7 +190,7 @@ export async function sendMessage(
       const ack = isMarketing
         ? 'Entendido! Sou o Coach de Marketing da MAESTR.IA. Domino branding, estratégia de campanhas, benchmarking e alinhamento marketing-vendas. Como posso ajudar?'
         : 'Entendido! Sou o Coach de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
-      chat = model.startChat({
+      chat = genAI.getGenerativeModel({ model: currentModel }).startChat({
         history: buildGeminiHistory(prompt, ack, priorHistory ?? []),
       });
     }
@@ -197,14 +201,38 @@ export async function sendMessage(
     }
     parts.push({ text: message });
 
-    const result = await chat.sendMessage(parts);
-    return result.response.text();
+    // Tenta no modelo atual (lite) com retries em caso de 503/429 ("high demand").
+    // Se seguir congestionado, cai pro flash — recriando o chat com o MESMO histórico
+    // acumulado, então a conversa não se perde. (O histórico só é gravado em sucesso,
+    // logo repetir/reconstruir após uma falha é seguro.)
+    const order = currentModel === FALLBACK_MODEL
+      ? [FALLBACK_MODEL, PRIMARY_MODEL]
+      : [PRIMARY_MODEL, FALLBACK_MODEL];
+    let lastErr: unknown;
+    for (const modelName of order) {
+      if (modelName !== currentModel) {
+        const history = await chat.getHistory();
+        currentModel = modelName;
+        chat = genAI.getGenerativeModel({ model: modelName }).startChat({ history });
+      }
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const result = await chat.sendMessage(parts);
+          return result.response.text();
+        } catch (e) {
+          lastErr = e;
+          if (!isOverloaded(e)) throw e;
+          await new Promise(r => setTimeout(r, 700 * (attempt + 1)));
+        }
+      }
+    }
+    throw lastErr;
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Erro desconhecido';
-    throw new Error(`Erro ao conectar com IA: ${msg}`);
+    throw new Error(aiErrorMessage(error));
   }
 }
 
 export function resetChat() {
   chat = null;
+  currentModel = PRIMARY_MODEL;
 }

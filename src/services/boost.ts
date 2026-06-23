@@ -1,7 +1,7 @@
 // Boost 🚀 — SOS de argumentação.
 // O vendedor descreve em 1 frase onde travou e recebe 3 caminhos IMEDIATOS,
 // alimentados pela memória (perfil + casos reais da equipe) e pelas condições do mês.
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText } from './ai';
 import { buildMemoryContext } from './memory';
 import { getActiveOffers } from './firestore/offers';
 import { getActiveConditionsForMonth } from './firestore/commercialConditions';
@@ -55,9 +55,6 @@ export async function buildAmmo(): Promise<string> {
 }
 
 export async function getBoost(situation: string): Promise<BoostPath[]> {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
   const memory = buildMemoryContext();
   const ammo = await buildAmmo();
   const prompt = [
@@ -67,8 +64,7 @@ export async function getBoost(situation: string): Promise<BoostPath[]> {
     `SITUAÇÃO DO VENDEDOR AGORA: "${situation}"`,
   ].filter(Boolean).join('\n\n');
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim()
+  const text = (await generateText(API_KEY, prompt)).trim()
     .replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
   const parsed = JSON.parse(text) as { paths: BoostPath[] };
   if (!Array.isArray(parsed.paths) || !parsed.paths.length) throw new Error('resposta vazia');
@@ -105,9 +101,6 @@ Regras:
 - Português brasileiro, direto, tom de treinador que respeita o atleta.`;
 
 export async function getDebrief(input: DebriefInput): Promise<DebriefResult> {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
   const memory = buildMemoryContext();
   const ammo = await buildAmmo();
   const situacao = [
@@ -118,8 +111,7 @@ export async function getDebrief(input: DebriefInput): Promise<DebriefResult> {
   ].join('\n');
 
   const prompt = [DEBRIEF_PROMPT, memory, ammo, situacao].filter(Boolean).join('\n\n');
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim().replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
+  const text = (await generateText(API_KEY, prompt)).trim().replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
   const parsed = JSON.parse(text) as DebriefResult;
   if (!parsed.leitura) throw new Error('debrief vazio');
 
