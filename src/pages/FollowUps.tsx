@@ -203,6 +203,9 @@ export default function FollowUps() {
           <MessageCircle size={28} />
           <h4>Nenhum cliente em acompanhamento</h4>
           <p>Registre cada atendimento com o próximo passo. O app te lembra na hora certa — retorno é onde a venda acontece.</p>
+          <button className="btn btn-primary" style={{ marginTop: 14 }} onClick={() => setShowForm(true)}>
+            <Plus size={15} /> Criar meu primeiro follow-up
+          </button>
         </div>
       )}
 
