@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Mic, Rocket, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Rocket, ChevronUp, ChevronDown } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -201,16 +201,6 @@ export default function Home() {
           <ArrowRight size={18} />
         </button>
       )}
-
-      {/* Falar com o Coach — voz-primeiro */}
-      <button className="home-voice-card card" onClick={() => navigate('/coach-voz')}>
-        <div className="home-voice-orb"><Mic size={22} /></div>
-        <div className="home-voice-text">
-          <strong>Falar com o Coach</strong>
-          <span>Converse por voz — tire dúvidas falando</span>
-        </div>
-        <ArrowRight size={18} />
-      </button>
 
       {/* Meta de vendas — oculta para marketing puro */}
       {profile.userAccessType !== 'marketing' && stats && goal > 0 && (
