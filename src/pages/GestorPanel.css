@@ -116,3 +116,35 @@
   padding: 10px 12px; border-radius: 0 8px 8px 0; margin: 0 0 10px;
   white-space: pre-line;
 }
+
+/* Galeria de comprovação de posts */
+.gp-proofs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.gp-proof-item {
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  text-decoration: none;
+  background: var(--bg);
+}
+.gp-proof-item img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+.gp-proof-name {
+  display: block;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

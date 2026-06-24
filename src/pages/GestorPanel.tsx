@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw } from 'lucide-react';
+import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw, Camera } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getTeamSummary } from '../services/firestore/contentScores';
+import { getTeamProofs } from '../services/firestore/contentProofs';
+import type { TeamProof } from '../services/firestore/contentProofs';
 import { getTeamGapReport } from '../services/gapReport';
 import { getWeeklyReport } from '../services/weeklyReport';
 import type { WeeklyReport } from '../services/weeklyReport';
@@ -26,6 +28,7 @@ export default function GestorPanel() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const [summary, setSummary] = useState<TeamSummary>({ totalPosts: 0, totalPoints: 0, activeMembers: 0, members: [] });
+  const [proofs, setProofs] = useState<TeamProof[]>([]);
   const [loading, setLoading] = useState(true);
   const [gaps, setGaps] = useState<TeamReport | null>(null);
   const [gapsLoading, setGapsLoading] = useState(false);
@@ -74,6 +77,9 @@ export default function GestorPanel() {
     getTeamSummary(profile.company || '', profile.segment || '', monthKey())
       .then(setSummary)
       .finally(() => setLoading(false));
+    getTeamProofs(profile.company || '', monthKey())
+      .then(setProofs)
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -147,6 +153,21 @@ export default function GestorPanel() {
               <span className="gp-pts">{m.points} pts</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Comprovação de posts — prints que a equipe anexou */}
+      {proofs.length > 0 && (
+        <div className="gp-proofs card">
+          <div className="gp-rank-head"><Camera size={16} /> Comprovação de posts ({proofs.length})</div>
+          <div className="gp-proofs-grid">
+            {proofs.map(p => (
+              <a key={p.id} href={p.imageUrl} target="_blank" rel="noopener noreferrer" className="gp-proof-item" title={`${p.name} — toque pra ampliar`}>
+                <img src={p.imageUrl} alt={`Post de ${p.name}`} loading="lazy" />
+                <span className="gp-proof-name">{p.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
       )}
 

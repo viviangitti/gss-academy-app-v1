@@ -157,5 +157,14 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.managerId == request.auth.uid;
       allow update, delete: if false;
     }
+
+    // /contentProofs — prints de comprovação de post (social selling).
+    // Cada vendedor cria as suas (uid == próprio). Qualquer logado lê (gestor vê a galeria).
+    // Imutável: sem update/delete.
+    match /contentProofs/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }

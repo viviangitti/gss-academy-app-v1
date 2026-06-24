@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Share2, Copy, Check, Flame, Trophy, Sparkles, MessageCircle, Medal } from 'lucide-react';
+import { Share2, Copy, Check, Flame, Trophy, Sparkles, MessageCircle, Medal, Camera } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getActiveOffers } from '../services/firestore/offers';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../services/socialContent';
 import type { ContentSuggestion, ContentStats } from '../services/socialContent';
 import { saveMyContentScore, getTeamRanking } from '../services/firestore/contentScores';
+import { saveContentProof } from '../services/firestore/contentProofs';
 import type { RankRow } from '../services/firestore/contentScores';
 import type { UserProfile } from '../types';
 import './ContentToday.css';
@@ -19,6 +20,10 @@ export default function ContentToday() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sharedTick, setSharedTick] = useState(0); // força re-render após compartilhar
   const [ranking, setRanking] = useState<RankRow[]>([]);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [uploadPct, setUploadPct] = useState(0);
+  const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
+  const [proofError, setProofError] = useState('');
 
   const loadRanking = () => {
     if (!profile.uid) return;
@@ -54,7 +59,8 @@ export default function ContentToday() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const registerShare = (content: ContentSuggestion) => {
+  // Só pontua e entra no painel do gestor quando o vendedor anexa o PRINT do post.
+  const registerScore = (content: ContentSuggestion) => {
     if (!hasSharedToday(content.id)) {
       logShare(content);
       setStats(getContentStats());
@@ -63,31 +69,54 @@ export default function ContentToday() {
     }
   };
 
+  const handleProof = async (content: ContentSuggestion, file: File) => {
+    if (!profile.uid) {
+      setProofError('Faça login para comprovar seus posts.');
+      return;
+    }
+    setProofError('');
+    setUploadingId(content.id);
+    setUploadPct(0);
+    try {
+      const url = await saveContentProof({
+        uid: profile.uid,
+        name: profile.name || 'Vendedor',
+        company: profile.company || '',
+        segment: profile.segment || '',
+        monthKey: currentMonthKey(),
+        contentId: content.id,
+        caption: content.caption,
+        file,
+        onProgress: setUploadPct,
+      });
+      setProofUrls(m => ({ ...m, [content.id]: url }));
+      registerScore(content); // só agora pontua
+    } catch {
+      setProofError('Não consegui enviar o print. Tenta de novo.');
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  // Compartilhar/Copiar agora só ajudam a postar — NÃO pontuam (o print é que conta).
   const handleShare = async (content: ContentSuggestion) => {
-    // Tenta o compartilhamento nativo (abre WhatsApp, Instagram, etc.)
     if (navigator.share) {
       try {
         await navigator.share({ text: content.caption });
-        registerShare(content);
         return;
-      } catch { /* usuário cancelou — não conta */ return; }
+      } catch { return; }
     }
-    // Fallback: WhatsApp
     window.open(`https://wa.me/?text=${encodeURIComponent(content.caption)}`, '_blank');
-    registerShare(content);
   };
 
   const handleWhatsApp = (content: ContentSuggestion) => {
     window.open(`https://wa.me/?text=${encodeURIComponent(content.caption)}`, '_blank');
-    registerShare(content);
   };
 
   const handleCopy = (content: ContentSuggestion) => {
-    // Tenta a API moderna; fallback pra textarea se falhar (registra os pontos de qualquer forma)
     const done = () => {
       setCopiedId(content.id);
       setTimeout(() => setCopiedId(null), 2000);
-      registerShare(content);
     };
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(content.caption).then(done).catch(() => {
@@ -152,7 +181,7 @@ export default function ContentToday() {
               <span className="ct-card-emoji">{content.emoji}</span>
               <span className="ct-card-title">{content.title}</span>
               {content.type === 'oferta' && <span className="ct-badge">Oferta</span>}
-              {shared && <span className="ct-done-badge"><Check size={12} /> Postado</span>}
+              {shared && <span className="ct-done-badge"><Check size={12} /> Comprovado</span>}
             </div>
 
             <p className="ct-card-caption">{content.caption}</p>
@@ -168,9 +197,39 @@ export default function ContentToday() {
                 {copiedId === content.id ? <><Check size={15} /> Copiado</> : <><Copy size={15} /> Copiar</>}
               </button>
             </div>
+
+            {/* Comprovação obrigatória: só pontua com o print do post publicado */}
+            {shared ? (
+              <div className="ct-proof ct-proof--done">
+                <Check size={14} /> Post comprovado · +10 pontos
+                {proofUrls[content.id] && (
+                  <a href={proofUrls[content.id]} target="_blank" rel="noopener noreferrer" className="ct-proof-thumb">
+                    <img src={proofUrls[content.id]} alt="Print do post" />
+                  </a>
+                )}
+              </div>
+            ) : (
+              <label className={`ct-btn ct-btn-proof ${uploadingId === content.id ? 'is-loading' : ''}`}>
+                <Camera size={15} />
+                {uploadingId === content.id ? `Enviando print… ${uploadPct}%` : 'Anexar print do post pra pontuar'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  disabled={uploadingId !== null}
+                  onChange={e => {
+                    const f = e.target.files?.[0];
+                    if (f) handleProof(content, f);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+            )}
           </div>
         );
       })}
+
+      {proofError && <div className="ct-proof-error card">{proofError}</div>}
 
       {items.length === 0 && (
         <div className="ct-empty card">
@@ -199,7 +258,7 @@ export default function ContentToday() {
         </div>
       )}
 
-      <p className="ct-foot">Cada conteúdo compartilhado vale <strong>10 pontos</strong>. Poste todo dia e mantenha sua sequência! 🔥</p>
+      <p className="ct-foot">Poste o conteúdo na sua rede e <strong>anexe o print</strong> pra ganhar <strong>10 pontos</strong> — só assim entra no painel do gestor. Poste todo dia e mantenha a sequência! 🔥</p>
     </div>
   );
 }
