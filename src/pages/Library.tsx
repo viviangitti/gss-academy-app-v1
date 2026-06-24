@@ -38,8 +38,8 @@ export default function Library() {
         </div>
       </button>
 
-      {/* ── Intel do mês (todos) ── */}
-      <div className="lib-section-label">Intel do mês</div>
+      {/* ── Condição comercial do mês (todos) ── */}
+      <div className="lib-section-label">Condição comercial do mês</div>
       <div className="lib-intel-grid">
         <button className="lib-intel-card card" onClick={() => navigate('/condicoes')}>
           <div className="lib-intel-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>

@@ -34,9 +34,8 @@ const SECTIONS: MapSection[] = [
   {
     title: 'Painel', icon: LayoutGrid, color: '#534AB7',
     items: [
-      { label: 'Follow-ups', desc: 'Sua carteira de clientes', to: '/follow-ups' },
       { label: 'Meu Raio-X', desc: 'Suas competências e gaps', to: '/meu-raiox' },
-      { label: 'Condições', desc: 'Campanhas do mês', to: '/condicoes' },
+      { label: 'Condição comercial do mês', desc: 'Tabelas e campanhas do mês', to: '/condicoes' },
       { label: 'Concorrência', desc: 'O que estão fazendo', to: '/concorrencia' },
       { label: 'Playbook · Objeções · Gatilhos', desc: 'Munição de venda', to: '/objecoes' },
       { label: 'Treino', desc: 'Role-play, voz, pré/pós-reunião', to: '/treino-hub' },
