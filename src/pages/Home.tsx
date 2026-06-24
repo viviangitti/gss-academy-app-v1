@@ -69,10 +69,10 @@ export default function Home() {
     setWelcomeBack(getWelcomeBackMessage());
     markActive();
 
-    // Lembrete semanal de feedback — mostra se faz 7+ dias sem feedback ou sem dispensar
-    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    // Lembrete diário de feedback — mostra se faz 1+ dia sem avaliar ou sem dispensar
+    const DAY_MS = 24 * 60 * 60 * 1000;
     const lastAction = Number(localStorage.getItem('gss_feedback_last_action') || 0);
-    if (Date.now() - lastAction > WEEK_MS) {
+    if (Date.now() - lastAction > DAY_MS) {
       setShowFeedbackBanner(true);
     }
   }, []);
