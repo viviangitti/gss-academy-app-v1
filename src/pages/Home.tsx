@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Newspaper, ExternalLink, ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Mic, Rocket, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Mic, Rocket, ChevronUp, ChevronDown } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
-import { fetchNews } from '../services/news';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
 import { getStats, addSale, getDailyAccumulation } from '../services/goal';
@@ -12,8 +11,7 @@ import { getDueFollowUps } from '../services/followups';
 import type { FollowUp } from '../services/followups';
 import DailyBriefing from '../components/DailyBriefing';
 import type { WeekStats } from '../services/history';
-import { SEGMENTS } from '../types';
-import type { UserProfile, NewsItem } from '../types';
+import type { UserProfile } from '../types';
 import type { Favorite } from '../services/favorites';
 import type { DayData } from '../services/day';
 import type { GoalStats } from '../services/goal';
@@ -27,10 +25,8 @@ function formatBRL(v: number) {
 export default function Home() {
   const navigate = useNavigate();
   const [greeting, setGreeting] = useState('');
-  const [news, setNews] = useState<NewsItem[]>([]);
   const [dueToday, setDueToday] = useState<FollowUp[]>([]);
   const [dueOverdue, setDueOverdue] = useState<FollowUp[]>([]);
-  const [segmentLabel, setSegmentLabel] = useState('');
   const [favs, setFavs] = useState<Favorite[]>([]);
   const [day, setDay] = useState<DayData>({ date: '', meetings: [], tasks: [] });
   const [newTask, setNewTask] = useState('');
@@ -56,10 +52,6 @@ export default function Home() {
     else setGreeting('Boa noite');
 
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
-    if (profile.segment) {
-      setSegmentLabel(SEGMENTS.find(s => s.value === profile.segment)?.label || '');
-      fetchNews(profile.segment).then(items => setNews(items.slice(0, 3)));
-    }
     const g = profile.monthlyGoal || 0;
     setGoal(g);
     refreshStats(g);
@@ -177,20 +169,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Notícias em destaque */}
-      {news.length > 0 && (
-        <button className="home-news-hero card" onClick={() => navigate('/noticias')}>
-          <div className="home-news-hero-top">
-            <span className="home-news-hero-badge"><Newspaper size={12} /> Notícias</span>
-            {segmentLabel && <span className="home-news-hero-segment">{segmentLabel}</span>}
-          </div>
-          <p className="home-news-hero-title">{news[0].title}</p>
-          <div className="home-news-hero-footer">
-            <span>Ver todas as notícias</span>
-            <ExternalLink size={13} />
-          </div>
-        </button>
-      )}
 
       {/* Follow-ups de hoje — onde está o dinheiro (aparece pra quem usa o recurso) */}
       {(dueToday.length > 0 || dueOverdue.length > 0) && (
