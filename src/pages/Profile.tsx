@@ -118,6 +118,9 @@ export default function Profile() {
         <div className="avatar-circle">
           <User size={36} />
         </div>
+        <span className={`profile-role-badge ${(profile.isGestor || profile.isAdmin) ? 'is-gestor' : 'is-vendedor'}`}>
+          {(profile.isGestor || profile.isAdmin) ? 'Gestor' : 'Vendedor'}
+        </span>
       </div>
 
       <div className="profile-form card">
