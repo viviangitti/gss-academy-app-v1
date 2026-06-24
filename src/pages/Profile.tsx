@@ -3,8 +3,8 @@ import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Tar
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { SEGMENTS, SEGMENT_GOAL_PRESETS, PRICE_RANGES } from '../types';
-import type { UserProfile, GoalItem, PriceRange } from '../types';
+import { SEGMENTS, SEGMENT_GOAL_PRESETS, PRICE_RANGES, getUserPriceRanges } from '../types';
+import type { UserProfile, GoalItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
@@ -275,26 +275,35 @@ export default function Profile() {
         {/* Faixa de atuação */}
         <div className="profile-section">
           <label className="profile-label">Faixa de atuação</label>
-          <p className="profile-hint">Em qual faixa de preço você compete? Filtra a tela de concorrência automaticamente.</p>
+          <p className="profile-hint">Em quais faixas de preço você compete? Pode marcar mais de uma. Filtra a tela de concorrência automaticamente.</p>
           <div className="price-range-options">
-            {PRICE_RANGES.map(r => (
-              <button
-                key={r.value}
-                type="button"
-                className={`price-range-btn ${profile.priceRange === r.value ? 'active' : ''}`}
-                onClick={() => setProfile(p => ({ ...p, priceRange: r.value as PriceRange }))}
-              >
-                <span className="price-range-icon">{r.icon}</span>
-                <div className="price-range-text">
-                  <strong>{r.label}</strong>
-                  <span>{r.description}</span>
-                  <div className="price-range-brands">
-                    {r.brands.slice(0, 4).map(b => <span key={b} className="price-range-brand">{b}</span>)}
+            {PRICE_RANGES.filter(r => r.value).map(r => {
+              const selected = getUserPriceRanges(profile).includes(r.value);
+              return (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={`price-range-btn ${selected ? 'active' : ''}`}
+                  onClick={() => setProfile(p => {
+                    const current = getUserPriceRanges(p);
+                    const next = current.includes(r.value)
+                      ? current.filter(v => v !== r.value)
+                      : [...current, r.value];
+                    return { ...p, priceRanges: next, priceRange: next[0] || '' };
+                  })}
+                >
+                  <span className="price-range-icon">{r.icon}</span>
+                  <div className="price-range-text">
+                    <strong>{r.label}</strong>
+                    <span>{r.description}</span>
+                    <div className="price-range-brands">
+                      {r.brands.slice(0, 4).map(b => <span key={b} className="price-range-brand">{b}</span>)}
+                    </div>
                   </div>
-                </div>
-                {profile.priceRange === r.value && <span className="price-range-check">✓</span>}
-              </button>
-            ))}
+                  {selected && <span className="price-range-check">✓</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 

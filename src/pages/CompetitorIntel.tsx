@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getActiveCompetitorOffers } from '../services/firestore/competitorOffers';
 import { getActiveOffers } from '../services/firestore/offers';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { PRICE_RANGES } from '../types';
+import { PRICE_RANGES, getUserPriceRanges } from '../types';
 import type { CompetitorOffer, Offer, UserProfile, PriceRange } from '../types';
 import './CompetitorIntel.css';
 
@@ -74,12 +74,12 @@ export default function CompetitorIntel() {
   const [allCompetitorOffers, setAllCompetitorOffers] = useState<CompetitorOffer[]>([]);
   const [ourOffers, setOurOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRange, setUserRange] = useState<PriceRange>('');
+  const [userRanges, setUserRanges] = useState<PriceRange[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
   useEffect(() => {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-    setUserRange(profile.priceRange || '');
+    setUserRanges(getUserPriceRanges(profile));
     Promise.all([
       getActiveCompetitorOffers(profile.segment || undefined),
       getActiveOffers(profile.segment || undefined),
@@ -90,18 +90,20 @@ export default function CompetitorIntel() {
     }).finally(() => setLoading(false));
   }, []);
 
-  // Filtra em tempo real conforme userRange muda
-  const competitorOffers = userRange
-    ? allCompetitorOffers.filter(o => competitorMatchesRange(o, userRange))
+  // Filtra em tempo real: mostra ofertas que casam com QUALQUER faixa selecionada
+  const competitorOffers = userRanges.length
+    ? allCompetitorOffers.filter(o => userRanges.some(r => competitorMatchesRange(o, r)))
     : allCompetitorOffers;
 
   const handleSelectRange = (range: PriceRange) => {
-    const newRange = userRange === range ? '' : range; // toggle off
-    setUserRange(newRange);
+    const next = userRanges.includes(range)
+      ? userRanges.filter(v => v !== range)   // toggle off
+      : [...userRanges, range];               // toggle on
+    setUserRanges(next);
     setVisibleCount(12); // reset pagination on filter change
     // Persiste no perfil
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-    saveData(KEYS.PROFILE, { ...profile, priceRange: newRange });
+    saveData(KEYS.PROFILE, { ...profile, priceRanges: next, priceRange: next[0] || '' });
   };
 
   const handleRebater = (offer: CompetitorOffer) => {
@@ -201,11 +203,11 @@ export default function CompetitorIntel() {
           {PRICE_RANGES.map(r => (
             <button
               key={r.value}
-              className={`ci-range-chip ${userRange === r.value ? 'active' : ''}`}
+              className={`ci-range-chip ${userRanges.includes(r.value) ? 'active' : ''}`}
               onClick={() => handleSelectRange(r.value)}
             >
               {r.icon} {r.label}
-              {userRange === r.value && <X size={11} className="ci-range-chip-x" />}
+              {userRanges.includes(r.value) && <X size={11} className="ci-range-chip-x" />}
             </button>
           ))}
         </div>

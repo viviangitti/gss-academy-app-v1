@@ -71,12 +71,19 @@ export interface UserProfile {
   assistantTone?: 'direto' | 'motivador' | 'tecnico';  // tom de fala do assistente
   introSeen?: boolean;         // já viu a tela de boas-vindas (controle por conta, no Firestore)
   userAccessType?: 'vendas' | 'marketing' | 'ambos';
-  priceRange?: PriceRange;
+  priceRange?: PriceRange;        // legado (faixa única) — mantido p/ migração
+  priceRanges?: PriceRange[];     // faixas de atuação (multi-seleção)
   uid?: string;
   createdAt?: number;
 }
 
 export type PriceRange = 'ate-80k' | '80k-200k' | '200k-500k' | 'acima-500k' | '';
+
+/** Faixas de atuação do usuário. Prefere o array; migra do campo único legado. */
+export function getUserPriceRanges(profile: { priceRanges?: PriceRange[]; priceRange?: PriceRange }): PriceRange[] {
+  if (Array.isArray(profile.priceRanges)) return profile.priceRanges.filter(Boolean);
+  return profile.priceRange ? [profile.priceRange] : [];
+}
 
 export interface PriceRangeConfig {
   value: PriceRange;

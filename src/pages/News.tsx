@@ -3,7 +3,7 @@ import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, Trendin
 import { fetchNewsByCategory, fetchMarketingNews, fetchCompetitorMarketingNews, clearNewsCache } from '../services/news';
 import { searchSegmentOffers, getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, clearOffersCache } from '../services/competitorScraper';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { SEGMENTS, PRICE_RANGES } from '../types';
+import { SEGMENTS, PRICE_RANGES, getUserPriceRanges } from '../types';
 import type { NewsItem, UserProfile, PriceRange } from '../types';
 import type { NewsCategory, NewsGeo } from '../services/news';
 import type { ScrapedOffer } from '../services/competitorScraper';
@@ -234,7 +234,7 @@ export default function News() {
   const [geo, setGeo] = useState<NewsGeo>('brasil');
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
-  const [offerRange, setOfferRange] = useState<PriceRange>('');
+  const [offerRanges, setOfferRanges] = useState<PriceRange[]>([]);
 
   const isMarketingUser = userAccessType === 'marketing' || userAccessType === 'ambos';
 
@@ -301,7 +301,7 @@ export default function News() {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setSegment(profile.segment);
     setUserAccessType(profile.userAccessType || 'vendas');
-    setOfferRange(profile.priceRange || '');
+    setOfferRanges(getUserPriceRanges(profile));
     if (profile.segment) {
       loadNews(profile.segment, 'tudo', 'brasil');
 
@@ -346,14 +346,16 @@ export default function News() {
   };
 
   const handleOfferRange = (range: PriceRange) => {
-    const next = offerRange === range ? '' : range;
-    setOfferRange(next);
+    const next = offerRanges.includes(range)
+      ? offerRanges.filter(v => v !== range)
+      : [...offerRanges, range];
+    setOfferRanges(next);
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-    saveData(KEYS.PROFILE, { ...profile, priceRange: next });
+    saveData(KEYS.PROFILE, { ...profile, priceRanges: next, priceRange: next[0] || '' });
   };
 
-  const filteredOffers = offerRange
-    ? offers.filter(o => offerMatchesRange(o, offerRange))
+  const filteredOffers = offerRanges.length
+    ? offers.filter(o => offerRanges.some(r => offerMatchesRange(o, r)))
     : offers;
 
   const segmentLabel = SEGMENTS.find(s => s.value === segment)?.label || '';
@@ -454,7 +456,7 @@ export default function News() {
             {PRICE_RANGES.map(r => (
               <button
                 key={r.value}
-                className={`news-range-chip ${offerRange === r.value ? 'active' : ''}`}
+                className={`news-range-chip ${offerRanges.includes(r.value) ? 'active' : ''}`}
                 onClick={() => handleOfferRange(r.value)}
               >
                 {r.icon} {r.label}
