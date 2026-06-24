@@ -249,22 +249,6 @@ export default function Profile() {
         </div>
 
 
-        {/* Controladoria toggle */}
-        <div className="form-group form-toggle-row">
-          <div>
-            <strong>Acesso Controladoria</strong>
-            <p className="form-hint">Ativa a visão de gestão de metas — somente quem define metas da equipe</p>
-          </div>
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={!!profile.isControladoria}
-              onChange={e => setProfile({ ...profile, isControladoria: e.target.checked })}
-            />
-            <span className="toggle-track" />
-          </label>
-        </div>
-
         {/* Tipo de acesso */}
         <div className="form-group">
           <label className="form-label">Tipo de acesso</label>

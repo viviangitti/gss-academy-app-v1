@@ -32,7 +32,6 @@ const Feedback = lazy(() => import('./pages/Feedback'));
 const Sales = lazy(() => import('./pages/Sales'));
 const AICoach = lazy(() => import('./pages/AICoach'));
 const Profile = lazy(() => import('./pages/Profile'));
-const Controladoria = lazy(() => import('./pages/Controladoria'));
 const Offers = lazy(() => import('./pages/Offers'));
 const OffersAdmin = lazy(() => import('./pages/OffersAdmin'));
 const CompetitorIntel = lazy(() => import('./pages/CompetitorIntel'));
@@ -189,33 +188,13 @@ function AppContent() {
 
   // Tour guiado de boas-vindas — só no PRIMEIRO acesso da conta (controle no perfil/Firestore).
   // Renderizado SOBRE a Início real (coach-marks), por isso não é mais um return antecipado.
-  const showTour = !profile.isControladoria && !profile.introSeen && !introDismissed;
+  const showTour = !profile.introSeen && !introDismissed;
   const dismissTour = () => {
     const updated = { ...profile, introSeen: true };
     saveData(KEYS.PROFILE, updated);
     if (user) saveRemoteProfile(user.uid, updated).catch(() => {});
     setIntroDismissed(true);
   };
-
-  // Controladoria → só tela de metas
-  if (profile.isControladoria) {
-    return (
-      <BrowserRouter>
-        <TitleManager />
-        <div className="app">
-          <Header />
-          <main className="app-content">
-            <Suspense fallback={<PageFallback />}>
-              <Routes>
-                <Route path="*" element={<Controladoria />} />
-                <Route path="/perfil" element={<Profile />} />
-              </Routes>
-            </Suspense>
-          </main>
-        </div>
-      </BrowserRouter>
-    );
-  }
 
   // Todos os perfis (vendas, marketing, ambos) vêem o app completo.
   // Marketing/ambos têm acesso adicional ao hub de marketing dentro do mesmo app.
@@ -253,7 +232,6 @@ function AppContent() {
             <Route path="/vendas" element={<Sales />} />
             <Route path="/ia-coach" element={<AICoach />} />
             <Route path="/perfil" element={<Profile />} />
-            <Route path="/controladoria" element={<Controladoria />} />
             <Route path="/ofertas" element={<Offers />} />
             <Route path="/ofertas-admin" element={<RequireAdmin allowMarketing><OffersAdmin /></RequireAdmin>} />
             <Route path="/concorrencia" element={<CompetitorIntel />} />

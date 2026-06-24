@@ -32,7 +32,6 @@ const titles: Record<string, string> = {
   '/ia-coach': 'Coaching',
   '/coach-voz': 'Coach por Voz',
   '/perfil': 'Perfil',
-  '/controladoria': 'Gestão de Metas',
   '/ofertas': 'Ofertas do Mês',
   '/ofertas-admin': 'Painel Marketing',
   '/concorrencia': 'Concorrência',

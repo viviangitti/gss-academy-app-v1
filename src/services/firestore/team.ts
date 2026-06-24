@@ -2,13 +2,12 @@ import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/fire
 import { db } from '../firebase';
 import type { UserProfile } from '../../types';
 
-/** Lista todos os vendedores da mesma empresa (exclui a própria controladoria) */
+/** Lista todos os vendedores da mesma empresa */
 export async function getTeamMembers(company: string): Promise<UserProfile[]> {
   if (!db || !company) return [];
   const q = query(
     collection(db, 'users'),
     where('company', '==', company),
-    where('isControladoria', '!=', true),
   );
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ uid: d.id, ...d.data() } as UserProfile));
