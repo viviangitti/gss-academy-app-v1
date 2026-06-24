@@ -147,5 +147,15 @@ service cloud.firestore {
       allow create, update: if isSignedIn();
       allow read, delete: if false;
     }
+
+    // /dealerships — registro de "primeiro acesso da concessionária = gerente".
+    // Qualquer logado lê (pra saber se a loja já tem dono). Só cria quem se declara
+    // gerente (managerId = próprio uid) E se o doc ainda não existe (create só passa se ausente).
+    // Imutável depois: o primeiro fica como gerente.
+    match /dealerships/{key} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.managerId == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }

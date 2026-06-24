@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone } from 'lucide-react';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, translateAuthError } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
+import { claimDealershipManager } from '../services/firestore/dealership';
 import { saveData, loadData, KEYS } from '../services/storage';
 import { SEGMENTS } from '../types';
 import type { UserProfile, Segment } from '../types';
@@ -62,6 +63,8 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
     setLoading(true);
     try {
       const user = await signUpWithEmail(email, password, name);
+      // Primeiro cadastro da concessionária vira o gerente (gestor); os próximos entram comuns.
+      const isGestor = await claimDealershipManager(company.trim(), user.uid, name);
       const profile: UserProfile = {
         name,
         role: role.trim(),
@@ -71,6 +74,7 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
         uid: user.uid,
         teamId: null,
         isAdmin: false,
+        isGestor,
         isMarketing: accessType === 'marketing' || accessType === 'ambos',
         userAccessType: accessType,
         createdAt: Date.now(),
