@@ -395,20 +395,6 @@ export default function Profile() {
           </div>
           <ExternalLink size={16} />
         </Link>
-        <Link to="/ofertas" className="link-card card">
-          <div className="link-info">
-            <h4><Megaphone size={14} /> Ofertas do Mês</h4>
-            <p>Campanhas ativas para usar com clientes</p>
-          </div>
-          <ExternalLink size={16} />
-        </Link>
-        <a href="https://gssacademy.vercel.app" target="_blank" rel="noopener noreferrer" className="link-card card">
-          <div className="link-info">
-            <h4>GSS Academy</h4>
-            <p>Acesse o curso completo</p>
-          </div>
-          <ExternalLink size={16} />
-        </a>
         <Link to="/instalar" className="link-card card">
           <div className="link-info">
             <h4><Download size={14} /> Instalar no celular</h4>
