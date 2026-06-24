@@ -54,6 +54,21 @@ const COMPETITOR_RANGES: Record<string, PriceRange[]> = {
   'rolls-royce':   ['acima-500k'],
   'mclaren':       ['acima-500k'],
   'aston martin':  ['acima-500k'],
+  // Marcas chinesas e demais comuns no mercado BR
+  'byd':           ['80k-200k', '200k-500k'],
+  'gwm':           ['80k-200k', '200k-500k'],
+  'great wall':    ['80k-200k', '200k-500k'],
+  'chery':         ['80k-200k', '200k-500k'],
+  'caoa chery':    ['80k-200k', '200k-500k'],
+  'caoa':          ['80k-200k', '200k-500k'],
+  'jac':           ['ate-80k', '80k-200k'],
+  'kia':           ['80k-200k', '200k-500k'],
+  'suzuki':        ['80k-200k'],
+  'subaru':        ['200k-500k'],
+  'mini':          ['200k-500k'],
+  'ram':           ['200k-500k', 'acima-500k'],
+  'mg':            ['80k-200k', '200k-500k'],
+  'mg motor':      ['80k-200k', '200k-500k'],
 };
 
 function competitorMatchesRange(offer: CompetitorOffer, range: PriceRange): boolean {

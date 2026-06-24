@@ -25,7 +25,15 @@ const COMPETITOR_RANGES: Record<string, PriceRange[]> = {
   'lexus':['80k-200k','200k-500k'],'porsche':['200k-500k','acima-500k'],
   'maserati':['200k-500k','acima-500k'],'bentley':['acima-500k'],
   'ferrari':['acima-500k'],'lamborghini':['acima-500k'],
-  'rolls-royce':['acima-500k'],'mclaren':['acima-500k'],
+  'rolls-royce':['acima-500k'],'mclaren':['acima-500k'],'aston martin':['acima-500k'],
+  // Marcas chinesas e demais comuns no mercado BR
+  'byd':['80k-200k','200k-500k'],'gwm':['80k-200k','200k-500k'],
+  'great wall':['80k-200k','200k-500k'],'chery':['80k-200k','200k-500k'],
+  'caoa chery':['80k-200k','200k-500k'],'caoa':['80k-200k','200k-500k'],
+  'jac':['ate-80k','80k-200k'],'kia':['80k-200k','200k-500k'],
+  'suzuki':['80k-200k'],'subaru':['200k-500k'],'mini':['200k-500k'],
+  'ram':['200k-500k','acima-500k'],
+  'mg':['80k-200k','200k-500k'],'mg motor':['80k-200k','200k-500k'],
 };
 
 /**
@@ -62,7 +70,10 @@ function offerMatchesRange(offer: ScrapedOffer, range: PriceRange): boolean {
   if (price != null) return priceToRange(price) === range;
   const ranges = COMPETITOR_RANGES[(offer.competitor || '').toLowerCase().trim()];
   if (ranges) return ranges.includes(range);
-  return true; // sem preço e marca desconhecida: mostra
+  // Sem preço e marca desconhecida: NÃO casa uma faixa específica (evita vazar
+  // pra faixa errada). Quando nenhuma faixa está selecionada, o filtro nem roda
+  // e a oferta aparece normalmente.
+  return false;
 }
 
 // Brand → domínio oficial — usado para logos (Clearbit) E para links de busca site:domínio
