@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  Tag, Swords, BookOpen, ChevronRight, BarChart2, Users, Map,
+  Tag, Swords, BookOpen, ChevronRight, BarChart2, Map,
   PenLine, Palette, Sparkles, FileText, Megaphone,
 } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
@@ -28,15 +28,6 @@ export default function Library() {
 
       {/* ── Meus clientes (vendas) ── */}
       <div className="lib-section-label">Meus clientes</div>
-      <button className="lib-playbook-card card" onClick={() => navigate('/follow-ups')}>
-        <div className="lib-intel-icon" style={{ background: 'rgba(201,168,76,0.15)', color: '#c9a84c' }}>
-          <Users size={20} />
-        </div>
-        <div className="lib-playbook-text">
-          <span className="lib-intel-title">Follow-ups</span>
-          <span className="lib-intel-desc">Seus clientes e o próximo passo de cada um</span>
-        </div>
-      </button>
       <button className="lib-playbook-card card" onClick={() => navigate('/meu-raiox')}>
         <div className="lib-intel-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>
           <BarChart2 size={20} />
