@@ -67,7 +67,7 @@ export default function GestorPanel() {
     setGapsLoading(false);
   };
 
-  const isGestor = profile.isAdmin === true || (profile.isGestor === true && profile.userAccessType !== 'marketing');
+  const isGestor = profile.isGestor === true || profile.isAdmin === true;
 
   useEffect(() => {
     if (!isGestor) return;

@@ -342,8 +342,8 @@ export default function Home() {
       )}
 
 
-      {/* ── Painel do Gestor (só gestor de vendas ou admin; marketing nunca vê) ── */}
-      {(profile.isAdmin || (profile.isGestor && profile.userAccessType !== 'marketing')) && (
+      {/* ── Painel do Gestor (só gerente/admin — independe do tipo de acesso) ── */}
+      {(profile.isGestor || profile.isAdmin) && (
         <button className="home-content-card home-gestor-card card" onClick={() => navigate('/painel-gestor')}>
           <div className="home-content-icon home-gestor-icon"><Users size={20} /></div>
           <div className="home-content-text">
