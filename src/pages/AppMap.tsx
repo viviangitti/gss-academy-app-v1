@@ -76,7 +76,7 @@ const IA_LAYER: MapItem[] = [
 export default function AppMap() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-  const isGestor = profile.isGestor === true || profile.isAdmin === true;
+  const isGestor = profile.isAdmin === true || (profile.isGestor === true && profile.userAccessType !== 'marketing');
 
   const sections = isGestor ? [...SECTIONS, GESTOR_SECTION] : SECTIONS;
 
