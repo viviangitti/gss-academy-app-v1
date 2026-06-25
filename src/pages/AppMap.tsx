@@ -12,7 +12,7 @@ interface MapSection { title: string; icon: typeof Home; color: string; items: M
 
 const SECTIONS: MapSection[] = [
   {
-    title: 'Início', icon: Home, color: '#185FA5',
+    title: 'Painel Controle', icon: Home, color: '#185FA5',
     items: [
       { label: 'Resumo do dia', desc: 'Meta, follow-ups e munição do dia', to: '/' },
       { label: 'Vendi / Não fechou', desc: 'Registro rápido do atendimento', to: '/' },
