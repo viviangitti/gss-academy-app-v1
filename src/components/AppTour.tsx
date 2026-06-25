@@ -13,7 +13,6 @@ interface Step {
 
 const STEPS: Step[] = [
   { sel: null, title: 'Bem-vindo{name}! 👋', body: 'Esse é o seu copiloto de vendas. Em 30 segundos eu te mostro onde fica cada coisa.' },
-  { sel: '[data-tour="briefing"]', title: 'Seu dia começa aqui', body: 'Resumo do dia: quanto falta pra meta e os follow-ups que te esperam hoje.' },
   { sel: '[data-tour="outcome"]', title: 'Registre cada atendimento', body: 'Acabou um atendimento? Marque Vendi ou Não fechou — a IA aprende com os dois.' },
   { sel: '[data-tour="boost"]', title: 'Travou? Use o Boost', body: 'Cliente travou numa objeção? O Boost te dá 3 caminhos prontos em segundos.' },
   { sel: '[data-tour="news"]', title: 'Notícias do setor', body: 'Munição na mão: notícias do seu mercado, lançamentos e ofertas dos concorrentes.' },
