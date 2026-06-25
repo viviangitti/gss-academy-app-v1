@@ -17,6 +17,7 @@ const titles: Record<string, string> = {
   '/treino-voz': 'Treino falado',
   '/follow-ups': 'Follow-ups',
   '/negociacoes': 'Negociações',
+  '/maestria': 'Maestria',
   '/boost': 'Cliente em atendimento',
   '/rescue': 'Rescue',
   '/meu-raiox': 'Meu Raio-X',

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  Tag, Swords, BookOpen, ChevronRight, BarChart2, Dumbbell,
+  Tag, Swords, ChevronRight, BarChart2,
   PenLine, Palette, Sparkles, FileText, Megaphone,
 } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
@@ -27,8 +27,8 @@ export default function Library() {
         </div>
       </button>
 
-      {/* ── Treino e conteúdo (todos) ── */}
-      <div className="lib-section-label">Treino e conteúdo</div>
+      {/* ── Conteúdo (todos) ── */}
+      <div className="lib-section-label">Conteúdo</div>
       <button className="lib-playbook-card card" onClick={() => navigate('/conteudo-dia')}>
         <div className="lib-intel-icon" style={{ background: 'rgba(201,168,76,0.15)', color: '#c9a84c' }}>
           <Sparkles size={20} />
@@ -36,15 +36,6 @@ export default function Library() {
         <div className="lib-playbook-text">
           <span className="lib-intel-title">Conteúdo do Dia</span>
           <span className="lib-intel-desc">Poste nas suas redes e ganhe pontos</span>
-        </div>
-      </button>
-      <button className="lib-playbook-card card" onClick={() => navigate('/treino-hub')}>
-        <div className="lib-intel-icon" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>
-          <Dumbbell size={20} />
-        </div>
-        <div className="lib-playbook-text">
-          <span className="lib-intel-title">Treino</span>
-          <span className="lib-intel-desc">Role-play, objeções, reuniões e mensagens</span>
         </div>
       </button>
 
@@ -68,18 +59,6 @@ export default function Library() {
         </button>
       </div>
 
-      {/* ── Referência (todos) ── */}
-      <div className="lib-section-label">Referência</div>
-      <button className="lib-playbook-card card" onClick={() => navigate('/playbook')}>
-        <div className="lib-intel-icon" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>
-          <BookOpen size={20} />
-        </div>
-        <div className="lib-playbook-text">
-          <span className="lib-intel-title">Playbook</span>
-          <span className="lib-intel-desc">Objeções · Roteiros · Técnicas · Gatilhos</span>
-        </div>
-        <ChevronRight size={18} className="lib-playbook-arrow" />
-      </button>
 
       {/* ── Marketing (só marketing/admin) ── */}
       {showMarketing && (

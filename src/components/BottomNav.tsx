@@ -1,17 +1,22 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Handshake, BookOpen, Sparkles } from 'lucide-react';
+import { Home, Handshake, GraduationCap, BookOpen, Sparkles } from 'lucide-react';
 import './BottomNav.css';
 
-const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue'];
+const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao', '/vendas-perdidas'];
+const MAESTRIA_PATHS = [
+  '/maestria', '/treino', '/treino-voz', '/treino-hub', '/objecoes', '/scripts',
+  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao',
+];
 const LIBRARY_PATHS = [
-  '/biblioteca', '/playbook', '/objecoes', '/scripts', '/tecnicas', '/favoritos', '/historico',
-  '/treino-hub', '/treino', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao',
-  '/vendas-perdidas', '/condicoes', '/gatilhos', '/concorrencia', '/ofertas',
+  '/biblioteca', '/favoritos', '/historico', '/condicoes', '/concorrencia', '/ofertas',
+  '/guia-marca', '/analise-campanha', '/gerador-copy', '/pos-campanha', '/revisar-copy',
+  '/pre-lancamento', '/marketing-chat', '/conteudo-dia',
 ];
 
 const tabs = [
   { path: '/', icon: Home, label: 'Painel Controle' },
   { path: '/negociacoes', icon: Handshake, label: 'Negociações' },
+  { path: '/maestria', icon: GraduationCap, label: 'Maestria' },
   { path: '/biblioteca', icon: BookOpen, label: 'Painel' },
   { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
 ];
@@ -25,6 +30,7 @@ export default function BottomNav() {
       {tabs.map(({ path, icon: Icon, label }) => {
         let isActive = location.pathname === path;
         if (path === '/negociacoes') isActive = NEGOTIATION_PATHS.includes(location.pathname);
+        if (path === '/maestria') isActive = MAESTRIA_PATHS.includes(location.pathname);
         if (path === '/biblioteca') isActive = LIBRARY_PATHS.includes(location.pathname);
 
         return (

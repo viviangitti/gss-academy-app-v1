@@ -1,0 +1,49 @@
+.mae-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.18), rgba(129, 140, 248, 0.04));
+  border: 0.5px solid rgba(129, 140, 248, 0.30);
+}
+
+.mae-hero-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(129, 140, 248, 0.20);
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mae-hero h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.mae-hero p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+/* Cores dos ícones por bloco */
+.mae-obj-icon {
+  background: rgba(239, 68, 68, 0.14) !important;
+  color: #f87171 !important;
+}
+.mae-narr-icon {
+  background: rgba(201, 168, 76, 0.16) !important;
+  color: var(--accent) !important;
+}
+.mae-script-icon {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #34d399 !important;
+}
+.mae-trigger-icon {
+  background: rgba(245, 158, 11, 0.14) !important;
+  color: #f59e0b !important;
+}
