@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Rocket, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -384,17 +384,6 @@ export default function Home() {
         </button>
       )}
 
-      {/* Boost — SOS de argumentação */}
-      {profile.userAccessType !== 'marketing' && (
-        <button className="home-boost-card card" data-tour="boost" onClick={() => navigate('/boost')}>
-          <div className="home-boost-icon"><Rocket size={22} /></div>
-          <div className="home-boost-text">
-            <strong>Boost 🚀</strong>
-            <span>Cliente travou? 3 caminhos prontos em segundos</span>
-          </div>
-          <ArrowRight size={18} />
-        </button>
-      )}
 
       {/* Progresso semanal */}
       {weekStats && (

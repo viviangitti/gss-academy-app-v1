@@ -102,7 +102,7 @@ export default function Boost() {
         <>
           <div className="boost-hero">
             <div className="boost-hero-icon boost-hero-debrief"><ClipboardCheck size={26} /></div>
-            <h3>Quer dar um boost na sua argumentação?</h3>
+            <h3>Quer afiar a sua argumentação?</h3>
             <p>Conte como foi — você recebe a leitura honesta do que faltou, 2 falas pra próxima vez e como treinar.</p>
           </div>
           <div className="boost-debrief-form">
