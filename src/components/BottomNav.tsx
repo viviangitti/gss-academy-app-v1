@@ -1,8 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Newspaper, BookOpen, Sparkles } from 'lucide-react';
+import { Home, BookOpen, Sparkles } from 'lucide-react';
 import './BottomNav.css';
 
-const NEWS_PATHS = ['/noticias'];
 const LIBRARY_PATHS = [
   '/biblioteca', '/playbook', '/objecoes', '/scripts', '/tecnicas', '/favoritos', '/historico',
   '/treino-hub', '/treino', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao',
@@ -11,7 +10,6 @@ const LIBRARY_PATHS = [
 
 const tabs = [
   { path: '/', icon: Home, label: 'Painel Controle' },
-  { path: '/noticias', icon: Newspaper, label: 'Notícias' },
   { path: '/biblioteca', icon: BookOpen, label: 'Painel' },
   { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
 ];
@@ -24,13 +22,12 @@ export default function BottomNav() {
     <nav className="bottom-nav">
       {tabs.map(({ path, icon: Icon, label }) => {
         let isActive = location.pathname === path;
-        if (path === '/noticias') isActive = NEWS_PATHS.includes(location.pathname);
         if (path === '/biblioteca') isActive = LIBRARY_PATHS.includes(location.pathname);
 
         return (
           <button
             key={path}
-            data-tour={path === '/noticias' ? 'nav-noticias' : path === '/biblioteca' ? 'nav-painel' : path === '/ia-coach' ? 'nav-coaching' : undefined}
+            data-tour={path === '/biblioteca' ? 'nav-painel' : path === '/ia-coach' ? 'nav-coaching' : undefined}
             className={`nav-item ${isActive ? 'active' : ''}`}
             onClick={() => navigate(path)}
           >

@@ -16,7 +16,7 @@ const STEPS: Step[] = [
   { sel: '[data-tour="briefing"]', title: 'Seu dia começa aqui', body: 'Resumo do dia: quanto falta pra meta e os follow-ups que te esperam hoje.' },
   { sel: '[data-tour="outcome"]', title: 'Registre cada atendimento', body: 'Acabou um atendimento? Marque Vendi ou Não fechou — a IA aprende com os dois.' },
   { sel: '[data-tour="boost"]', title: 'Travou? Use o Boost', body: 'Cliente travou numa objeção? O Boost te dá 3 caminhos prontos em segundos.' },
-  { sel: '[data-tour="nav-noticias"]', title: 'Notícias & mercado', body: 'Munição na mão: notícias do seu mercado, lançamentos e ofertas dos concorrentes.' },
+  { sel: '[data-tour="news"]', title: 'Notícias do setor', body: 'Munição na mão: notícias do seu mercado, lançamentos e ofertas dos concorrentes.' },
   { sel: '[data-tour="nav-painel"]', title: 'Painel', body: 'Follow-ups, treino, playbook e o seu Raio-X de competências ficam aqui.' },
   { sel: '[data-tour="nav-coaching"]', title: 'Coaching', body: 'Seu coach de vendas por texto e voz — sempre no bolso.' },
   { sel: null, title: 'É só começar 🚀', body: 'Pronto! Explore à vontade. Você pode rever isso quando quiser no Mapa do app.' },

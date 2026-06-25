@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Rocket, ChevronUp, ChevronDown, Tag, Swords } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Rocket, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -324,6 +324,16 @@ export default function Home() {
           </button>
         </div>
       </div>
+
+      {/* Notícias do setor — 4º item (aba movida pra cá) */}
+      <button className="home-content-card card" data-tour="news" onClick={() => navigate('/noticias')}>
+        <div className="home-content-icon"><Newspaper size={20} /></div>
+        <div className="home-content-text">
+          <strong>Notícias do setor</strong>
+          <span>Lançamentos, tendências e ofertas do seu mercado</span>
+        </div>
+        <ArrowRight size={16} className="home-train-arrow" />
+      </button>
 
       {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
       <DailyBriefing />
