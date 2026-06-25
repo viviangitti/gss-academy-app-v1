@@ -194,7 +194,7 @@ export default function Home() {
       </div>
 
       {/* Metas mensais — logo abaixo das Tarefas. Oculta para marketing puro. */}
-      {profile.userAccessType !== 'marketing' && stats && goal > 0 && (
+      {stats && goal > 0 && (
         <div className="day-section">
           <div className="day-section-header">
             <h3 className="section-title">Metas mensais</h3>
@@ -310,7 +310,7 @@ export default function Home() {
       <DailyBriefing />
 
       {/* Acabou um atendimento? Registra ganho OU perda — a IA aprende com os dois */}
-      {profile.userAccessType !== 'marketing' && (
+      {(
         <div className="home-outcome card" data-tour="outcome">
           <p className="home-outcome-q">Acabou um atendimento? Como foi?</p>
           <div className="home-outcome-btns">
@@ -354,7 +354,7 @@ export default function Home() {
       )}
 
       {/* Boost — SOS de argumentação */}
-      {profile.userAccessType !== 'marketing' && (
+      {(
         <button className="home-boost-card card" data-tour="boost" onClick={() => navigate('/boost')}>
           <div className="home-boost-icon"><Rocket size={22} /></div>
           <div className="home-boost-text">
@@ -467,7 +467,7 @@ export default function Home() {
       )}
 
       {/* FAB: Registrar venda rápida — oculto para marketing puro */}
-      {profile.userAccessType !== 'marketing' && (
+      {(
         <button className="fab-sale" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }} title="Registrar venda" aria-label="Registrar venda">
           <TrendingUp size={22} />
         </button>
