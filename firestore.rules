@@ -122,9 +122,11 @@ service cloud.firestore {
       allow write: if isCampaignManager();
     }
 
-    // /commercialConditions — condições comerciais (leitura pública, escrita mkt ou admin)
+    // /commercialConditions — condições comerciais.
+    // Leitura: só logado (o isolamento por loja é aplicado no app, filtrando por company).
+    // Escrita: marketing/vendas/admin.
     match /commercialConditions/{docId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isCampaignManager();
     }
 

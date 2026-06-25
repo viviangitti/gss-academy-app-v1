@@ -49,11 +49,18 @@ export default function CommercialConditionsAdmin() {
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [uploadPct, setUploadPct] = useState<number | null>(null); // null = idle
+  const [publishGlobal, setPublishGlobal] = useState(false); // admin: visível a todas as lojas
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const me = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' as UserProfile['segment'] });
 
   const load = useCallback(async () => {
     setLoading(true);
-    try { setConditions(await getCommercialConditions()); } catch { /* offline */ }
+    try {
+      const all = await getCommercialConditions();
+      const prof = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' as UserProfile['segment'] });
+      // Admin gerencia tudo; gerente/marketing de loja gerencia só as da própria loja + globais.
+      setConditions(prof.isAdmin ? all : all.filter(c => !c.company || c.company === prof.company));
+    } catch { /* offline */ }
     setLoading(false);
   }, []);
 
@@ -62,6 +69,7 @@ export default function CommercialConditionsAdmin() {
   const resetForm = () => {
     setForm(EMPTY);
     setEditingId(null);
+    setPublishGlobal(false);
     setError('');
     setShowForm(false);
   };
@@ -72,12 +80,14 @@ export default function CommercialConditionsAdmin() {
       brand: c.brand,
       type: c.type,
       segment: c.segment,
+      company: c.company || '',
       month: c.month,
       pdfUrl: c.pdfUrl,
       description: c.description,
       highlights: c.highlights?.length ? c.highlights : [''],
       active: c.active,
     });
+    setPublishGlobal(!c.company);
     setEditingId(c.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -120,8 +130,12 @@ export default function CommercialConditionsAdmin() {
     setSaving(true);
     setError('');
     try {
+      // Isolamento por loja: a condição fica visível só pra mesma concessionária
+      // (company = a empresa de quem sobe). Admin pode marcar global ('').
+      const company = publishGlobal ? '' : ((editingId && form.company) || me.company || '');
       const payload = {
         ...form,
+        company,
         highlights: form.highlights.filter(h => h.trim()),
       };
       if (editingId) {
@@ -129,7 +143,6 @@ export default function CommercialConditionsAdmin() {
       } else {
         await createCommercialCondition(payload, user.uid);
         // avisa a equipe de vendas que saiu condição nova
-        const me = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' as UserProfile['segment'] });
         if (me.company) {
           notifyTeam({
             title: '🔥 Nova condição comercial',
@@ -246,6 +259,20 @@ export default function CommercialConditionsAdmin() {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div className="cca-field">
+              <label>Visibilidade</label>
+              {me.isAdmin ? (
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 400 }}>
+                  <input type="checkbox" checked={publishGlobal} onChange={e => setPublishGlobal(e.target.checked)} />
+                  Publicar para todas as lojas (global GSS)
+                </label>
+              ) : (
+                <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: '4px 0 0' }}>
+                  Visível só para o time da sua concessionária{me.company ? ` (${me.company})` : ''}.
+                </p>
+              )}
             </div>
 
             <div className="cca-field">

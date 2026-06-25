@@ -74,7 +74,7 @@ export default function CommercialConditions() {
     setLoading(true);
     setError(false);
     try {
-      const data = await getActiveConditionsForMonth(m, profile.segment as Segment);
+      const data = await getActiveConditionsForMonth(m, profile.segment as Segment, profile.company || '');
       const sorted = [...data].sort((a, b) => {
         if (a.segment === profile.segment && b.segment !== profile.segment) return -1;
         if (b.segment === profile.segment && a.segment !== profile.segment) return 1;
