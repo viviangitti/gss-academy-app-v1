@@ -8,6 +8,7 @@ import { getStats, addSale, getDailyAccumulation } from '../services/goal';
 import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
+import QuickSaleSheet from '../components/QuickSaleSheet';
 import type { FollowUp } from '../services/followups';
 import type { WeekStats } from '../services/history';
 import type { UserProfile } from '../types';
@@ -37,7 +38,6 @@ export default function Home() {
   const [showQuickSale, setShowQuickSale] = useState(false); // FAB modal
   const [saleForm, setSaleForm] = useState({ amount: '', commission: '', client: '' });
   const [saleError, setSaleError] = useState(false);
-  const [quickSaleError, setQuickSaleError] = useState(false);
   const [showFeedbackBanner, setShowFeedbackBanner] = useState(false);
 
   const refreshStats = (g: number) => {
@@ -340,21 +340,6 @@ export default function Home() {
       </div>
 
 
-      {/* Acabou um atendimento? Registra ganho OU perda — a IA aprende com os dois */}
-      {profile.userAccessType !== 'marketing' && (
-        <div className="home-outcome card" data-tour="outcome">
-          <p className="home-outcome-q">Acabou um atendimento? Como foi?</p>
-          <div className="home-outcome-btns">
-            <button className="home-outcome-btn won" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }}>
-              <Check size={18} /> Vendi!
-            </button>
-            <button className="home-outcome-btn lost" onClick={() => navigate('/vendas-perdidas')}>
-              <X size={18} /> Não fechou
-            </button>
-          </div>
-          <p className="home-outcome-note">Registrar os dois faz a IA aprender e melhora seu Raio-X.</p>
-        </div>
-      )}
 
       {welcomeBack && (
         <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>
@@ -488,71 +473,12 @@ export default function Home() {
 
       {/* FAB: Registrar venda rápida — oculto para marketing puro */}
       {profile.userAccessType !== 'marketing' && (
-        <button className="fab-sale" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }} title="Registrar venda" aria-label="Registrar venda">
+        <button className="fab-sale" onClick={() => setShowQuickSale(true)} title="Registrar venda" aria-label="Registrar venda">
           <TrendingUp size={22} />
         </button>
       )}
 
-      {/* Modal de venda rápida */}
-      {showQuickSale && (
-        <div className="quick-sale-overlay" onClick={() => setShowQuickSale(false)}>
-          <div className="quick-sale-sheet" onClick={e => e.stopPropagation()}>
-            <div className="quick-sale-handle" />
-            <h3 className="quick-sale-title"><TrendingUp size={18} /> Registrar venda</h3>
-            <div className="quick-sale-fields">
-              <div className="quick-sale-field">
-                <label>Vendas R$ <span className="required">*</span></label>
-                <input
-                  type="number"
-                  placeholder={quickSaleError && !saleForm.commission ? 'Obrigatório!' : 'Ex: 800'}
-                  value={saleForm.commission}
-                  onChange={e => { setSaleForm({ ...saleForm, commission: e.target.value }); setQuickSaleError(false); }}
-                  autoFocus
-                  inputMode="numeric"
-                  className={quickSaleError && !saleForm.commission ? 'input-error' : undefined}
-                />
-              </div>
-              <div className="quick-sale-field">
-                <label>Valor da venda R$</label>
-                <input
-                  type="number"
-                  placeholder="Ex: 10000"
-                  value={saleForm.amount}
-                  onChange={e => setSaleForm({ ...saleForm, amount: e.target.value })}
-                  inputMode="numeric"
-                />
-              </div>
-              <div className="quick-sale-field">
-                <label>Cliente</label>
-                <input
-                  type="text"
-                  placeholder="Nome do cliente"
-                  value={saleForm.client}
-                  onChange={e => setSaleForm({ ...saleForm, client: e.target.value })}
-                />
-              </div>
-            </div>
-            <button
-              className="btn btn-primary quick-sale-btn"
-              onClick={() => {
-                if (!saleForm.commission) {
-                  setQuickSaleError(true);
-                  return;
-                }
-                const commission = Number(saleForm.commission);
-                const amount = Number(saleForm.amount) || commission;
-                addSale(amount, commission, saleForm.client || 'Venda');
-                refreshStats(goal);
-                setSaleForm({ amount: '', commission: '', client: '' });
-                setQuickSaleError(false);
-                setShowQuickSale(false);
-              }}
-            >
-              <Check size={16} /> Confirmar venda
-            </button>
-          </div>
-        </div>
-      )}
+      <QuickSaleSheet open={showQuickSale} onClose={() => setShowQuickSale(false)} onRegistered={() => refreshStats(goal)} />
     </div>
   );
 }
