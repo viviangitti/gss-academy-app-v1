@@ -1,0 +1,42 @@
+.neg-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.18), rgba(201, 168, 76, 0.04));
+  border: 0.5px solid rgba(201, 168, 76, 0.30);
+}
+
+.neg-hero-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(201, 168, 76, 0.20);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.neg-hero h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.neg-hero p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+/* Variações de cor dos ícones por etapa */
+.neg-prep-icon {
+  background: rgba(99, 102, 241, 0.16) !important;
+  color: #818cf8 !important;
+}
+
+.neg-rescue-icon {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #34d399 !important;
+}
