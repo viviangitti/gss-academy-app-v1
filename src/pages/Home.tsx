@@ -326,14 +326,19 @@ export default function Home() {
       </div>
 
       {/* Notícias do setor — 4º item (aba movida pra cá) */}
-      <button className="home-content-card card" data-tour="news" onClick={() => navigate('/noticias')}>
-        <div className="home-content-icon"><Newspaper size={20} /></div>
-        <div className="home-content-text">
-          <strong>Notícias do setor</strong>
-          <span>Lançamentos, tendências e ofertas do seu mercado</span>
+      <div className="day-section">
+        <div className="day-section-header">
+          <h3 className="section-title">Notícias do setor</h3>
         </div>
-        <ArrowRight size={16} className="home-train-arrow" />
-      </button>
+        <button className="home-content-card card" data-tour="news" onClick={() => navigate('/noticias')}>
+          <div className="home-content-icon"><Newspaper size={20} /></div>
+          <div className="home-content-text">
+            <strong>Lançamentos, tendências e ofertas</strong>
+            <span>Do seu mercado, atualizado todo dia</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
+      </div>
 
       {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
       <DailyBriefing />
