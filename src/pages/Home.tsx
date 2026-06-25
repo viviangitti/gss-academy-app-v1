@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Rocket, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, Rocket, ChevronUp, ChevronDown, Tag, Swords } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -305,6 +305,25 @@ export default function Home() {
           )}
         </div>
       )}
+
+      {/* Condições comerciais vigentes — 3º item: as suas e as dos concorrentes */}
+      <div className="day-section">
+        <div className="day-section-header">
+          <h3 className="section-title">Condições comerciais vigentes</h3>
+        </div>
+        <div className="home-dual-grid">
+          <button className="home-dual-card home-dual-vendas card" onClick={() => navigate('/condicoes')}>
+            <div className="home-dual-icon"><Tag size={18} /></div>
+            <strong>As suas</strong>
+            <span>Tabelas e campanhas do mês</span>
+          </button>
+          <button className="home-dual-card home-dual-mkt card" onClick={() => navigate('/concorrencia')}>
+            <div className="home-dual-icon"><Swords size={18} /></div>
+            <strong>Dos concorrentes</strong>
+            <span>O que estão oferecendo agora</span>
+          </button>
+        </div>
+      </div>
 
       {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
       <DailyBriefing />
