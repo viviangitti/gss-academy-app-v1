@@ -143,6 +143,56 @@ export default function Home() {
         </p>
       </div>
 
+      {/* Tarefas do dia — logo após a saudação */}
+      <div className="day-section">
+        <div className="day-section-header">
+          <h3 className="section-title">
+            Tarefas do dia
+            {totalTasks > 0 && <span className="task-counter">{totalTasks - pendingTasks}/{totalTasks}</span>}
+          </h3>
+        </div>
+
+        {pendingFromYesterday.length > 0 && (
+          <div className="yesterday-hint">
+            {pendingFromYesterday.length} tarefa{pendingFromYesterday.length > 1 ? 's' : ''} de ontem {pendingFromYesterday.length > 1 ? 'continuam' : 'continua'} pendente.
+          </div>
+        )}
+
+        <div className="tasks-card card">
+          {day.tasks.length === 0 && (
+            <div className="day-empty" style={{ padding: '14px 0', borderStyle: 'none' }}>
+              Nenhuma tarefa. Adicione abaixo.
+            </div>
+          )}
+          {day.tasks.map((t, i) => (
+            <div key={t.id} className={`task-row ${t.done ? 'done' : ''} ${t.fromYesterday ? 'from-yesterday' : ''}`}>
+              <button className="task-check" onClick={() => setDay(toggleTask(t.id))} aria-label={t.done ? 'Desmarcar tarefa' : 'Concluir tarefa'}>
+                {t.done && <Check size={13} />}
+              </button>
+              <span className="task-text">{t.text}</span>
+              {t.fromYesterday && <span className="yesterday-badge">ontem</span>}
+              <div className="task-reorder">
+                <button className="task-move" onClick={() => setDay(moveTask(t.id, -1))} disabled={i === 0} aria-label="Subir tarefa">
+                  <ChevronUp size={14} />
+                </button>
+                <button className="task-move" onClick={() => setDay(moveTask(t.id, 1))} disabled={i === day.tasks.length - 1} aria-label="Descer tarefa">
+                  <ChevronDown size={14} />
+                </button>
+              </div>
+              <button className="task-remove" onClick={() => setDay(removeTask(t.id))} aria-label="Remover tarefa">
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+          <div className="task-add-row">
+            <input type="text" placeholder="Adicionar tarefa..." value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddTask()} className="task-input" />
+            <button className="task-add-btn" onClick={handleAddTask} disabled={!newTask.trim()} aria-label="Adicionar tarefa">
+              <Plus size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
       <DailyBriefing />
 
@@ -394,55 +444,6 @@ export default function Home() {
         </>
       )}
 
-      {/* Tarefas */}
-      <div className="day-section">
-        <div className="day-section-header">
-          <h3 className="section-title">
-            Tarefas do dia
-            {totalTasks > 0 && <span className="task-counter">{totalTasks - pendingTasks}/{totalTasks}</span>}
-          </h3>
-        </div>
-
-        {pendingFromYesterday.length > 0 && (
-          <div className="yesterday-hint">
-            {pendingFromYesterday.length} tarefa{pendingFromYesterday.length > 1 ? 's' : ''} de ontem {pendingFromYesterday.length > 1 ? 'continuam' : 'continua'} pendente.
-          </div>
-        )}
-
-        <div className="tasks-card card">
-          {day.tasks.length === 0 && (
-            <div className="day-empty" style={{ padding: '14px 0', borderStyle: 'none' }}>
-              Nenhuma tarefa. Adicione abaixo.
-            </div>
-          )}
-          {day.tasks.map((t, i) => (
-            <div key={t.id} className={`task-row ${t.done ? 'done' : ''} ${t.fromYesterday ? 'from-yesterday' : ''}`}>
-              <button className="task-check" onClick={() => setDay(toggleTask(t.id))} aria-label={t.done ? 'Desmarcar tarefa' : 'Concluir tarefa'}>
-                {t.done && <Check size={13} />}
-              </button>
-              <span className="task-text">{t.text}</span>
-              {t.fromYesterday && <span className="yesterday-badge">ontem</span>}
-              <div className="task-reorder">
-                <button className="task-move" onClick={() => setDay(moveTask(t.id, -1))} disabled={i === 0} aria-label="Subir tarefa">
-                  <ChevronUp size={14} />
-                </button>
-                <button className="task-move" onClick={() => setDay(moveTask(t.id, 1))} disabled={i === day.tasks.length - 1} aria-label="Descer tarefa">
-                  <ChevronDown size={14} />
-                </button>
-              </div>
-              <button className="task-remove" onClick={() => setDay(removeTask(t.id))} aria-label="Remover tarefa">
-                <X size={12} />
-              </button>
-            </div>
-          ))}
-          <div className="task-add-row">
-            <input type="text" placeholder="Adicionar tarefa..." value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddTask()} className="task-input" />
-            <button className="task-add-btn" onClick={handleAddTask} disabled={!newTask.trim()} aria-label="Adicionar tarefa">
-              <Plus size={14} />
-            </button>
-          </div>
-        </div>
-      </div>
 
       {favs.length > 0 && (
         <div className="home-favs">
