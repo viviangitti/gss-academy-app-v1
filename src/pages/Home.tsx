@@ -193,70 +193,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
-      <DailyBriefing />
-
-      {/* Acabou um atendimento? Registra ganho OU perda — a IA aprende com os dois */}
-      {profile.userAccessType !== 'marketing' && (
-        <div className="home-outcome card" data-tour="outcome">
-          <p className="home-outcome-q">Acabou um atendimento? Como foi?</p>
-          <div className="home-outcome-btns">
-            <button className="home-outcome-btn won" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }}>
-              <Check size={18} /> Vendi!
-            </button>
-            <button className="home-outcome-btn lost" onClick={() => navigate('/vendas-perdidas')}>
-              <X size={18} /> Não fechou
-            </button>
-          </div>
-          <p className="home-outcome-note">Registrar os dois faz a IA aprender e melhora seu Raio-X.</p>
-        </div>
-      )}
-
-      {welcomeBack && (
-        <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>
-          <span>👋 {welcomeBack}</span>
-          <X size={14} />
-        </div>
-      )}
-
-
-      {/* Follow-ups de hoje — onde está o dinheiro (aparece pra quem usa o recurso) */}
-      {(dueToday.length > 0 || dueOverdue.length > 0) && (
-        <button className="home-fu-card card" onClick={() => navigate('/follow-ups')}>
-          <div className="home-fu-badge">{dueToday.length + dueOverdue.length}</div>
-          <div className="home-fu-text">
-            <strong>
-              {dueOverdue.length > 0
-                ? `${dueOverdue.length} follow-up${dueOverdue.length > 1 ? 's' : ''} atrasado${dueOverdue.length > 1 ? 's' : ''}!`
-                : 'Follow-ups de hoje'}
-            </strong>
-            <span>
-              {[...dueOverdue, ...dueToday].slice(0, 2).map(f => f.clientName).join(', ')}
-              {dueToday.length + dueOverdue.length > 2 ? ` +${dueToday.length + dueOverdue.length - 2}` : ''}
-              {' — toque pra ver'}
-            </span>
-          </div>
-          <ArrowRight size={18} />
-        </button>
-      )}
-
-      {/* Boost — SOS de argumentação */}
-      {profile.userAccessType !== 'marketing' && (
-        <button className="home-boost-card card" data-tour="boost" onClick={() => navigate('/boost')}>
-          <div className="home-boost-icon"><Rocket size={22} /></div>
-          <div className="home-boost-text">
-            <strong>Boost 🚀</strong>
-            <span>Cliente travou? 3 caminhos prontos em segundos</span>
-          </div>
-          <ArrowRight size={18} />
-        </button>
-      )}
-
-      {/* Meta de vendas — oculta para marketing puro */}
+      {/* Metas mensais — logo abaixo das Tarefas. Oculta para marketing puro. */}
       {profile.userAccessType !== 'marketing' && stats && goal > 0 && (
         <div className="day-section">
           <div className="day-section-header">
-            <h3 className="section-title">Meta do mês</h3>
+            <h3 className="section-title">Metas mensais</h3>
             <div style={{ display: 'flex', gap: 6 }}>
               <button className="btn btn-outline btn-sm" onClick={() => navigate('/vendas')}>
                 Ver extrato
@@ -363,6 +304,65 @@ export default function Home() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Briefing do dia — meta, follow-ups, comissão em jogo, munição do mês */}
+      <DailyBriefing />
+
+      {/* Acabou um atendimento? Registra ganho OU perda — a IA aprende com os dois */}
+      {profile.userAccessType !== 'marketing' && (
+        <div className="home-outcome card" data-tour="outcome">
+          <p className="home-outcome-q">Acabou um atendimento? Como foi?</p>
+          <div className="home-outcome-btns">
+            <button className="home-outcome-btn won" onClick={() => { setShowQuickSale(true); setQuickSaleError(false); }}>
+              <Check size={18} /> Vendi!
+            </button>
+            <button className="home-outcome-btn lost" onClick={() => navigate('/vendas-perdidas')}>
+              <X size={18} /> Não fechou
+            </button>
+          </div>
+          <p className="home-outcome-note">Registrar os dois faz a IA aprender e melhora seu Raio-X.</p>
+        </div>
+      )}
+
+      {welcomeBack && (
+        <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>
+          <span>👋 {welcomeBack}</span>
+          <X size={14} />
+        </div>
+      )}
+
+
+      {/* Follow-ups de hoje — onde está o dinheiro (aparece pra quem usa o recurso) */}
+      {(dueToday.length > 0 || dueOverdue.length > 0) && (
+        <button className="home-fu-card card" onClick={() => navigate('/follow-ups')}>
+          <div className="home-fu-badge">{dueToday.length + dueOverdue.length}</div>
+          <div className="home-fu-text">
+            <strong>
+              {dueOverdue.length > 0
+                ? `${dueOverdue.length} follow-up${dueOverdue.length > 1 ? 's' : ''} atrasado${dueOverdue.length > 1 ? 's' : ''}!`
+                : 'Follow-ups de hoje'}
+            </strong>
+            <span>
+              {[...dueOverdue, ...dueToday].slice(0, 2).map(f => f.clientName).join(', ')}
+              {dueToday.length + dueOverdue.length > 2 ? ` +${dueToday.length + dueOverdue.length - 2}` : ''}
+              {' — toque pra ver'}
+            </span>
+          </div>
+          <ArrowRight size={18} />
+        </button>
+      )}
+
+      {/* Boost — SOS de argumentação */}
+      {profile.userAccessType !== 'marketing' && (
+        <button className="home-boost-card card" data-tour="boost" onClick={() => navigate('/boost')}>
+          <div className="home-boost-icon"><Rocket size={22} /></div>
+          <div className="home-boost-text">
+            <strong>Boost 🚀</strong>
+            <span>Cliente travou? 3 caminhos prontos em segundos</span>
+          </div>
+          <ArrowRight size={18} />
+        </button>
       )}
 
       {/* Progresso semanal */}
