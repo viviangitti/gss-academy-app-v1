@@ -71,7 +71,7 @@ export default function Negociacoes() {
 
       {/* Resgate */}
       <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Cliente esfriou ou não fechou?</h3></div>
+        <div className="day-section-header"><h3 className="section-title">Cliente sumiu ou esfriou?</h3></div>
         <button className="home-content-card card" onClick={() => navigate('/rescue')}>
           <div className="home-content-icon neg-rescue-icon"><LifeBuoy size={20} /></div>
           <div className="home-content-text">
