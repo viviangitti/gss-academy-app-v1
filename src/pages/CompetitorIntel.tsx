@@ -3,10 +3,39 @@ import { Swords, Bot, ExternalLink, RefreshCw, Shield, AlertTriangle, Zap, Slide
 import { useNavigate } from 'react-router-dom';
 import { getActiveCompetitorOffers } from '../services/firestore/competitorOffers';
 import { getActiveOffers } from '../services/firestore/offers';
+import { getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, searchSegmentOffers } from '../services/competitorScraper';
+import type { ScrapedOffer } from '../services/competitorScraper';
 import { loadData, saveData, KEYS } from '../services/storage';
 import { PRICE_RANGES, getUserPriceRanges } from '../types';
-import type { CompetitorOffer, Offer, UserProfile, PriceRange } from '../types';
+import type { CompetitorOffer, Offer, UserProfile, PriceRange, Segment } from '../types';
 import './CompetitorIntel.css';
+
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+
+/** Converte uma oferta da web (aba Notícias) no formato da Concorrência. */
+function scrapedToCompetitor(o: ScrapedOffer, segs: Segment[]): CompetitorOffer {
+  return {
+    id: `web-${(o.competitor || 'x')}-${(o.model || o.title || '')}`.toLowerCase().slice(0, 140),
+    competitor: o.competitor || 'Concorrente',
+    title: o.title || o.model || 'Oferta',
+    description: o.description || '',
+    legalText: o.legalText,
+    sourceUrl: o.sourceUrl,
+    highlights: o.highlights || [],
+    ourAdvantages: [],
+    validFrom: o.validFrom || '',
+    validTo: o.validTo || '',
+    segments: segs,
+    active: true,
+  };
+}
+
+/** Mescla cadastradas + web, sem duplicar por marca+título. */
+function mergeOffers(cadastered: CompetitorOffer[], web: CompetitorOffer[]): CompetitorOffer[] {
+  const seen = new Set(cadastered.map(o => `${o.competitor}|${o.title}`.toLowerCase()));
+  const extra = web.filter(o => !seen.has(`${o.competitor}|${o.title}`.toLowerCase()));
+  return [...cadastered, ...extra];
+}
 
 function formatDate(iso: string) {
   if (!iso) return '';
@@ -95,13 +124,31 @@ export default function CompetitorIntel() {
   useEffect(() => {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setUserRanges(getUserPriceRanges(profile));
+    const seg = profile.segment || '';
+    const segs: Segment[] = profile.segment ? [profile.segment] : [];
+
     Promise.all([
-      getActiveCompetitorOffers(profile.segment || undefined),
-      getActiveOffers(profile.segment || undefined),
+      getActiveCompetitorOffers(seg || undefined),
+      getActiveOffers(seg || undefined),
     ]).then(([comp, ours]) => {
-      setAllCompetitorOffers(comp);
       setOurOffers(ours);
+      // Mescla as cadastradas com as ofertas da web (mesma fonte da aba Notícias).
+      const cached = getCachedOffers(seg) || getStaleCachedOffers(seg) || [];
+      setAllCompetitorOffers(mergeOffers(comp, cached.map(o => scrapedToCompetitor(o, segs))));
       setFetchedAt(new Date());
+
+      // Cache vazio ou velho → busca em background e atualiza a lista.
+      if (seg && (getCachedOffers(seg) === null || isOffersCacheStale(seg))) {
+        searchSegmentOffers(seg, API_KEY)
+          .then(res => {
+            if (res.length > 0) {
+              setCachedOffers(seg, res);
+              setAllCompetitorOffers(mergeOffers(comp, res.map(o => scrapedToCompetitor(o, segs))));
+              setFetchedAt(new Date());
+            }
+          })
+          .catch(() => { /* silencioso — mantém o que já tem */ });
+      }
     }).finally(() => setLoading(false));
   }, []);
 
@@ -204,7 +251,7 @@ export default function CompetitorIntel() {
       {fetchedAt && (
         <div className="ci-updated-bar">
           <Clock size={11} />
-          Atualizado {fetchedAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · {allCompetitorOffers.length} oferta{allCompetitorOffers.length !== 1 ? 's' : ''} cadastrada{allCompetitorOffers.length !== 1 ? 's' : ''}
+          Atualizado {fetchedAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · {allCompetitorOffers.length} oferta{allCompetitorOffers.length !== 1 ? 's' : ''} no radar
         </div>
       )}
 
