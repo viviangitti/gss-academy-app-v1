@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Swords, ExternalLink, RefreshCw, Shield, AlertTriangle, SlidersHorizontal, X, Clock } from 'lucide-react';
+import { Swords, ExternalLink, RefreshCw, Shield, AlertTriangle, SlidersHorizontal, X, Clock, ChevronDown } from 'lucide-react';
 import { getActiveCompetitorOffers } from '../services/firestore/competitorOffers';
 import { getActiveOffers } from '../services/firestore/offers';
 import { getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, searchSegmentOffers } from '../services/competitorScraper';
@@ -119,6 +119,7 @@ export default function CompetitorIntel() {
   const [userRanges, setUserRanges] = useState<PriceRange[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   useEffect(() => {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setUserRanges(getUserPriceRanges(profile));
@@ -254,13 +255,14 @@ export default function CompetitorIntel() {
         <>
           {visibleOffers.map(offer => {
             const hasLink = !!offer.sourceUrl && offer.sourceUrl.startsWith('http');
+            const isOpen = expandedId === offer.id;
             return (
               <div
                 key={offer.id}
-                className={`ci-offer-card card ${hasLink ? 'clickable' : ''}`}
-                onClick={hasLink ? () => window.open(offer.sourceUrl, '_blank', 'noopener') : undefined}
-                role={hasLink ? 'link' : undefined}
-                tabIndex={hasLink ? 0 : undefined}
+                className={`ci-offer-card card clickable ${isOpen ? 'open' : ''}`}
+                onClick={() => setExpandedId(isOpen ? null : (offer.id ?? null))}
+                role="button"
+                tabIndex={0}
               >
                 <div className="ci-offer-top">
                   <div className="ci-offer-avatar">{offer.competitor.charAt(0).toUpperCase()}</div>
@@ -268,7 +270,7 @@ export default function CompetitorIntel() {
                     <div className="ci-offer-brand">{offer.competitor}</div>
                     <div className="ci-offer-title">{offer.title}</div>
                   </div>
-                  {hasLink && <ExternalLink size={16} className="ci-offer-ext" />}
+                  <ChevronDown size={18} className="ci-offer-chevron" />
                 </div>
 
                 {offer.highlights.length > 0 && (
@@ -284,12 +286,27 @@ export default function CompetitorIntel() {
                 )}
 
                 {offer.description && (
-                  <p className="ci-offer-desc">{offer.description}</p>
+                  <p className={`ci-offer-desc ${isOpen ? '' : 'clamp'}`}>{offer.description}</p>
+                )}
+
+                {isOpen && offer.legalText && (
+                  <p className="ci-offer-legal">{offer.legalText}</p>
                 )}
 
                 <div className="ci-offer-foot">
-                  <span className="ci-offer-validity"><Clock size={11} /> até {formatDate(offer.validTo)}</span>
-                  {hasLink && <span className="ci-offer-cta">Ver oferta <ExternalLink size={12} /></span>}
+                  <span className="ci-offer-validity">
+                    <Clock size={11} />
+                    {offer.validFrom ? `${formatDate(offer.validFrom)} – ` : 'até '}{formatDate(offer.validTo)}
+                  </span>
+                  {isOpen && hasLink && (
+                    <button
+                      className="ci-offer-cta"
+                      onClick={(e) => { e.stopPropagation(); window.open(offer.sourceUrl, '_blank', 'noopener'); }}
+                    >
+                      Ver oferta <ExternalLink size={12} />
+                    </button>
+                  )}
+                  {!isOpen && <span className="ci-offer-more">ver detalhes</span>}
                 </div>
               </div>
             );
