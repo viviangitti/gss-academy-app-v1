@@ -60,12 +60,6 @@
 .ci-spin { animation: ci-spin 1s linear infinite; }
 @keyframes ci-spin { to { transform: rotate(360deg); } }
 
-/* Analyze btn */
-.ci-analyze-btn {
-  width: 100%; display: flex; align-items: center;
-  justify-content: center; gap: 8px;
-}
-
 /* Our offers */
 .ci-our-card.card { padding: 14px; }
 .ci-our-header {
@@ -89,25 +83,52 @@
 .ci-empty p { margin: 0; font-size: 14px; }
 .ci-empty-hint { font-size: 12px !important; opacity: 0.7; }
 
-/* Offer card — flat feed */
-.ci-offer-card.card { padding: 14px 16px; }
+/* Offer card — flat feed, visual + clicável */
+.ci-offer-card.card {
+  padding: 14px 16px;
+  border-left: 3px solid #dc2626;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.ci-offer-card.clickable { cursor: pointer; }
+.ci-offer-card.clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+.ci-offer-card.clickable:active { transform: translateY(0); }
+
+.ci-offer-top { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 8px; }
+.ci-offer-avatar {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border-radius: 11px;
+  background: color-mix(in srgb, #dc2626 12%, transparent);
+  color: #dc2626;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px;
+}
+.ci-offer-headtext { flex: 1; min-width: 0; }
+.ci-offer-ext { color: var(--text-light); flex-shrink: 0; margin-top: 3px; }
+
 .ci-offer-brand {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 700; color: var(--text-light);
-  margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em;
+  font-size: 11px; font-weight: 700; color: #dc2626;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 2px;
 }
-.ci-alert-icon { color: #f59e0b; flex-shrink: 0; }
-.ci-offer-validity {
-  margin-left: auto; font-weight: 400; font-size: 11px;
-  color: var(--text-light); text-transform: none; letter-spacing: 0;
-}
-.ci-source-link {
-  display: flex; align-items: center; gap: 3px;
-  color: var(--primary); text-decoration: none; font-size: 11px;
-  font-weight: 500; text-transform: none; letter-spacing: 0;
-}
-.ci-offer-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; line-height: 1.3; }
+.ci-offer-title { font-weight: 700; font-size: 15px; line-height: 1.3; }
 .ci-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.ci-offer-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 10px; padding-top: 9px;
+  border-top: 1px solid var(--border);
+}
+.ci-offer-validity {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-light);
+}
+.ci-offer-cta {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12.5px; font-weight: 700; color: var(--primary, #c9a84c);
+}
 .ci-chip-red {
   font-size: 11px;
   background: color-mix(in srgb, #dc2626 12%, transparent);
@@ -122,16 +143,8 @@
 }
 .ci-offer-desc {
   font-size: 13px; color: var(--text-light);
-  margin: 6px 0 8px; line-height: 1.45;
+  margin: 6px 0 0; line-height: 1.45;
 }
-.ci-rebater-btn {
-  display: flex; align-items: center; gap: 6px; margin-top: 10px;
-  padding: 8px 14px; font-size: 13px; font-weight: 600;
-  background: #b91c1c; color: white;
-  border-radius: 8px; border: none; cursor: pointer;
-  transition: background 0.15s;
-}
-.ci-rebater-btn:hover { background: #991b1b; }
 
 .ci-load-more {
   width: 100%; padding: 13px;

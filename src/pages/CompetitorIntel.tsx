@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Swords, Bot, ExternalLink, RefreshCw, Shield, AlertTriangle, Zap, SlidersHorizontal, X, Clock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Swords, ExternalLink, RefreshCw, Shield, AlertTriangle, SlidersHorizontal, X, Clock } from 'lucide-react';
 import { getActiveCompetitorOffers } from '../services/firestore/competitorOffers';
 import { getActiveOffers } from '../services/firestore/offers';
 import { getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, searchSegmentOffers } from '../services/competitorScraper';
@@ -114,7 +113,6 @@ function competitorMatchesRange(offer: CompetitorOffer, range: PriceRange): bool
 }
 
 export default function CompetitorIntel() {
-  const navigate = useNavigate();
   const [allCompetitorOffers, setAllCompetitorOffers] = useState<CompetitorOffer[]>([]);
   const [ourOffers, setOurOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -168,55 +166,6 @@ export default function CompetitorIntel() {
     saveData(KEYS.PROFILE, { ...profile, priceRanges: next, priceRange: next[0] || '' });
   };
 
-  const handleRebater = (offer: CompetitorOffer) => {
-    const ourOffersSummary = ourOffers.length > 0
-      ? `\n\nNossas ofertas ativas:\n${ourOffers.map(o =>
-          `• ${o.title}: ${o.description}${o.highlights.length ? ' | ' + o.highlights.join(', ') : ''}`
-        ).join('\n')}`
-      : '';
-
-    const prompt = [
-      `Um cliente mencionou a seguinte oferta da concorrência:`,
-      ``,
-      `🏢 Concorrente: ${offer.competitor}`,
-      `📢 Oferta: ${offer.title}`,
-      `📋 ${offer.description}`,
-      offer.highlights.length ? `Destaques deles: ${offer.highlights.join(', ')}` : '',
-      offer.legalText ? `Texto jurídico: ${offer.legalText}` : '',
-      ourOffersSummary,
-      ``,
-      `Como devo responder ao cliente para mostrar as vantagens do que temos e contornar essa objeção? Me dê argumentos práticos para usar no showroom agora.`,
-    ].filter(Boolean).join('\n');
-
-    navigate('/ia-coach', { state: { prefill: prompt } });
-  };
-
-  const handleComparar = () => {
-    if (competitorOffers.length === 0 && ourOffers.length === 0) return;
-
-    const comp = competitorOffers.map(o =>
-      `• ${o.competitor}: ${o.title} — ${o.highlights.join(', ')}`
-    ).join('\n');
-
-    const ours = ourOffers.map(o =>
-      `• ${o.title} — ${o.highlights.join(', ')}`
-    ).join('\n');
-
-    const prompt = [
-      `Faça uma análise competitiva completa:`,
-      ``,
-      `🏁 CONCORRÊNCIA:`,
-      comp || '(nenhuma registrada)',
-      ``,
-      `✅ NOSSAS OFERTAS:`,
-      ours || '(nenhuma registrada)',
-      ``,
-      `Identifique: onde temos vantagem, onde estamos em desvantagem, e quais argumentos o vendedor deve usar com clientes que mencionam a concorrência. Seja direto e prático.`,
-    ].join('\n');
-
-    navigate('/ia-coach', { state: { prefill: prompt } });
-  };
-
   const grouped = groupByCompetitor(competitorOffers);
   const competitors = Object.keys(grouped).sort();
 
@@ -243,7 +192,7 @@ export default function CompetitorIntel() {
         <Swords size={22} />
         <div className="ci-hero-text">
           <h2>Inteligência Competitiva</h2>
-          <p>O que a concorrência está fazendo — e como rebater</p>
+          <p>As ofertas da concorrência no seu radar — toque pra ver a fonte</p>
         </div>
       </div>
 
@@ -275,13 +224,6 @@ export default function CompetitorIntel() {
         </div>
       </div>
 
-      {/* Botão análise geral */}
-      {(competitorOffers.length > 0 || ourOffers.length > 0) && (
-        <button className="btn btn-primary ci-analyze-btn" onClick={handleComparar}>
-          <Zap size={16} /> Analisar tudo com a IA
-        </button>
-      )}
-
       {/* Nossas ofertas — resumo */}
       {ourOffers.length > 0 && (
         <div className="ci-our-card card">
@@ -310,42 +252,48 @@ export default function CompetitorIntel() {
         </div>
       ) : (
         <>
-          {visibleOffers.map(offer => (
-            <div key={offer.id} className="ci-offer-card card">
-              <div className="ci-offer-brand">
-                <AlertTriangle size={13} className="ci-alert-icon" />
-                {offer.competitor}
-                <span className="ci-offer-validity">até {formatDate(offer.validTo)}</span>
-                {offer.sourceUrl && offer.sourceUrl.startsWith('http') && (
-                  <a href={offer.sourceUrl} target="_blank" rel="noopener noreferrer" className="ci-source-link">
-                    <ExternalLink size={11} /> ver
-                  </a>
+          {visibleOffers.map(offer => {
+            const hasLink = !!offer.sourceUrl && offer.sourceUrl.startsWith('http');
+            return (
+              <div
+                key={offer.id}
+                className={`ci-offer-card card ${hasLink ? 'clickable' : ''}`}
+                onClick={hasLink ? () => window.open(offer.sourceUrl, '_blank', 'noopener') : undefined}
+                role={hasLink ? 'link' : undefined}
+                tabIndex={hasLink ? 0 : undefined}
+              >
+                <div className="ci-offer-top">
+                  <div className="ci-offer-avatar">{offer.competitor.charAt(0).toUpperCase()}</div>
+                  <div className="ci-offer-headtext">
+                    <div className="ci-offer-brand">{offer.competitor}</div>
+                    <div className="ci-offer-title">{offer.title}</div>
+                  </div>
+                  {hasLink && <ExternalLink size={16} className="ci-offer-ext" />}
+                </div>
+
+                {offer.highlights.length > 0 && (
+                  <div className="ci-chips" style={{ marginBottom: 6 }}>
+                    {offer.highlights.map((h, i) => <span key={i} className="ci-chip-red">{h}</span>)}
+                  </div>
                 )}
+
+                {offer.ourAdvantages.length > 0 && (
+                  <div className="ci-chips" style={{ marginBottom: 6 }}>
+                    {offer.ourAdvantages.map((h, i) => <span key={i} className="ci-chip-green">{h}</span>)}
+                  </div>
+                )}
+
+                {offer.description && (
+                  <p className="ci-offer-desc">{offer.description}</p>
+                )}
+
+                <div className="ci-offer-foot">
+                  <span className="ci-offer-validity"><Clock size={11} /> até {formatDate(offer.validTo)}</span>
+                  {hasLink && <span className="ci-offer-cta">Ver oferta <ExternalLink size={12} /></span>}
+                </div>
               </div>
-
-              <div className="ci-offer-title">{offer.title}</div>
-
-              {offer.highlights.length > 0 && (
-                <div className="ci-chips" style={{ marginBottom: 6 }}>
-                  {offer.highlights.map((h, i) => <span key={i} className="ci-chip-red">{h}</span>)}
-                </div>
-              )}
-
-              {offer.ourAdvantages.length > 0 && (
-                <div className="ci-chips" style={{ marginBottom: 6 }}>
-                  {offer.ourAdvantages.map((h, i) => <span key={i} className="ci-chip-green">{h}</span>)}
-                </div>
-              )}
-
-              {offer.description && (
-                <p className="ci-offer-desc">{offer.description}</p>
-              )}
-
-              <button className="btn ci-rebater-btn" onClick={() => handleRebater(offer)}>
-                <Bot size={14} /> Como rebater com a IA
-              </button>
-            </div>
-          ))}
+            );
+          })}
           {flatOffers.length > visibleCount && (
             <button className="ci-load-more" onClick={() => setVisibleCount(v => v + 12)}>
               Ver mais {Math.min(12, flatOffers.length - visibleCount)} ofertas
