@@ -419,6 +419,20 @@ export default function Home() {
         <ArrowRight size={16} className="home-train-arrow" />
       </button>
 
+      {/* ── Central de Marketing (marketing puro/admin) — entrada pras ferramentas de mkt ── */}
+      {(profile.userAccessType === 'marketing' || profile.isAdmin) && (
+        <button className="home-content-card card" onClick={() => navigate('/biblioteca')}>
+          <div className="home-content-icon" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed' }}>
+            <Megaphone size={20} />
+          </div>
+          <div className="home-content-text">
+            <strong>Marketing</strong>
+            <span>Copy, guia de marca, análise e publicar campanhas</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
+      )}
+
       {/* ── Acesso rápido: Vendas + Marketing (ambos) ou só um dos lados ── */}
       {profile.userAccessType === 'ambos' ? (
         <div className="home-dual-section">

@@ -276,7 +276,7 @@ function AppContent() {
 const ROUTE_TITLES: Record<string, string> = {
   '/':                  'GSS — Painel Controle',
   '/noticias':          'GSS — Notícias',
-  '/biblioteca':        'GSS — Painel',
+  '/biblioteca':        'GSS — Marketing',
   '/objecoes':          'GSS — Objeções',
   '/scripts':           'GSS — Scripts',
   '/tecnicas':          'GSS — Técnicas',
