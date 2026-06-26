@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ArrowRight } from 'lucide-react';
+import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, ArrowRight } from 'lucide-react';
 import './Home.css';
 import './Maestria.css';
 
@@ -15,6 +15,19 @@ export default function Maestria() {
           <h2>Maestria</h2>
           <p>Treine e afie suas habilidades de venda</p>
         </div>
+      </div>
+
+      {/* Check-lists */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Check-lists</h3></div>
+        <button className="home-content-card card" onClick={() => navigate('/pre-reuniao')}>
+          <div className="home-content-icon mae-check-icon"><ClipboardCheck size={20} /></div>
+          <div className="home-content-text">
+            <strong>Pré-atendimento / test-drive</strong>
+            <span>O que revisar antes de cada atendimento pra chegar pronto</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
       </div>
 
       {/* Role-play / simulação */}
