@@ -6,6 +6,7 @@ import { getTeamSummary } from '../services/firestore/contentScores';
 import { getTeamProofs } from '../services/firestore/contentProofs';
 import type { TeamProof } from '../services/firestore/contentProofs';
 import { getTeamGapReport } from '../services/gapReport';
+import RadarChart from '../components/RadarChart';
 import { getWeeklyReport } from '../services/weeklyReport';
 import type { WeeklyReport } from '../services/weeklyReport';
 import type { TeamReport } from '../services/gapReport';
@@ -104,8 +105,8 @@ export default function GestorPanel() {
       <div className="gp-hero card">
         <Users size={22} />
         <div>
-          <h2>Painel do Gestor</h2>
-          <p>Engajamento da equipe em conteúdo — {mes}</p>
+          <h2>Raio X do Time</h2>
+          <p>Diagnóstico e engajamento da equipe — {mes}</p>
         </div>
       </div>
 
@@ -219,6 +220,16 @@ export default function GestorPanel() {
         {gaps && (
           <>
             <p className="gp-gaps-resumo">{gaps.resumoEquipe}</p>
+            {gaps.competencias?.length >= 3 && (
+              <div className="gp-team-radar">
+                <div className="gp-radar-title"><Crosshair size={14} /> Raio X do time</div>
+                <RadarChart items={gaps.competencias.map(c => ({ label: c.nome, value: c.nota }))} benchmark={80} />
+                <div className="gp-radar-legend">
+                  <span><span className="gp-rl-swatch gp-rl-team" /> Seu time</span>
+                  <span><span className="gp-rl-swatch gp-rl-bench" /> Time com Maestria</span>
+                </div>
+              </div>
+            )}
             {gaps.porVendedor.map((s, i) => (
               <div key={i} className="gp-gap-row">
                 <div className="gp-gap-top">

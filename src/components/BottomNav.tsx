@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Handshake, GraduationCap, Activity, BookOpen, Sparkles } from 'lucide-react';
+import { loadData, KEYS } from '../services/storage';
+import type { UserProfile } from '../types';
 import './BottomNav.css';
 
 const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao'];
@@ -14,18 +16,24 @@ const LIBRARY_PATHS = [
   '/pre-lancamento', '/marketing-chat', '/conteudo-dia',
 ];
 
-const tabs = [
-  { path: '/', icon: Home, label: 'Painel Controle' },
-  { path: '/negociacoes', icon: Handshake, label: 'Negociações' },
-  { path: '/maestria', icon: GraduationCap, label: 'Maestria' },
-  { path: '/raio-x', icon: Activity, label: 'Raio X' },
-  { path: '/biblioteca', icon: BookOpen, label: 'Painel' },
-  { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
-];
-
 export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const isGestor = profile.isGestor === true || profile.isAdmin === true;
+
+  // Gestor: aba de Raio X aponta pro time e não tem a aba "Painel" extra (alinhado ao PDF).
+  const tabs = [
+    { path: '/', icon: Home, label: 'Painel Controle' },
+    { path: '/negociacoes', icon: Handshake, label: 'Negociações' },
+    { path: '/maestria', icon: GraduationCap, label: 'Maestria' },
+    isGestor
+      ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }
+      : { path: '/raio-x', icon: Activity, label: 'Raio X' },
+    ...(isGestor ? [] : [{ path: '/biblioteca', icon: BookOpen, label: 'Painel' }]),
+    { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
+  ];
 
   return (
     <nav className="bottom-nav">
@@ -34,6 +42,7 @@ export default function BottomNav() {
         if (path === '/negociacoes') isActive = NEGOTIATION_PATHS.includes(location.pathname);
         if (path === '/maestria') isActive = MAESTRIA_PATHS.includes(location.pathname);
         if (path === '/raio-x') isActive = RAIOX_PATHS.includes(location.pathname);
+        if (path === '/painel-gestor') isActive = location.pathname === '/painel-gestor' || RAIOX_PATHS.includes(location.pathname);
         if (path === '/biblioteca') isActive = LIBRARY_PATHS.includes(location.pathname);
 
         return (

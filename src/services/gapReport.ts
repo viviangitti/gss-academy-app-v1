@@ -36,6 +36,7 @@ export interface SellerGap {
 
 export interface TeamReport {
   resumoEquipe: string;
+  competencias: CompetencyScore[];  // radar do time (média da equipe nas 6 competências)
   porVendedor: SellerGap[];
 }
 
@@ -108,10 +109,11 @@ export async function getTeamGapReport(): Promise<TeamReport> {
   const prompt = `Você é um analista de performance comercial ajudando um GESTOR de vendas. Analise os casos reais por vendedor e identifique o gap de cada um.
 
 Responda APENAS com JSON válido:
-{"resumoEquipe":"...","porVendedor":[{"nome":"...","resumo":"...","gap":"produto|processo|abordagem|follow-up","recomendacao":"..."}]}
+{"resumoEquipe":"...","competencias":[{"nome":"Produto","nota":70},{"nome":"Processo","nota":45},{"nome":"Abordagem","nota":60},{"nome":"Negociação","nota":55},{"nome":"Fechamento","nota":65},{"nome":"Follow-up","nota":40}],"porVendedor":[{"nome":"...","resumo":"...","gap":"produto|processo|abordagem|follow-up","recomendacao":"..."}]}
 
 Regras:
 - "resumoEquipe": o padrão geral da equipe em 1-2 frases (onde a equipe mais perde).
+- "competencias": EXATAMENTE estas 6, nesta ordem: Produto, Processo, Abordagem, Negociação, Fechamento, Follow-up. Nota 0-100 = nível MÉDIO da EQUIPE em cada competência, baseado na evidência dos casos. Seja criterioso: as notas devem variar, refletindo onde a equipe é forte/fraca.
 - Para cada vendedor com dados: "resumo" (1 frase: por que ganha/perde), "gap" principal, "recomendacao" (1 frase acionável pro gestor — ex: "treino de simulação de financiamento").
 - Não invente vendedores. Português brasileiro direto.
 

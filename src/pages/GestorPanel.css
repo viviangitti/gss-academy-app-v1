@@ -148,3 +148,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Raio X do time — radar */
+.gp-team-radar { margin: 6px 0 14px; }
+.gp-radar-title {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  margin-bottom: 4px;
+}
+.gp-radar-legend {
+  display: flex; justify-content: center; gap: 18px;
+  margin-top: 2px; font-size: 12px; color: var(--text-soft);
+}
+.gp-radar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.gp-rl-swatch { display: inline-block; width: 16px; height: 10px; border-radius: 2px; }
+.gp-rl-team { background: rgba(201,168,76,0.30); border: 1.5px solid var(--accent); }
+.gp-rl-bench { height: 0; border-top: 2px dashed #60a5fa; border-radius: 0; }

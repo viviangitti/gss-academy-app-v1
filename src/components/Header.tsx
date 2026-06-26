@@ -51,7 +51,7 @@ const titles: Record<string, string> = {
   '/analise-campanha': 'Análise de Campanhas',
   '/gerador-copy': 'Gerador de Copy',
   '/conteudo-dia': 'Conteúdo do Dia',
-  '/painel-gestor': 'Painel do Gestor',
+  '/painel-gestor': 'Raio X do Time',
 };
 
 const LIBRARY_SUB_PAGES = [

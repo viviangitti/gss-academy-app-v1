@@ -316,7 +316,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/revisar-copy':      'GSS — Revisar Copy',
   '/pre-lancamento':    'GSS — Pré-lançamento',
   '/conteudo-dia':      'GSS — Conteúdo do Dia',
-  '/painel-gestor':     'GSS — Painel do Gestor',
+  '/painel-gestor':     'GSS — Raio X do Time',
   '/coach-voz':         'GSS — Coach por Voz',
   '/gatilhos':          'GSS — Gatilhos',
   '/feedback':          'GSS — Feedback',
