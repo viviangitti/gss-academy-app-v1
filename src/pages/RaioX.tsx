@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Activity, BarChart2, TrendingDown, History, ArrowRight } from 'lucide-react';
+import { Activity, TrendingDown, History } from 'lucide-react';
+import MyReport from './MyReport';
 import './Home.css';
 import './RaioX.css';
 
@@ -13,22 +14,12 @@ export default function RaioX() {
         <div className="rx-hero-icon"><Activity size={24} /></div>
         <div>
           <h2>Raio X</h2>
-          <p>Por que você ganha e por que perde — seu diagnóstico</p>
+          <p>Seu diagnóstico: pontos fortes, gaps e onde melhorar</p>
         </div>
       </div>
 
-      {/* Meu Raio-X */}
-      <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Meu desempenho</h3></div>
-        <button className="home-content-card card" onClick={() => navigate('/meu-raiox')}>
-          <div className="home-content-icon rx-main-icon"><BarChart2 size={20} /></div>
-          <div className="home-content-text">
-            <strong>Meu Raio-X</strong>
-            <span>O que te faz ganhar e o que te faz perder — seu gap</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      </div>
+      {/* Relatório com gráfico aranha (radar de competências), gaps e pontos fortes */}
+      <MyReport />
 
       {/* Aprender com os números */}
       <div className="day-section">
