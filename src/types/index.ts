@@ -213,6 +213,7 @@ export interface Offer {
 export interface CompetitorOffer {
   id?: string;
   competitor: string;          // ex: "Ford", "Chevrolet", "Toyota"
+  model?: string;              // ex: "Ranger", "Corolla Cross"
   title: string;               // ex: "Ranger — Taxa 0% até julho"
   description: string;         // texto completo da oferta
   legalText?: string;          // texto jurídico copiado do site

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Swords, ExternalLink, RefreshCw, Shield, AlertTriangle, SlidersHorizontal, X, Clock, ChevronDown } from 'lucide-react';
+import { Swords, ExternalLink, RefreshCw, Shield, AlertTriangle, SlidersHorizontal, X, Clock, Search } from 'lucide-react';
+import { getBrandLogo, buildOfferLink } from '../utils/offerLinks';
 import { getActiveCompetitorOffers } from '../services/firestore/competitorOffers';
 import { getActiveOffers } from '../services/firestore/offers';
 import { getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, searchSegmentOffers } from '../services/competitorScraper';
@@ -16,6 +17,7 @@ function scrapedToCompetitor(o: ScrapedOffer, segs: Segment[]): CompetitorOffer 
   return {
     id: `web-${(o.competitor || 'x')}-${(o.model || o.title || '')}`.toLowerCase().slice(0, 140),
     competitor: o.competitor || 'Concorrente',
+    model: o.model,
     title: o.title || o.model || 'Oferta',
     description: o.description || '',
     legalText: o.legalText,
@@ -36,19 +38,6 @@ function mergeOffers(cadastered: CompetitorOffer[], web: CompetitorOffer[]): Com
   return [...cadastered, ...extra];
 }
 
-function formatDate(iso: string) {
-  if (!iso) return '';
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function groupByCompetitor(offers: CompetitorOffer[]): Record<string, CompetitorOffer[]> {
-  return offers.reduce((acc, o) => {
-    if (!acc[o.competitor]) acc[o.competitor] = [];
-    acc[o.competitor].push(o);
-    return acc;
-  }, {} as Record<string, CompetitorOffer[]>);
-}
 
 // Mapeamento de marca → faixas de preço (fallback quando o doc não tem priceRanges)
 const COMPETITOR_RANGES: Record<string, PriceRange[]> = {
@@ -117,9 +106,9 @@ export default function CompetitorIntel() {
   const [ourOffers, setOurOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRanges, setUserRanges] = useState<PriceRange[]>([]);
-  const [visibleCount, setVisibleCount] = useState(12);
   const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [brandFilter, setBrandFilter] = useState<string[]>([]);
+  const [modelQuery, setModelQuery] = useState('');
   useEffect(() => {
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     setUserRanges(getUserPriceRanges(profile));
@@ -161,18 +150,22 @@ export default function CompetitorIntel() {
       ? userRanges.filter(v => v !== range)   // toggle off
       : [...userRanges, range];               // toggle on
     setUserRanges(next);
-    setVisibleCount(12); // reset pagination on filter change
     // Persiste no perfil
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
     saveData(KEYS.PROFILE, { ...profile, priceRanges: next, priceRange: next[0] || '' });
   };
 
-  const grouped = groupByCompetitor(competitorOffers);
-  const competitors = Object.keys(grouped).sort();
-
-  // Flat ordered list: all offers sorted by competitor then title
-  const flatOffers = competitors.flatMap(comp => grouped[comp]);
-  const visibleOffers = flatOffers.slice(0, visibleCount);
+  // Marcas presentes (após o filtro de faixa) e filtros de marca + modelo
+  const offerBrands = [...new Set(competitorOffers.map(o => o.competitor || 'Outros'))].sort();
+  const toggleBrand = (b: string) =>
+    setBrandFilter(prev => (prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b]));
+  const mq = modelQuery.trim().toLowerCase();
+  const tableOffers = competitorOffers
+    .filter(o =>
+      (brandFilter.length === 0 || brandFilter.includes(o.competitor || 'Outros')) &&
+      (!mq || `${o.model || ''} ${o.title || ''} ${(o.highlights || []).join(' ')}`.toLowerCase().includes(mq))
+    )
+    .sort((a, b) => (a.competitor || '').localeCompare(b.competitor || ''));
 
   if (loading) {
     return (
@@ -244,8 +237,8 @@ export default function CompetitorIntel() {
         </div>
       )}
 
-      {/* Ofertas da concorrência — feed plano */}
-      {flatOffers.length === 0 ? (
+      {/* Ofertas da concorrência */}
+      {allCompetitorOffers.length === 0 ? (
         <div className="ci-empty card">
           <AlertTriangle size={28} />
           <p>Nenhuma oferta da concorrência cadastrada.</p>
@@ -253,69 +246,88 @@ export default function CompetitorIntel() {
         </div>
       ) : (
         <>
-          {visibleOffers.map(offer => {
-            const hasLink = !!offer.sourceUrl && offer.sourceUrl.startsWith('http');
-            const isOpen = expandedId === offer.id;
-            return (
-              <div
-                key={offer.id}
-                className={`ci-offer-card card clickable ${isOpen ? 'open' : ''}`}
-                onClick={() => setExpandedId(isOpen ? null : (offer.id ?? null))}
-                role="button"
-                tabIndex={0}
-              >
-                <div className="ci-offer-top">
-                  <div className="ci-offer-avatar">{offer.competitor.charAt(0).toUpperCase()}</div>
-                  <div className="ci-offer-headtext">
-                    <div className="ci-offer-brand">{offer.competitor}</div>
-                    <div className="ci-offer-title">{offer.title}</div>
-                  </div>
-                  <ChevronDown size={18} className="ci-offer-chevron" />
-                </div>
-
-                {offer.highlights.length > 0 && (
-                  <div className="ci-chips" style={{ marginBottom: 6 }}>
-                    {offer.highlights.map((h, i) => <span key={i} className="ci-chip-red">{h}</span>)}
-                  </div>
-                )}
-
-                {offer.ourAdvantages.length > 0 && (
-                  <div className="ci-chips" style={{ marginBottom: 6 }}>
-                    {offer.ourAdvantages.map((h, i) => <span key={i} className="ci-chip-green">{h}</span>)}
-                  </div>
-                )}
-
-                {offer.description && (
-                  <p className={`ci-offer-desc ${isOpen ? '' : 'clamp'}`}>{offer.description}</p>
-                )}
-
-                {isOpen && offer.legalText && (
-                  <p className="ci-offer-legal">{offer.legalText}</p>
-                )}
-
-                <div className="ci-offer-foot">
-                  <span className="ci-offer-validity">
-                    <Clock size={11} />
-                    {offer.validFrom ? `${formatDate(offer.validFrom)} – ` : 'até '}{formatDate(offer.validTo)}
-                  </span>
-                  {isOpen && hasLink && (
-                    <button
-                      className="ci-offer-cta"
-                      onClick={(e) => { e.stopPropagation(); window.open(offer.sourceUrl, '_blank', 'noopener'); }}
-                    >
-                      Ver oferta <ExternalLink size={12} />
-                    </button>
-                  )}
-                  {!isOpen && <span className="ci-offer-more">ver detalhes</span>}
-                </div>
+          {/* Filtro por marca + modelo */}
+          <div className="offers-filter card">
+            {offerBrands.length > 1 && (
+              <div className="offers-filter-brands">
+                <button
+                  className={`offers-brand-chip ${brandFilter.length === 0 ? 'active' : ''}`}
+                  onClick={() => setBrandFilter([])}
+                >
+                  Todas
+                </button>
+                {offerBrands.map(b => (
+                  <button
+                    key={b}
+                    className={`offers-brand-chip ${brandFilter.includes(b) ? 'active' : ''}`}
+                    onClick={() => toggleBrand(b)}
+                  >
+                    {b}
+                  </button>
+                ))}
               </div>
-            );
-          })}
-          {flatOffers.length > visibleCount && (
-            <button className="ci-load-more" onClick={() => setVisibleCount(v => v + 12)}>
-              Ver mais {Math.min(12, flatOffers.length - visibleCount)} ofertas
-            </button>
-          )}
+            )}
+            <div className="offers-model-search">
+              <Search size={14} className="offers-model-icon" />
+              <input
+                type="text"
+                placeholder="Filtrar por modelo…"
+                value={modelQuery}
+                onChange={e => setModelQuery(e.target.value)}
+              />
+              {modelQuery && (
+                <button className="offers-model-clear" onClick={() => setModelQuery('')} aria-label="Limpar">
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tabela Marca × Modelo × Oferta */}
+          <div className="offers-table card">
+            <div className="offers-table-head">
+              <span>Marca</span>
+              <span>Modelo</span>
+              <span>Oferta</span>
+              <span aria-hidden />
+            </div>
+            {tableOffers.length === 0 ? (
+              <div className="offers-table-empty">Nenhuma oferta com esses filtros.</div>
+            ) : (
+              tableOffers.map((o, i) => {
+                const link = buildOfferLink(o);
+                const logo = getBrandLogo(o.competitor || '');
+                return (
+                  <a
+                    key={o.id || i}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="offers-table-row"
+                    title={link.official ? `Abrir: ${link.label}` : `Pesquisar: ${o.competitor || ''} ${o.model || ''}`}
+                  >
+                    <span className="otr-brand">
+                      <span className="otr-avatar">
+                        {(o.competitor || '?')[0].toUpperCase()}
+                        {logo && <img src={logo} alt="" className="otr-logo" onError={e => (e.currentTarget.style.display = 'none')} />}
+                      </span>
+                      <span className="otr-brand-name">{o.competitor || 'Outros'}</span>
+                    </span>
+                    <span className="otr-model">{o.model || '—'}</span>
+                    <span className="otr-offer">
+                      <span className="otr-offer-title">{o.title}</span>
+                      {o.highlights?.[0] && <span className="otr-offer-hl">{o.highlights[0]}</span>}
+                    </span>
+                    <span className="otr-link">
+                      {link.official ? <ExternalLink size={14} /> : <Search size={14} />}
+                    </span>
+                  </a>
+                );
+              })
+            )}
+          </div>
+
+          <p className="offers-table-note">{tableOffers.length} oferta{tableOffers.length !== 1 ? 's' : ''} · toque pra abrir a fonte</p>
         </>
       )}
     </div>
