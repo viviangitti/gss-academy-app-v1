@@ -1,10 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, ArrowRight } from 'lucide-react';
+import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, ArrowRight } from 'lucide-react';
+import { loadData, KEYS } from '../services/storage';
+import type { UserProfile } from '../types';
 import './Home.css';
 import './Maestria.css';
 
 export default function Maestria() {
   const navigate = useNavigate();
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const isGestor = profile.isGestor === true || profile.isAdmin === true;
 
   return (
     <div className="home">
@@ -16,6 +20,21 @@ export default function Maestria() {
           <p>Treine e afie suas habilidades de venda</p>
         </div>
       </div>
+
+      {/* Para o gestor — rotinas e rituais com o time */}
+      {isGestor && (
+        <div className="day-section">
+          <div className="day-section-header"><h3 className="section-title">Para o gestor</h3></div>
+          <button className="home-content-card card" onClick={() => navigate('/rituais-gestor')}>
+            <div className="home-content-icon mae-gestor-icon"><Users size={20} /></div>
+            <div className="home-content-text">
+              <strong>Rotinas & rituais com o time</strong>
+              <span>Cadência diária, semanal e mensal pra aplicar de forma simples</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
+        </div>
+      )}
 
       {/* Check-lists */}
       <div className="day-section">

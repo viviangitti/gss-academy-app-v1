@@ -20,6 +20,7 @@ const titles: Record<string, string> = {
   '/maestria': 'Maestria',
   '/raio-x': 'Raio X',
   '/criar-conteudo': 'Criar conteúdo',
+  '/rituais-gestor': 'Rotinas & rituais',
   '/boost': 'Cliente em atendimento',
   '/rescue': 'Rescue',
   '/meu-raiox': 'Meu Raio-X',

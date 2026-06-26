@@ -21,6 +21,7 @@ const Boost = lazy(() => import('./pages/Boost'));
 const Negociacoes = lazy(() => import('./pages/Negociacoes'));
 const Maestria = lazy(() => import('./pages/Maestria'));
 const CriarConteudo = lazy(() => import('./pages/CriarConteudo'));
+const RotinasGestor = lazy(() => import('./pages/RotinasGestor'));
 const RaioX = lazy(() => import('./pages/RaioX'));
 const Rescue = lazy(() => import('./pages/Rescue'));
 const MyReport = lazy(() => import('./pages/MyReport'));
@@ -225,6 +226,7 @@ function AppContent() {
             <Route path="/negociacoes" element={<Negociacoes />} />
             <Route path="/maestria" element={<Maestria />} />
             <Route path="/criar-conteudo" element={<CriarConteudo />} />
+            <Route path="/rituais-gestor" element={<RotinasGestor />} />
             <Route path="/raio-x" element={<RaioX />} />
             <Route path="/rescue" element={<Rescue />} />
             <Route path="/meu-raiox" element={<MyReport />} />
@@ -287,6 +289,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/negociacoes':       'GSS — Negociações',
   '/maestria':          'GSS — Maestria',
   '/criar-conteudo':    'GSS — Criar conteúdo',
+  '/rituais-gestor':    'GSS — Rotinas & rituais',
   '/raio-x':            'GSS — Raio X',
   '/rescue':            'GSS — Rescue',
   '/meu-raiox':         'GSS — Meu Raio-X',
