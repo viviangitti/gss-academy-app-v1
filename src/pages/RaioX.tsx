@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Activity, TrendingDown, History } from 'lucide-react';
 import MyReport from './MyReport';
+import PerformanceView from '../components/PerformanceView';
 import './Home.css';
 import './RaioX.css';
 
@@ -18,8 +19,17 @@ export default function RaioX() {
         </div>
       </div>
 
+      {/* Performance — taxa de sucesso e motivos de venda/perda (dos seus dados) */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Performance</h3></div>
+        <PerformanceView />
+      </div>
+
       {/* Relatório com gráfico aranha (radar de competências), gaps e pontos fortes */}
-      <MyReport />
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Diagnóstico da IA</h3></div>
+        <MyReport />
+      </div>
 
       {/* Aprender com os números */}
       <div className="day-section">
