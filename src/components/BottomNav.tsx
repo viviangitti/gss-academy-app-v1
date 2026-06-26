@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Handshake, GraduationCap, Activity, BookOpen, Sparkles } from 'lucide-react';
+import { Home, Handshake, GraduationCap, Activity, Sparkles } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import './BottomNav.css';
@@ -31,7 +31,6 @@ export default function BottomNav() {
     isGestor
       ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }
       : { path: '/raio-x', icon: Activity, label: 'Raio X' },
-    ...(isGestor ? [] : [{ path: '/biblioteca', icon: BookOpen, label: 'Painel' }]),
     { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
   ];
 
