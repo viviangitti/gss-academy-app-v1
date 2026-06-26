@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check, Paperclip, X, FileText, Copy } from 'lucide-react';
+import { Send, Sparkles, RotateCcw, Mic, Swords, Trash2, Check, Paperclip, X, FileText, Copy, Target } from 'lucide-react';
+import NegotiationSheet from '../components/NegotiationSheet';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMessage, resetChat } from '../services/gemini';
 import type { ImageAttachment, PriorMessage } from '../services/gemini';
@@ -89,6 +90,7 @@ export default function AICoach() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [autoSpeak, setAutoSpeak] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showNeg, setShowNeg] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const offersContextRef = useRef<string>('');
   // Histórico salvo — usado apenas na primeira mensagem da sessão para restaurar contexto na IA
@@ -448,6 +450,13 @@ export default function AICoach() {
           </button>
 
           {aiMode === 'vendas' && (
+            <button className="neg-cta" onClick={() => setShowNeg(true)}>
+              <Target size={18} />
+              <span>Me ajuda numa negociação 🎯</span>
+            </button>
+          )}
+
+          {aiMode === 'vendas' && (
             <button className="roleplay-cta" onClick={() => navigate('/treino')}>
               <Swords size={18} />
               <span>Treinar objeções com simulação</span>
@@ -621,6 +630,12 @@ export default function AICoach() {
           </div>
         </div>
       )}
+
+      <NegotiationSheet
+        open={showNeg}
+        onClose={() => setShowNeg(false)}
+        onSubmit={(prompt) => { setShowNeg(false); handleSend(prompt); }}
+      />
     </div>
   );
 }

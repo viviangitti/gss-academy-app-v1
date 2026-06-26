@@ -413,6 +413,26 @@
 
 .roleplay-cta:active { opacity: 0.9; }
 
+.neg-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #1a1a1a;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 12px;
+  transition: opacity 0.2s;
+}
+.neg-cta:active { opacity: 0.9; }
+
 /* ── Message bubble ── */
 .msg-bubble {
   display: flex;
