@@ -97,3 +97,72 @@
 .cc-msg-titles { display: flex; flex-direction: column; }
 .cc-msg-titles strong { font-size: 14px; }
 .cc-msg-titles span { font-size: 12px; color: var(--text-soft); }
+
+/* Monte o seu post → feedback da IA */
+.cc-fb-form { margin-bottom: 10px; }
+.cc-fb-plats { display: flex; gap: 7px; margin-bottom: 10px; }
+.cc-fb-chip {
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--text-light);
+  cursor: pointer;
+}
+.cc-fb-chip.on {
+  border-color: #f472b6;
+  background: rgba(236,72,153,0.14);
+  color: #f472b6;
+  font-weight: 600;
+}
+.cc-fb-input {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.cc-fb-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: #d6337c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+}
+.cc-fb-btn:disabled { opacity: 0.55; cursor: default; }
+.cc-fb-err { color: #f87171; font-size: 13px; margin-top: 8px; }
+
+.cc-fb-result { }
+.cc-fb-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.cc-label-win { color: #34d399 !important; }
+.cc-label-lose { color: #f87171 !important; }
+.cc-fb-list {
+  margin: 0 0 4px;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-light);
+}
+.cc-fb-list li { margin-bottom: 3px; }

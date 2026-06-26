@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   PenSquare, Video, Camera, Briefcase, MessageCircle, Sparkles,
-  ChevronDown, Copy, Check, ArrowRight,
+  ChevronDown, Copy, Check, ArrowRight, Wand2,
 } from 'lucide-react';
+import { getPostFeedback } from '../services/postFeedback';
+import type { PostFeedback } from '../services/postFeedback';
 import './Home.css';
 import './CriarConteudo.css';
 
@@ -103,6 +105,26 @@ export default function CriarConteudo() {
   const [openPlat, setOpenPlat] = useState<string | null>('reels');
   const [copied, setCopied] = useState<string | null>(null);
 
+  // Monte o seu post → feedback da IA
+  const [draft, setDraft] = useState('');
+  const [fbPlat, setFbPlat] = useState('');
+  const [fbLoading, setFbLoading] = useState(false);
+  const [fbError, setFbError] = useState('');
+  const [feedback, setFeedback] = useState<PostFeedback | null>(null);
+
+  const pedirFeedback = async () => {
+    if (!draft.trim() || fbLoading) return;
+    setFbLoading(true);
+    setFbError('');
+    setFeedback(null);
+    try {
+      setFeedback(await getPostFeedback(draft.trim(), fbPlat));
+    } catch {
+      setFbError('Não consegui analisar agora. Tenta de novo em segundos.');
+    }
+    setFbLoading(false);
+  };
+
   const copy = (id: string, text: string) => {
     const clean = text.replace(/\n/g, '\n');
     navigator.clipboard?.writeText(clean).catch(() => {});
@@ -153,6 +175,49 @@ export default function CriarConteudo() {
             </div>
           );
         })}
+      </div>
+
+      {/* Monte o seu post → feedback da IA */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Monte o seu post → feedback da IA</h3></div>
+        <div className="cc-fb-form card">
+          <div className="cc-fb-plats">
+            {['Reels', 'Instagram', 'LinkedIn'].map(p => (
+              <button key={p} type="button" className={`cc-fb-chip ${fbPlat === p ? 'on' : ''}`}
+                onClick={() => setFbPlat(fbPlat === p ? '' : p)}>{p}</button>
+            ))}
+          </div>
+          <textarea className="cc-fb-input" rows={4}
+            placeholder="Cole ou escreva o seu rascunho de post aqui…"
+            value={draft} onChange={e => setDraft(e.target.value)} />
+          <button className="cc-fb-btn" onClick={pedirFeedback} disabled={!draft.trim() || fbLoading}>
+            {fbLoading ? 'Analisando…' : <><Wand2 size={15} /> Pedir feedback</>}
+          </button>
+          {fbError && <p className="cc-fb-err">{fbError}</p>}
+        </div>
+
+        {feedback && (
+          <div className="cc-fb-result card">
+            <div className="cc-fb-score"><Sparkles size={14} /> Nota {feedback.nota}/10</div>
+            {feedback.pontosFortes.length > 0 && (
+              <>
+                <p className="cc-label cc-label-win">Pontos fortes</p>
+                <ul className="cc-fb-list">{feedback.pontosFortes.map((s, i) => <li key={i}>{s}</li>)}</ul>
+              </>
+            )}
+            {feedback.melhorias.length > 0 && (
+              <>
+                <p className="cc-label cc-label-lose">A melhorar</p>
+                <ul className="cc-fb-list">{feedback.melhorias.map((s, i) => <li key={i}>{s}</li>)}</ul>
+              </>
+            )}
+            <p className="cc-label">Versão melhorada</p>
+            <div className="cc-example">{feedback.versaoMelhorada}</div>
+            <button className="cc-copy" onClick={() => copy('fb', feedback.versaoMelhorada)}>
+              {copied === 'fb' ? <><Check size={14} /> Copiado</> : <><Copy size={14} /> Copiar versão melhorada</>}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modelos de WhatsApp */}
