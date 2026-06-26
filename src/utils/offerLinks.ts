@@ -58,10 +58,9 @@ const VERIFIED_OFFER_PAGES: Record<string, string> = {
   chevrolet: 'https://www.chevrolet.com.br/',
   byd: 'https://www.byd.com.br/',
   'caoa chery': 'https://www.caoachery.com.br/ofertas', chery: 'https://www.caoachery.com.br/ofertas',
-  bmw: 'https://www.bmw.com.br/',
-  audi: 'https://www.audi.com.br/',
-  'mercedes-benz': 'https://www.mercedes-benz.com.br/', mercedes: 'https://www.mercedes-benz.com.br/',
-  volvo: 'https://www.volvocars.com/br/',
+  // Luxo — só páginas que respondem 200 e não bloqueiam. BMW/Audi/Mercedes/Volvo
+  // saem daqui de propósito: levavam só à homepage e tinham proteção anti-bot —
+  // caem na busca do Google ("Marca Modelo oferta"), mais robusto e mais útil.
   'land rover': 'https://www.landrover.com.br/',
   porsche: 'https://www.porsche.com/brazil/',
   lexus: 'https://www.lexus.com.br/', jaguar: 'https://www.jaguar.com.br/',
