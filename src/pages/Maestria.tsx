@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, ArrowRight } from 'lucide-react';
+import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ArrowRight } from 'lucide-react';
 import './Home.css';
 import './Maestria.css';
 
@@ -32,6 +32,19 @@ export default function Maestria() {
             <span>Treine conversando por voz com o cliente difícil</span>
           </button>
         </div>
+      </div>
+
+      {/* Criar conteúdo */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Criar conteúdo</h3></div>
+        <button className="home-content-card card" onClick={() => navigate('/criar-conteudo')}>
+          <div className="home-content-icon mae-content-icon"><PenSquare size={20} /></div>
+          <div className="home-content-text">
+            <strong>Aprenda a criar conteúdo</strong>
+            <span>Roteiros pra Reels, Insta e LinkedIn + modelos de WhatsApp</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
       </div>
 
       {/* Contornar objeções */}

@@ -5,7 +5,7 @@ import './BottomNav.css';
 const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao', '/vendas-perdidas'];
 const MAESTRIA_PATHS = [
   '/maestria', '/treino', '/treino-voz', '/treino-hub', '/objecoes', '/scripts',
-  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao',
+  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo',
 ];
 const LIBRARY_PATHS = [
   '/biblioteca', '/favoritos', '/historico', '/condicoes', '/concorrencia', '/ofertas',
