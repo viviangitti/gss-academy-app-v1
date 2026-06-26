@@ -123,3 +123,65 @@
 }
 .boost-label-row label { margin-top: 0 !important; }
 .boost-input-label { font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* Ficha opcional do perfil do cliente */
+.boost-ficha-toggle {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 13px;
+  background: var(--bg);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.boost-ficha-opt { font-weight: 400; color: var(--text-soft); font-size: 12px; }
+.boost-ficha-chev { margin-left: auto; color: var(--text-soft); transition: transform 0.2s; }
+.boost-ficha-toggle.open .boost-ficha-chev { transform: rotate(180deg); }
+
+.boost-ficha {
+  margin-top: 8px;
+  padding: 12px 13px;
+  background: var(--bg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+.boost-ficha-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 10px 0 7px;
+}
+.boost-ficha-label:first-child { margin-top: 0; }
+.boost-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.boost-chip {
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  border: 1px solid var(--border-strong);
+  background: var(--card-bg, transparent);
+  color: var(--text-light);
+  cursor: pointer;
+}
+.boost-chip.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent-deep, var(--accent));
+  font-weight: 600;
+}
+.boost-ficha-input {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--card-bg, transparent);
+  color: var(--text);
+  font-size: 13.5px;
+}

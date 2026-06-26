@@ -54,13 +54,36 @@ export async function buildAmmo(): Promise<string> {
   return parts.join('\n\n');
 }
 
-export async function getBoost(situation: string): Promise<BoostPath[]> {
+export interface BoostClientProfile {
+  etapa?: string;
+  carro?: string;
+  valoriza?: string[];
+}
+
+/** Monta o bloco de contexto do cliente pra personalizar os caminhos. */
+function buildClientContext(c?: BoostClientProfile): string {
+  if (!c) return '';
+  const parts: string[] = [];
+  if (c.etapa) parts.push(`Etapa da negociação: ${c.etapa}`);
+  if (c.carro) parts.push(`Carro de interesse: ${c.carro}`);
+  if (c.valoriza?.length) parts.push(`O que o cliente VALORIZA: ${c.valoriza.join(', ')}`);
+  if (!parts.length) return '';
+  return (
+    'PERFIL DO CLIENTE (use pra deixar os 3 caminhos SOB MEDIDA): conecte cada argumento ao que ' +
+    'ESTE cliente valoriza (característica → benefício → o que importa pra ele) e DEFENDA VALOR em vez ' +
+    'de apelar pro desconto.\n' + parts.join('\n')
+  );
+}
+
+export async function getBoost(situation: string, client?: BoostClientProfile): Promise<BoostPath[]> {
   const memory = buildMemoryContext();
   const ammo = await buildAmmo();
+  const clientCtx = buildClientContext(client);
   const prompt = [
     BOOST_PROMPT,
     memory,
     ammo,
+    clientCtx,
     `SITUAÇÃO DO VENDEDOR AGORA: "${situation}"`,
   ].filter(Boolean).join('\n\n');
 

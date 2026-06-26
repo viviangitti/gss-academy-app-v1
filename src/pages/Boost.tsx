@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap, ClipboardCheck, Dumbbell, LifeBuoy } from 'lucide-react';
+import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap, ClipboardCheck, Dumbbell, LifeBuoy, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { getBoost, reportBoostWin, getDebrief } from '../services/boost';
-import type { BoostPath, DebriefResult } from '../services/boost';
+import type { BoostPath, DebriefResult, BoostClientProfile } from '../services/boost';
 import { remember } from '../services/memory';
 import MicButton from '../components/MicButton';
 import AIFeedback from '../components/AIFeedback';
@@ -19,6 +19,12 @@ const QUICK_SITUATIONS = [
   'Quer desconto que não posso dar',
 ];
 
+const ETAPAS = ['Primeiro contato', 'Cotando / comparando', 'Quase fechando', 'Esfriou'];
+const VALORIZA = [
+  'Espaço interno', 'Porta-malas', 'Tamanho', 'Tem filhos', 'Autonomia',
+  'Consumo', 'Segurança', 'Conforto', 'Desempenho', 'Revenda',
+];
+
 export default function Boost() {
   const isOnline = useOnline();
   const navigate = useNavigate();
@@ -30,6 +36,12 @@ export default function Boost() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [wonIdx, setWonIdx] = useState<number | null>(null);
   const askedRef = useRef('');
+
+  // Ficha opcional do perfil do cliente — deixa os caminhos sob medida
+  const [showFicha, setShowFicha] = useState(false);
+  const [etapa, setEtapa] = useState('');
+  const [carro, setCarro] = useState('');
+  const [valoriza, setValoriza] = useState<string[]>([]);
 
   // Debrief pós-atendimento
   const [deb, setDeb] = useState({ situacao: '', motivos: '', autocritica: '' });
@@ -61,8 +73,10 @@ export default function Boost() {
     setWonIdx(null);
     askedRef.current = sit;
     remember(`Travou com cliente: ${sit}`, 'boost');
+    const client: BoostClientProfile | undefined =
+      (etapa || carro.trim() || valoriza.length) ? { etapa, carro: carro.trim(), valoriza } : undefined;
     try {
-      setPaths(await getBoost(sit));
+      setPaths(await getBoost(sit, client));
     } catch {
       setError('Não consegui gerar agora. Tenta de novo em segundos.');
     }
@@ -152,6 +166,34 @@ export default function Boost() {
             onChange={e => setSituation(e.target.value)}
             rows={3}
           />
+          {/* Ficha opcional do cliente — deixa os caminhos sob medida */}
+          <button type="button" className={`boost-ficha-toggle ${showFicha ? 'open' : ''}`} onClick={() => setShowFicha(!showFicha)}>
+            <SlidersHorizontal size={14} /> Perfil do cliente
+            <span className="boost-ficha-opt">deixa os caminhos sob medida</span>
+            <ChevronDown size={16} className="boost-ficha-chev" />
+          </button>
+          {showFicha && (
+            <div className="boost-ficha">
+              <p className="boost-ficha-label">Etapa</p>
+              <div className="boost-chips">
+                {ETAPAS.map(e => (
+                  <button key={e} type="button" className={`boost-chip ${etapa === e ? 'on' : ''}`}
+                    onClick={() => setEtapa(etapa === e ? '' : e)}>{e}</button>
+                ))}
+              </div>
+              <p className="boost-ficha-label">Carro de interesse</p>
+              <input className="boost-ficha-input" placeholder="Ex: Corolla Cross"
+                value={carro} onChange={e => setCarro(e.target.value)} />
+              <p className="boost-ficha-label">O que o cliente valoriza</p>
+              <div className="boost-chips">
+                {VALORIZA.map(v => (
+                  <button key={v} type="button" className={`boost-chip ${valoriza.includes(v) ? 'on' : ''}`}
+                    onClick={() => setValoriza(valoriza.includes(v) ? valoriza.filter(x => x !== v) : [...valoriza, v])}>{v}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <button className="boost-fire" onClick={() => fire(situation)} disabled={!situation.trim()}>
             <Zap size={18} /> Boost
           </button>
