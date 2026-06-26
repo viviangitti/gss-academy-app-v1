@@ -15,18 +15,6 @@ export default function Library() {
 
   return (
     <div className="lib-page">
-      {/* ── Meus clientes (vendas) ── */}
-      <div className="lib-section-label">Meus clientes</div>
-      <button className="lib-playbook-card card" onClick={() => navigate('/meu-raiox')}>
-        <div className="lib-intel-icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>
-          <BarChart2 size={20} />
-        </div>
-        <div className="lib-playbook-text">
-          <span className="lib-intel-title">Meu Raio-X</span>
-          <span className="lib-intel-desc">Por que você ganha e por que perde — seu gap</span>
-        </div>
-      </button>
-
       {/* ── Conteúdo (todos) ── */}
       <div className="lib-section-label">Conteúdo</div>
       <button className="lib-playbook-card card" onClick={() => navigate('/conteudo-dia')}>

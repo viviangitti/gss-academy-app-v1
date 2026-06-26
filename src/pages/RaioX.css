@@ -1,0 +1,24 @@
+.rx-hero.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0.04));
+  border: 0.5px solid rgba(16, 185, 129, 0.30);
+}
+.rx-hero-icon {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.rx-hero h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.rx-hero p { margin: 3px 0 0; font-size: 13px; color: var(--text-soft); }
+
+.rx-main-icon {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #34d399 !important;
+}
+.rx-lost-icon { color: #f87171; }
+.rx-hist-icon { color: #818cf8; }
