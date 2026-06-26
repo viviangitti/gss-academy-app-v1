@@ -46,6 +46,17 @@ export default function PerformanceView() {
   const lossRows = Object.entries(lossBy).sort((a, b) => b[1] - a[1]);
   const stageRows = Object.entries(stageBy).sort((a, b) => b[1] - a[1]);
 
+  // Por área de negócio (só mostra se houver alguma venda/perda com área marcada)
+  const hasArea = sales.some(s => s.area) || lost.some(s => s.area);
+  const wonAreaBy: Record<string, number> = {};
+  const lostAreaBy: Record<string, number> = {};
+  if (hasArea) {
+    sales.forEach(s => { const a = s.area || 'Não informado'; wonAreaBy[a] = (wonAreaBy[a] || 0) + 1; });
+    lost.forEach(s => { const a = s.area || 'Não informado'; lostAreaBy[a] = (lostAreaBy[a] || 0) + 1; });
+  }
+  const wonAreaRows = Object.entries(wonAreaBy).sort((a, b) => b[1] - a[1]);
+  const lostAreaRows = Object.entries(lostAreaBy).sort((a, b) => b[1] - a[1]);
+
   if (total === 0) {
     return (
       <div className="pv-empty card">
@@ -70,6 +81,20 @@ export default function PerformanceView() {
           <span className="pv-lbl">perdas</span>
         </div>
       </div>
+
+      {hasArea && wonAreaRows.length > 0 && (
+        <div className="pv-block card">
+          <h4 className="pv-h pv-h-win">Vendas por área de negócio</h4>
+          {wonAreaRows.map(([k, v]) => <Bar key={k} label={k} value={v} max={totalWon} tone="win" />)}
+        </div>
+      )}
+
+      {hasArea && lostAreaRows.length > 0 && (
+        <div className="pv-block card">
+          <h4 className="pv-h pv-h-lose">Perdas por área de negócio</h4>
+          {lostAreaRows.map(([k, v]) => <Bar key={k} label={k} value={v} max={totalLost} tone="lose" />)}
+        </div>
+      )}
 
       {winRows.length > 0 && (
         <div className="pv-block card">

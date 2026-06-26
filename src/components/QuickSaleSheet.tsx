@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TrendingUp, Check } from 'lucide-react';
-import { addSale } from '../services/goal';
+import { addSale, BUSINESS_AREAS } from '../services/goal';
 import '../pages/Home.css';
 
 interface Props {
@@ -18,6 +18,7 @@ const DETERMINANTES = [
 export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
   const [form, setForm] = useState({ amount: '', commission: '', client: '' });
   const [determinante, setDeterminante] = useState('');
+  const [area, setArea] = useState('');
   const [error, setError] = useState<'' | 'commission' | 'determinante'>('');
 
   if (!open) return null;
@@ -27,9 +28,10 @@ export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
     if (!determinante) { setError('determinante'); return; }
     const commission = Number(form.commission);
     const amount = Number(form.amount) || commission;
-    addSale(amount, commission, form.client || 'Venda', `Determinante pra venda: ${determinante}`);
+    addSale(amount, commission, form.client || 'Venda', `Determinante pra venda: ${determinante}`, area || undefined);
     setForm({ amount: '', commission: '', client: '' });
     setDeterminante('');
+    setArea('');
     setError('');
     onRegistered?.();
     onClose();
@@ -87,6 +89,21 @@ export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
               ))}
             </div>
             {error === 'determinante' && <span className="qs-err">Escolha o que pesou pra fechar.</span>}
+          </div>
+          <div className="quick-sale-field">
+            <label>Área de negócio <span style={{ fontWeight: 400, color: 'var(--text-soft)' }}>(opcional)</span></label>
+            <div className="qs-chips">
+              {BUSINESS_AREAS.map(a => (
+                <button
+                  type="button"
+                  key={a}
+                  className={`qs-chip ${area === a ? 'on' : ''}`}
+                  onClick={() => setArea(area === a ? '' : a)}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <button className="btn btn-primary quick-sale-btn" onClick={confirm}>

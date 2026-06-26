@@ -6,6 +6,7 @@ import {
   REASON_LABELS, STAGE_LABELS, REASON_OBJECTION_LINK,
 } from '../services/lostSales';
 import type { LostSale, LostReason, LostStage } from '../services/lostSales';
+import { BUSINESS_AREAS } from '../services/goal';
 import './LostSales.css';
 
 function formatBRL(v: number) {
@@ -30,6 +31,7 @@ export default function LostSales() {
     value: '',
     reason: 'preco' as LostReason,
     stage: 'proposta' as LostStage,
+    area: '',
     notes: '',
     learning: '',
   });
@@ -47,10 +49,11 @@ export default function LostSales() {
       value: Number(form.value) || 0,
       reason: form.reason,
       stage: form.stage,
+      area: form.area || undefined,
       notes: form.notes.trim(),
       learning: form.learning.trim(),
     });
-    setForm({ opportunity: '', value: '', reason: 'preco', stage: 'proposta', notes: '', learning: '' });
+    setForm({ opportunity: '', value: '', reason: 'preco', stage: 'proposta', area: '', notes: '', learning: '' });
     setShowForm(false);
     refresh();
   };
@@ -152,6 +155,22 @@ export default function LostSales() {
                       onClick={() => setForm({ ...form, stage: s })}
                     >
                       {STAGE_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lost-field">
+                <label>Área de negócio <span style={{ fontWeight: 400, color: 'var(--text-soft)' }}>(opcional)</span></label>
+                <div className="lost-chips-select">
+                  {BUSINESS_AREAS.map(a => (
+                    <button
+                      key={a}
+                      type="button"
+                      className={`lost-chip ${form.area === a ? 'active' : ''}`}
+                      onClick={() => setForm({ ...form, area: form.area === a ? '' : a })}
+                    >
+                      {a}
                     </button>
                   ))}
                 </div>

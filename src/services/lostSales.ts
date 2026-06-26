@@ -31,6 +31,7 @@ export interface LostSale {
   stage: LostStage;
   notes: string;
   learning: string; // o que faria diferente
+  area?: string;    // área de negócio (Veículo, Financiamento, Seguro...)
 }
 
 export const REASON_LABELS: Record<LostReason, string> = {

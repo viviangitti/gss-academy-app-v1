@@ -15,7 +15,11 @@ export interface Sale {
   client: string;
   date: string; // ISO
   notes?: string;
+  area?: string;        // área de negócio (Veículo, Financiamento, Seguro...)
 }
+
+/** Áreas de negócio pra classificar vendas e perdas. */
+export const BUSINESS_AREAS = ['Veículo', 'Financiamento', 'Seguro', 'Acessórios', 'Outro'];
 
 export interface GoalStats {
   goal: number;                // meta de comissão
@@ -47,13 +51,14 @@ export function getSales(): Sale[] {
   }
 }
 
-export function addSale(amount: number, commission: number, client: string, notes?: string): Sale {
+export function addSale(amount: number, commission: number, client: string, notes?: string, area?: string): Sale {
   const sale: Sale = {
     id: generateId(),
     amount,
     commission,
     client,
     notes,
+    area,
     date: new Date().toISOString(),
   };
   const sales = getSales();
