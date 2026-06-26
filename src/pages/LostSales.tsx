@@ -126,7 +126,7 @@ export default function LostSales() {
                 <label>Oportunidade <span className="req">*</span></label>
                 <input
                   type="text"
-                  placeholder="Ex: Contrato anual de software"
+                  placeholder="Ex: Corolla Cross 0km para a família"
                   value={form.opportunity}
                   onChange={e => setForm({ ...form, opportunity: e.target.value })}
                   autoFocus
