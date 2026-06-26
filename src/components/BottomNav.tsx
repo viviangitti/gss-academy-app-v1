@@ -7,13 +7,13 @@ import './BottomNav.css';
 const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao'];
 const MAESTRIA_PATHS = [
   '/maestria', '/treino', '/treino-voz', '/treino-hub', '/objecoes', '/scripts',
-  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo', '/rituais-gestor',
+  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo', '/rituais-gestor', '/conteudo-dia',
 ];
 const RAIOX_PATHS = ['/raio-x', '/meu-raiox', '/vendas-perdidas', '/historico'];
 const LIBRARY_PATHS = [
   '/biblioteca', '/favoritos', '/condicoes', '/concorrencia', '/ofertas',
   '/guia-marca', '/analise-campanha', '/gerador-copy', '/pos-campanha', '/revisar-copy',
-  '/pre-lancamento', '/marketing-chat', '/conteudo-dia',
+  '/pre-lancamento', '/marketing-chat',
 ];
 
 export default function BottomNav() {

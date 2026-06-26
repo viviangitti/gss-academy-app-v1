@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Dumbbell, Megaphone, Sparkles, Share2, Users, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Megaphone, Users, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -409,18 +409,8 @@ export default function Home() {
         </button>
       )}
 
-      {/* ── Conteúdo do Dia (social selling) ── */}
-      <button className="home-content-card card" onClick={() => navigate('/conteudo-dia')}>
-        <div className="home-content-icon"><Sparkles size={20} /></div>
-        <div className="home-content-text">
-          <strong>Conteúdo do Dia <Share2 size={13} /></strong>
-          <span>Poste nas suas redes e ganhe pontos</span>
-        </div>
-        <ArrowRight size={16} className="home-train-arrow" />
-      </button>
-
-      {/* ── Central de Marketing (marketing puro/admin) — entrada pras ferramentas de mkt ── */}
-      {(profile.userAccessType === 'marketing' || profile.isAdmin) && (
+      {/* ── Central de Marketing (marketing/ambos/admin) — entrada pras ferramentas de mkt ── */}
+      {(profile.userAccessType === 'marketing' || profile.userAccessType === 'ambos' || profile.isAdmin) && (
         <button className="home-content-card card" onClick={() => navigate('/biblioteca')}>
           <div className="home-content-icon" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed' }}>
             <Megaphone size={20} />
@@ -432,37 +422,6 @@ export default function Home() {
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
       )}
-
-      {/* ── Acesso rápido: Vendas + Marketing (ambos) ou só um dos lados ── */}
-      {profile.userAccessType === 'ambos' ? (
-        <div className="home-dual-section">
-          <div className="home-dual-label">Acesso rápido</div>
-          <div className="home-dual-grid">
-            <button className="home-dual-card home-dual-vendas card" onClick={() => navigate('/treino-hub')}>
-              <div className="home-dual-icon"><Dumbbell size={18} /></div>
-              <strong>Treino</strong>
-              <span>Role-play, reuniões e mais</span>
-            </button>
-            <button className="home-dual-card home-dual-mkt card" onClick={() => navigate('/biblioteca')}>
-              <div className="home-dual-icon"><Megaphone size={18} /></div>
-              <strong>Marketing</strong>
-              <span>Copy, guia e análise</span>
-            </button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <button className="home-train-card card" onClick={() => navigate('/treino-hub')}>
-            <div className="home-train-icon"><Dumbbell size={18} /></div>
-            <div className="home-train-text">
-              <strong>Treino</strong>
-              <span>Role-play, objeções, reuniões e mensagens</span>
-            </div>
-            <ArrowRight size={16} className="home-train-arrow" />
-          </button>
-        </>
-      )}
-
 
       {favs.length > 0 && (
         <div className="home-favs">

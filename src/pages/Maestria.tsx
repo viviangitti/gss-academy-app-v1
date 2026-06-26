@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, ArrowRight } from 'lucide-react';
+import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Dumbbell, Share2, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import './Home.css';
@@ -49,6 +49,19 @@ export default function Maestria() {
         </button>
       </div>
 
+      {/* Treino */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Treino</h3></div>
+        <button className="home-content-card card" onClick={() => navigate('/treino-hub')}>
+          <div className="home-content-icon mae-train-icon"><Dumbbell size={20} /></div>
+          <div className="home-content-text">
+            <strong>Central de treino</strong>
+            <span>Role-play, objeções, reuniões e mensagens num lugar só</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
+      </div>
+
       {/* Role-play / simulação */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">Role-play / simulação</h3></div>
@@ -74,6 +87,14 @@ export default function Maestria() {
           <div className="home-content-text">
             <strong>Aprenda a criar conteúdo</strong>
             <span>Roteiros pra Reels, Insta e LinkedIn + modelos de WhatsApp</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
+        <button className="home-content-card card" onClick={() => navigate('/conteudo-dia')}>
+          <div className="home-content-icon mae-conteudodia-icon"><Share2 size={20} /></div>
+          <div className="home-content-text">
+            <strong>Conteúdo do Dia</strong>
+            <span>Poste nas suas redes e ganhe pontos</span>
           </div>
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
