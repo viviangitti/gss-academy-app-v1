@@ -72,7 +72,11 @@ export default function MyReport() {
           {report.competencias?.length >= 3 && (
             <div className="myrep-block card">
               <h4><Crosshair size={15} /> Suas competências</h4>
-              <RadarChart items={report.competencias.map(c => ({ label: c.nome, value: c.nota }))} />
+              <RadarChart items={report.competencias.map(c => ({ label: c.nome, value: c.nota }))} benchmark={80} />
+              <div className="myrep-radar-legend">
+                <span><span className="rl-swatch rl-you" /> Você</span>
+                <span><span className="rl-swatch rl-bench" /> Executivo com Maestria</span>
+              </div>
               <div className="myrep-bars">
                 {[...report.competencias].sort((a, b) => b.nota - a.nota).map((c, i) => (
                   <div key={i} className="myrep-bar-row">

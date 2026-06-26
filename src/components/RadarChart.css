@@ -28,3 +28,12 @@
 }
 .radar-value.low { fill: #ef4444; }
 .radar-value.high { fill: #16a34a; }
+
+/* Benchmark do expert (Executivo com Maestria) */
+.radar-benchmark {
+  fill: none;
+  stroke: #60a5fa;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  opacity: 0.9;
+}

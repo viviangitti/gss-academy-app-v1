@@ -10,9 +10,10 @@ export interface RadarItem {
 interface Props {
   items: RadarItem[];
   size?: number;
+  benchmark?: number; // 0-100 — nível de referência (ex: Executivo com Maestria em Vendas)
 }
 
-export default function RadarChart({ items, size = 320 }: Props) {
+export default function RadarChart({ items, size = 320, benchmark }: Props) {
   const n = items.length;
   if (n < 3) return null;
 
@@ -43,6 +44,10 @@ export default function RadarChart({ items, size = 320 }: Props) {
         const [x, y] = point(i, radius);
         return <line key={i} x1={cx} y1={cy} x2={x} y2={y} className="radar-axis" />;
       })}
+      {/* benchmark do expert (Executivo com Maestria) — pontilhado */}
+      {typeof benchmark === 'number' && (
+        <polygon points={poly((Math.max(0, Math.min(100, benchmark)) / 100) * radius)} className="radar-benchmark" />
+      )}
       {/* área do vendedor */}
       <polygon points={dataPoly} className="radar-area" />
       {/* pontos + nota */}
