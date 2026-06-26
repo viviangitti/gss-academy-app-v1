@@ -138,6 +138,13 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
     }
 
+    // /liveStatus — status "em atendimento agora" (id = {uid}).
+    // Leitura: autenticado (o gestor vê o time). Escrita: só o próprio dono.
+    match /liveStatus/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
     // /feedbacks — feedback geral do app (formulário). Só cria; ninguém lê pelo app.
     match /feedbacks/{docId} {
       allow create: if isSignedIn();

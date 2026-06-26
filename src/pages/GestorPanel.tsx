@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw, Camera } from 'lucide-react';
+import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw, Camera, Radio } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getTeamSummary } from '../services/firestore/contentScores';
 import { getTeamProofs } from '../services/firestore/contentProofs';
+import { getTeamLiveStatus } from '../services/firestore/liveStatus';
+import type { LiveMember } from '../services/firestore/liveStatus';
 import type { TeamProof } from '../services/firestore/contentProofs';
 import { getTeamGapReport } from '../services/gapReport';
 import RadarChart from '../components/RadarChart';
@@ -25,11 +27,18 @@ function monthKey() {
   return new Date().toISOString().slice(0, 7);
 }
 
+function minsAgo(d?: Date): string {
+  if (!d) return '';
+  const m = Math.max(0, Math.round((Date.now() - d.getTime()) / 60000));
+  return m < 1 ? 'agora' : m < 60 ? `há ${m} min` : `há ${Math.round(m / 60)}h`;
+}
+
 export default function GestorPanel() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const [summary, setSummary] = useState<TeamSummary>({ totalPosts: 0, totalPoints: 0, activeMembers: 0, members: [] });
   const [proofs, setProofs] = useState<TeamProof[]>([]);
+  const [live, setLive] = useState<LiveMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [gaps, setGaps] = useState<TeamReport | null>(null);
   const [gapsLoading, setGapsLoading] = useState(false);
@@ -73,6 +82,10 @@ export default function GestorPanel() {
 
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
 
+  const refreshLive = () => {
+    getTeamLiveStatus(profile.company || '').then(setLive).catch(() => {});
+  };
+
   useEffect(() => {
     if (!isGestor) return;
     getTeamSummary(profile.company || '', profile.segment || '', monthKey())
@@ -81,6 +94,7 @@ export default function GestorPanel() {
     getTeamProofs(profile.company || '', monthKey())
       .then(setProofs)
       .catch(() => {});
+    refreshLive();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -108,6 +122,33 @@ export default function GestorPanel() {
           <h2>Raio X do Time</h2>
           <p>Diagnóstico e engajamento da equipe — {mes}</p>
         </div>
+      </div>
+
+      {/* Em atendimento agora — time ao vivo */}
+      <div className="gp-live card">
+        <div className="gp-live-head">
+          <span className="gp-live-title">
+            <Radio size={15} /> Em atendimento agora
+            <span className={`gp-live-count ${live.length ? 'on' : ''}`}>{live.length}</span>
+          </span>
+          <button className="gp-live-refresh" onClick={refreshLive} aria-label="Atualizar">
+            <RefreshCw size={14} />
+          </button>
+        </div>
+        {live.length === 0 ? (
+          <p className="gp-live-empty">Ninguém do time marcou atendimento agora.</p>
+        ) : (
+          <div className="gp-live-list">
+            {live.map(m => (
+              <div key={m.uid} className="gp-live-row">
+                <span className="gp-live-pulse" />
+                <span className="gp-live-name">{m.name}</span>
+                {m.clientHint && <span className="gp-live-client">{m.clientHint}</span>}
+                <span className="gp-live-since">{minsAgo(m.since)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Resumo */}

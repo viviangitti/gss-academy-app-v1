@@ -40,3 +40,38 @@
   background: rgba(16, 185, 129, 0.14) !important;
   color: #34d399 !important;
 }
+
+/* Status ao vivo — toggle "em atendimento" */
+.neg-live {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  transition: border-color .15s, background .15s;
+}
+.neg-live.on {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.08);
+}
+.neg-live-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--text-soft);
+  flex-shrink: 0;
+}
+.neg-live.on .neg-live-dot {
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.22);
+  animation: neg-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes neg-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.10); }
+}
+.neg-live-text { display: flex; flex-direction: column; }
+.neg-live-text strong { font-size: 14.5px; }
+.neg-live-text span { font-size: 12.5px; color: var(--text-soft); }
