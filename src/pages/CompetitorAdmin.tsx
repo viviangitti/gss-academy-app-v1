@@ -28,6 +28,7 @@ const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1,
 
 const EMPTY_FORM: Omit<CompetitorOffer, 'id'> = {
   competitor: '',
+  model: '',
   title: '',
   description: '',
   legalText: '',
@@ -184,6 +185,7 @@ export default function CompetitorAdmin() {
     const o = r.offers[offerIdx];
     const offer: Omit<CompetitorOffer, 'id'> = {
       competitor: r.competitor,
+      model: o.model || '',
       title: o.title,
       description: o.description,
       highlights: o.highlights.filter(Boolean),
@@ -220,6 +222,7 @@ export default function CompetitorAdmin() {
     const o = importedOffers[idx];
     const offer: Omit<CompetitorOffer, 'id'> = {
       competitor: importCompetitor.trim(),
+      model: o.model || '',
       title: o.title,
       description: o.description,
       highlights: o.highlights.filter(Boolean),
@@ -244,6 +247,7 @@ export default function CompetitorAdmin() {
     setForm({
       ...EMPTY_FORM,
       competitor: importCompetitor.trim(),
+      model: o.model || '',
       title: o.title,
       description: o.description,
       highlights: o.highlights.length ? o.highlights : [''],
@@ -546,6 +550,13 @@ export default function CompetitorAdmin() {
             <input className="ca-input" value={form.competitor}
               onChange={e => setForm(f => ({ ...f, competitor: e.target.value }))}
               placeholder="Ex: Ford, Chevrolet, Toyota" />
+          </div>
+
+          <div className="ca-field">
+            <label>Modelo</label>
+            <input className="ca-input" value={form.model || ''}
+              onChange={e => setForm(f => ({ ...f, model: e.target.value }))}
+              placeholder="Ex: Ranger, Corolla Cross" />
           </div>
 
           <div className="ca-field">
