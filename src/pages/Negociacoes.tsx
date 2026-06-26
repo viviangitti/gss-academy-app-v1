@@ -1,51 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Handshake, ClipboardList, Zap, Check, X, LifeBuoy, ArrowRight } from 'lucide-react';
+import { ClipboardList, Zap, Check, X, LifeBuoy, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
-import { setMyLiveStatus } from '../services/firestore/liveStatus';
 import type { UserProfile } from '../types';
 import QuickSaleSheet from '../components/QuickSaleSheet';
 import './Home.css';
 import './Negociacoes.css';
 
-const LIVE_KEY = 'gss_em_atendimento';
-
 export default function Negociacoes() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const [showQuickSale, setShowQuickSale] = useState(false);
-  const [emAtendimento, setEmAtendimento] = useState(() => localStorage.getItem(LIVE_KEY) === '1');
   const isSales = profile.userAccessType !== 'marketing';
-
-  const toggleLive = () => {
-    const next = !emAtendimento;
-    setEmAtendimento(next);
-    localStorage.setItem(LIVE_KEY, next ? '1' : '0');
-    setMyLiveStatus(profile, next);
-  };
 
   return (
     <div className="home">
-      {/* Hero */}
-      <div className="neg-hero card">
-        <div className="neg-hero-icon"><Handshake size={24} /></div>
-        <div>
-          <h2>Negociações</h2>
-          <p>Seu copiloto em cada etapa do atendimento</p>
-        </div>
-      </div>
-
-      {/* Status ao vivo — avisa o gestor que estou com um cliente */}
-      {isSales && (
-        <button className={`neg-live card ${emAtendimento ? 'on' : ''}`} onClick={toggleLive}>
-          <span className="neg-live-dot" />
-          <span className="neg-live-text">
-            <strong>{emAtendimento ? 'Em atendimento agora' : 'Marcar que estou em atendimento'}</strong>
-            <span>{emAtendimento ? 'Seu gestor te vê no Raio X do Time — toque pra encerrar' : 'Avisa o gestor que você está com um cliente'}</span>
-          </span>
-        </button>
-      )}
-
       {/* Antes do atendimento */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">Antes do atendimento</h3></div>
