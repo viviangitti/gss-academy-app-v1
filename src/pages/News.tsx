@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, TrendingUp, Globe, Search, X, MapPin, Calendar, Megaphone, Swords } from 'lucide-react';
+import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Sparkles, Tag, TrendingUp, Globe, Search, X, MapPin, Megaphone, Swords } from 'lucide-react';
 import { fetchNewsByCategory, fetchMarketingNews, fetchCompetitorMarketingNews, clearNewsCache } from '../services/news';
 import { searchSegmentOffers, getCachedOffers, getStaleCachedOffers, isOffersCacheStale, setCachedOffers, clearOffersCache } from '../services/competitorScraper';
 import { loadData, saveData, KEYS } from '../services/storage';
@@ -203,12 +203,6 @@ function relativeTime(dateStr: string): string {
   } catch { return ''; }
 }
 
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-  } catch { return dateStr; }
-}
-
 function groupByDate(items: NewsItem[]): { label: string; items: NewsItem[] }[] {
   const today: NewsItem[] = [], yesterday: NewsItem[] = [], thisWeek: NewsItem[] = [], older: NewsItem[] = [];
   const now = new Date(); now.setHours(0,0,0,0);
@@ -246,6 +240,8 @@ export default function News() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [offerRanges, setOfferRanges] = useState<PriceRange[]>([]);
+  const [brandFilter, setBrandFilter] = useState<string[]>([]);
+  const [modelQuery, setModelQuery] = useState('');
 
   const isMarketingUser = userAccessType === 'marketing' || userAccessType === 'ambos';
 
@@ -368,6 +364,16 @@ export default function News() {
   const filteredOffers = offerRanges.length
     ? offers.filter(o => offerRanges.some(r => offerMatchesRange(o, r)))
     : offers;
+
+  // Marcas presentes (após o filtro de faixa) e filtros de marca + modelo
+  const offerBrands = [...new Set(filteredOffers.map(o => o.competitor || 'Outros'))].sort();
+  const toggleBrand = (b: string) =>
+    setBrandFilter(prev => (prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b]));
+  const mq = modelQuery.trim().toLowerCase();
+  const tableOffers = filteredOffers.filter(o =>
+    (brandFilter.length === 0 || brandFilter.includes(o.competitor || 'Outros')) &&
+    (!mq || `${o.model || ''} ${o.title || ''} ${(o.highlights || []).join(' ')}`.toLowerCase().includes(mq))
+  );
 
   const segmentLabel = SEGMENTS.find(s => s.value === segment)?.label || '';
   const currentCategory = CATEGORIES.find(c => c.value === category);
@@ -506,121 +512,88 @@ export default function News() {
           </div>
         ) : (
           <>
-            {/* ── Resumo comparativo agrupado por marca ── */}
-            {(() => {
-              // Group offers by brand
-              const groups: Record<string, ScrapedOffer[]> = {};
-              filteredOffers.forEach(o => {
-                const k = o.competitor || 'Outros';
-                if (!groups[k]) groups[k] = [];
-                groups[k].push(o);
-              });
-              const brands = Object.keys(groups);
-              if (brands.length < 2) return null;
-              return (
-                <div className="offers-summary card">
-                  <p className="offers-summary-title">📊 Inteligência competitiva — o que os concorrentes oferecem</p>
-                  <p className="offers-summary-sub">Use os dados para argumentar. O link leva à página de ofertas da marca ou a uma busca.</p>
-                  <div className="offers-summary-scroll">
-                    {brands.map(brand => {
-                      const logo = getBrandLogo(brand);
-                      const initial = brand[0].toUpperCase();
-                      const brandOffers = groups[brand];
-                      return (
-                        <div key={brand} className="offers-summary-brand-card">
-                          <div className="offers-summary-brand-header">
-                            <div className="offers-summary-avatar">
-                              <span className="offers-summary-initial">{initial}</span>
-                              {logo && <img src={logo} alt={brand} className="offers-summary-logo" onError={e => (e.currentTarget.style.display = 'none')} />}
-                            </div>
-                            <span className="offers-summary-brand-name">{brand}</span>
-                          </div>
-                          <div className="offers-summary-models">
-                            {brandOffers.map((o, i) => {
-                              const hl = o.highlights?.[0] || '';
-                              const modelName = o.model || o.title;
-                              const link = buildOfferLink(o);
-                              return (
-                                <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="offers-summary-model-row" title={link.official ? `Abrir: ${link.label}` : `Pesquisar: ${modelName}`}>
-                                  <div className="offers-summary-model-info">
-                                    <span className="offers-summary-model-name">{modelName}</span>
-                                    {hl && <span className="offers-summary-model-hl">{hl}</span>}
-                                  </div>
-                                  {link.official
-                                    ? <ExternalLink size={11} className="offers-summary-link-icon" />
-                                    : <Search size={11} className="offers-summary-link-icon" />}
-                                </a>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+            {/* Filtro por marca + modelo */}
+            <div className="offers-filter card">
+              {offerBrands.length > 1 && (
+                <div className="offers-filter-brands">
+                  <button
+                    className={`offers-brand-chip ${brandFilter.length === 0 ? 'active' : ''}`}
+                    onClick={() => setBrandFilter([])}
+                  >
+                    Todas
+                  </button>
+                  {offerBrands.map(b => (
+                    <button
+                      key={b}
+                      className={`offers-brand-chip ${brandFilter.includes(b) ? 'active' : ''}`}
+                      onClick={() => toggleBrand(b)}
+                    >
+                      {b}
+                    </button>
+                  ))}
                 </div>
-              );
-            })()}
-
-            {/* ── Cards individuais ── */}
-            <div className="offers-list">
-              {filteredOffers.map((offer, i) => {
-                const logo = getBrandLogo(offer.competitor || '');
-                const hasFooter = true; // sempre mostra "Buscar oferta"
-                return (
-                  <div key={i} className="offer-card card">
-                    <div className="offer-card-inner">
-                      <div className="offer-header">
-                        <div className="offer-brand-row">
-                          {offer.competitor && (
-                            <div className="offer-brand-avatar">
-                              <span className="offer-brand-initial">{offer.competitor[0].toUpperCase()}</span>
-                              {logo && <img src={logo} alt={offer.competitor} className="offer-brand-logo" onError={e => (e.currentTarget.style.display = 'none')} />}
-                            </div>
-                          )}
-                          {offer.competitor && (
-                            <span className="offer-competitor">{offer.competitor}</span>
-                          )}
-                        </div>
-                        {offer.validTo && (
-                          <span className="offer-valid">
-                            <Calendar size={11} /> Até {formatDate(offer.validTo)}
-                          </span>
-                        )}
-                      </div>
-                      {offer.model && (
-                        <p className="offer-model">{offer.model}</p>
-                      )}
-                      <h4 className="offer-title">{offer.title}</h4>
-                      {offer.description && (
-                        <p className="offer-desc">{offer.description}</p>
-                      )}
-                      {offer.highlights && offer.highlights.length > 0 && (
-                        <div className="offer-highlights">
-                          {offer.highlights.map((h, j) => (
-                            <span key={j} className="offer-highlight">{h}</span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    {hasFooter && (() => {
-                      const link = buildOfferLink(offer);
-                      return (
-                        <div className="offer-footer">
-                          {offer.legalText && (
-                            <p className="offer-legal">{offer.legalText}</p>
-                          )}
-                          <a href={link.url} target="_blank" rel="noopener noreferrer" className="offer-source-link" title={link.official ? link.label : `Pesquisar: ${offer.competitor} ${offer.model}`}>
-                            {link.official
-                              ? <><ExternalLink size={12} /> {link.label}</>
-                              : <><Search size={12} /> Pesquisar oferta</>}
-                          </a>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                );
-              })}
+              )}
+              <div className="offers-model-search">
+                <Search size={14} className="offers-model-icon" />
+                <input
+                  type="text"
+                  placeholder="Filtrar por modelo…"
+                  value={modelQuery}
+                  onChange={e => setModelQuery(e.target.value)}
+                />
+                {modelQuery && (
+                  <button className="offers-model-clear" onClick={() => setModelQuery('')} aria-label="Limpar">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* Tabela Marca × Modelo × Oferta */}
+            <div className="offers-table card">
+              <div className="offers-table-head">
+                <span>Marca</span>
+                <span>Modelo</span>
+                <span>Oferta</span>
+                <span aria-hidden />
+              </div>
+              {tableOffers.length === 0 ? (
+                <div className="offers-table-empty">Nenhuma oferta com esses filtros.</div>
+              ) : (
+                tableOffers.map((o, i) => {
+                  const link = buildOfferLink(o);
+                  const logo = getBrandLogo(o.competitor || '');
+                  return (
+                    <a
+                      key={i}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="offers-table-row"
+                      title={link.official ? `Abrir: ${link.label}` : `Pesquisar: ${o.competitor || ''} ${o.model || ''}`}
+                    >
+                      <span className="otr-brand">
+                        <span className="otr-avatar">
+                          {(o.competitor || '?')[0].toUpperCase()}
+                          {logo && <img src={logo} alt="" className="otr-logo" onError={e => (e.currentTarget.style.display = 'none')} />}
+                        </span>
+                        <span className="otr-brand-name">{o.competitor || 'Outros'}</span>
+                      </span>
+                      <span className="otr-model">{o.model || '—'}</span>
+                      <span className="otr-offer">
+                        <span className="otr-offer-title">{o.title}</span>
+                        {o.highlights?.[0] && <span className="otr-offer-hl">{o.highlights[0]}</span>}
+                      </span>
+                      <span className="otr-link">
+                        {link.official ? <ExternalLink size={14} /> : <Search size={14} />}
+                      </span>
+                    </a>
+                  );
+                })
+              )}
+            </div>
+
+            <p className="offers-table-note">{tableOffers.length} oferta{tableOffers.length !== 1 ? 's' : ''} · toque pra abrir a fonte</p>
           </>
         )
       ) : (
@@ -653,20 +626,27 @@ export default function News() {
                   <div className="news-list">
                     {group.items.map((item, i) => {
                       const hasLink = !!item.link && item.link.startsWith('http');
-                      const Tag = hasLink ? 'a' : 'div';
+                      // Sempre clicável: link real abre a matéria; sem link, cai numa busca no Google.
+                      const href = hasLink
+                        ? item.link
+                        : `https://www.google.com/search?q=${encodeURIComponent(item.title)}`;
                       return (
-                        <Tag
+                        <a
                           key={i}
-                          {...(hasLink ? { href: item.link, target: '_blank', rel: 'noopener noreferrer' } : {})}
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="news-card card"
                         >
                           <h4 className="news-title">{item.title}</h4>
                           {item.description && <p className="news-desc">{item.description}</p>}
                           <div className="news-footer">
                             <span className="news-date">{relativeTime(item.pubDate)}</span>
-                            {hasLink && <ExternalLink size={12} />}
+                            {hasLink
+                              ? <span className="news-link-cta"><ExternalLink size={12} /> ler matéria</span>
+                              : <span className="news-link-cta"><Search size={12} /> pesquisar</span>}
                           </div>
-                        </Tag>
+                        </a>
                       );
                     })}
                   </div>
