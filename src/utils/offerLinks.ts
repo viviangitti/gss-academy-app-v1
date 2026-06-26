@@ -45,7 +45,12 @@ export function getBrandLogo(name: string): string | null {
   return `https://logo.clearbit.com/${domain}`;
 }
 
-// Páginas verificadas MANUALMENTE — domínios/páginas que existem de verdade.
+// Páginas verificadas MANUALMENTE — SÓ páginas de OFERTAS reais (que mostram
+// as condições/promos do mês). Marcas cujo link seria só a homepage (Chevrolet,
+// BYD, Land Rover, Porsche, Lexus, Jaguar) ou que bloqueiam (BMW/Audi/Mercedes/
+// Volvo) NÃO entram aqui de propósito: caem na busca direcionada do Google
+// ("Marca Modelo oferta"), que leva à oferta do modelo em vez de uma página
+// genérica sem a informação da oferta.
 const VERIFIED_OFFER_PAGES: Record<string, string> = {
   fiat: 'https://ofertas.fiat.com.br/',
   volkswagen: 'https://ofertas.vw.com.br/', vw: 'https://ofertas.vw.com.br/',
@@ -55,15 +60,7 @@ const VERIFIED_OFFER_PAGES: Record<string, string> = {
   jeep: 'https://www.jeep.com.br/ofertas.html',
   nissan: 'https://www.nissan.com.br/ofertas.html',
   honda: 'https://www.honda.com.br/automoveis/ofertas',
-  chevrolet: 'https://www.chevrolet.com.br/',
-  byd: 'https://www.byd.com.br/',
   'caoa chery': 'https://www.caoachery.com.br/ofertas', chery: 'https://www.caoachery.com.br/ofertas',
-  // Luxo — só páginas que respondem 200 e não bloqueiam. BMW/Audi/Mercedes/Volvo
-  // saem daqui de propósito: levavam só à homepage e tinham proteção anti-bot —
-  // caem na busca do Google ("Marca Modelo oferta"), mais robusto e mais útil.
-  'land rover': 'https://www.landrover.com.br/',
-  porsche: 'https://www.porsche.com/brazil/',
-  lexus: 'https://www.lexus.com.br/', jaguar: 'https://www.jaguar.com.br/',
 };
 
 export type OfferLink = { url: string; label: string; official: boolean };
