@@ -47,7 +47,7 @@ export default function DailyBriefing() {
   const daysLeft = workdaysLeft();
 
   useEffect(() => {
-    getActiveConditionsForMonth(monthKey(), profile.segment || undefined)
+    getActiveConditionsForMonth(monthKey(), profile.segment || undefined, profile.company || '')
       .then(conds => {
         if (conds.length) setLatestCondition(conds[0].title);
       })

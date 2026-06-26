@@ -122,11 +122,33 @@ service cloud.firestore {
       allow write: if isCampaignManager();
     }
 
+    // Função auxiliar: a empresa (concessionária) do usuário logado.
+    function myCompany() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.company;
+    }
+
+    // Função auxiliar: pode VER todas as condições (gestão), independente da loja.
+    // Só admin / marketing / gestor — NÃO o vendedor comum.
+    function isConditionsManager() {
+      let p = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return isSignedIn() && (
+        p.isAdmin == true ||
+        p.isMarketing == true ||
+        p.userAccessType == 'marketing' ||
+        p.isGestor == true
+      );
+    }
+
     // /commercialConditions — condições comerciais.
-    // Leitura: só logado (o isolamento por loja é aplicado no app, filtrando por company).
-    // Escrita: marketing/vendas/admin.
+    // ISOLAMENTO POR LOJA NO SERVIDOR: um vendedor só lê as condições GLOBAIS ('')
+    // ou as da PRÓPRIA concessionária. Não há como puxar de outra loja, nem pela API.
+    // Gestor/marketing/admin podem ler todas (pra gerir). Escrita: marketing/vendas/admin.
     match /commercialConditions/{docId} {
-      allow read: if isSignedIn();
+      allow read: if isSignedIn() && (
+        isConditionsManager() ||
+        resource.data.company == '' ||
+        resource.data.company == myCompany()
+      );
       allow write: if isCampaignManager();
     }
 

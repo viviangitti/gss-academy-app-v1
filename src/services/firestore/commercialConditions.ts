@@ -1,6 +1,6 @@
 import {
   collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
-  query, orderBy, serverTimestamp,
+  query, orderBy, where, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Segment } from '../../types';
@@ -31,15 +31,18 @@ export async function getCommercialConditions(): Promise<CommercialCondition[]> 
 
 export async function getActiveConditionsForMonth(month: string, segment?: Segment, company?: string): Promise<CommercialCondition[]> {
   if (!db) return [];
-  const snap = await getDocs(query(collection(db, COL), orderBy('month', 'desc')));
+  // Isolamento por loja aplicado NO SERVIDOR (as regras só liberam globais '' + a própria loja):
+  // a query busca apenas company '' (global) e a empresa do usuário — não tem como puxar de outra loja.
+  const companies = company ? [company, ''] : [''];
+  const snap = await getDocs(query(collection(db, COL), where('company', 'in', companies)));
   const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as CommercialCondition));
-  return all.filter(c =>
-    c.active &&
-    c.month === month &&
-    (!segment || c.segment === '' || c.segment === segment) &&
-    // isolamento por loja: mostra as globais (sem company) OU as da própria concessionária
-    (!company || !c.company || c.company === company)
-  );
+  return all
+    .filter(c =>
+      c.active &&
+      c.month === month &&
+      (!segment || c.segment === '' || c.segment === segment)
+    )
+    .sort((a, b) => (b.month || '').localeCompare(a.month || ''));
 }
 
 export async function createCommercialCondition(

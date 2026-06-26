@@ -42,7 +42,7 @@ export async function buildAmmo(): Promise<string> {
   try {
     const [offers, conditions] = await Promise.all([
       getActiveOffers(profile.segment || undefined).catch(() => []),
-      getActiveConditionsForMonth(monthKey(), profile.segment || undefined).catch(() => []),
+      getActiveConditionsForMonth(monthKey(), profile.segment || undefined, profile.company || '').catch(() => []),
     ]);
     if (conditions.length) {
       parts.push('CONDIÇÕES DO MÊS:\n' + conditions.slice(0, 5).map(c => `• ${c.title}${c.highlights?.length ? ` — ${c.highlights.join(', ')}` : ''}`).join('\n'));
