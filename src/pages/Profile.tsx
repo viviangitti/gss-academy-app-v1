@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell, Tag } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { User, Building2, Briefcase, Check, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell, Tag } from 'lucide-react';
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
@@ -19,6 +19,8 @@ export default function Profile() {
   const { user, firebaseEnabled } = useAuth();
   const [profile, setProfile] = useState<UserProfile>({ name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
   const [saved, setSaved] = useState(false);
+  // Auto-save: guarda o último estado já salvo pra não salvar à toa (carga inicial)
+  const lastSavedRef = useRef(JSON.stringify({ name: '', role: '', company: '', segment: '', monthlyGoal: 0 }));
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('gss_theme') as Theme) || 'auto');
   const [pushOn, setPushOn] = useState(false);
   const [pushAvail, setPushAvail] = useState(false);
@@ -48,17 +50,26 @@ export default function Profile() {
     if (p.monthlyGoalAccessories && p.monthlyGoalAccessories > 0 && !migrated.find(g => g.label === 'Acessórios')) {
       migrated.push({ label: 'Acessórios', icon: '📦', target: p.monthlyGoalAccessories });
     }
-    setProfile({ ...p, customGoals: migrated });
+    const loaded = { ...p, customGoals: migrated };
+    setProfile(loaded);
+    lastSavedRef.current = JSON.stringify(loaded);   // marca como "já salvo" (não dispara auto-save)
   }, []);
 
-  const handleSave = async () => {
-    saveData(KEYS.PROFILE, profile);
-    if (user && firebaseEnabled) {
-      try { await saveRemoteProfile(user.uid, profile); } catch { /* offline, sync depois */ }
-    }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+  // Auto-save com debounce: salva sozinho ao alterar qualquer campo
+  useEffect(() => {
+    const cur = JSON.stringify(profile);
+    if (cur === lastSavedRef.current) return;          // nada mudou desde o último save/carga
+    const t = setTimeout(async () => {
+      saveData(KEYS.PROFILE, profile);
+      if (user && firebaseEnabled) {
+        try { await saveRemoteProfile(user.uid, profile); } catch { /* offline, sync depois */ }
+      }
+      lastSavedRef.current = cur;
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1600);
+    }, 700);
+    return () => clearTimeout(t);
+  }, [profile, user, firebaseEnabled]);
 
   const handleSignOut = async () => {
     if (confirm('Sair da sua conta? Seus dados continuam salvos na nuvem.')) {
@@ -114,6 +125,7 @@ export default function Profile() {
 
   return (
     <div className="profile-page">
+      {saved && <div className="profile-saved-toast"><Check size={14} /> Salvo</div>}
       <div className="profile-avatar">
         <div className="avatar-circle">
           <User size={36} />
@@ -423,10 +435,6 @@ export default function Profile() {
             })}
           </div>
         </div>
-
-        <button className={`btn btn-primary save-btn ${saved ? 'saved' : ''}`} onClick={handleSave}>
-          <Save size={16} /> {saved ? 'Salvo!' : 'Salvar'}
-        </button>
       </div>
 
       {/* Theme switcher */}
@@ -475,9 +483,6 @@ export default function Profile() {
             ))}
           </div>
         </div>
-        <button className="btn btn-primary" style={{ width: '100%', marginTop: 12 }} onClick={handleSave}>
-          <Save size={15} /> {saved ? 'Salvo!' : 'Salvar assistente'}
-        </button>
       </div>
 
       {/* Notificações push */}
