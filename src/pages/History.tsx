@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { History as HistoryIcon, Wand2, Mic, Swords, Trash2, Clock, Search } from 'lucide-react';
+import { History as HistoryIcon, Wand2, Mic, Swords, Trash2, Clock, Search, Users } from 'lucide-react';
 import { getAllHistory, removeHistory, clearHistory } from '../services/history';
 import type { HistoryEntry, HistoryType } from '../services/history';
 import './History.css';
@@ -9,6 +9,7 @@ const TYPE_CONFIG: Record<HistoryType, { label: string; icon: React.ComponentTyp
   message_review: { label: 'Mensagem', icon: Wand2, color: '#10b981', route: '/coach-mensagem' },
   meeting_analysis: { label: 'Pós-reunião', icon: Mic, color: '#ef4444', route: '/analise-reuniao' },
   simulator_session: { label: 'Simulador', icon: Swords, color: '#8b5cf6', route: '/treino' },
+  leadership_session: { label: 'Liderança', icon: Users, color: '#f43f5e', route: '/treino-lideranca' },
 };
 
 const FILTERS: { value: HistoryType | 'all'; label: string }[] = [

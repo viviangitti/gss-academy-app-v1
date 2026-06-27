@@ -130,3 +130,4 @@
   cursor: pointer; white-space: nowrap;
 }
 .mae-evo-metric strong { font-size: 14px; color: var(--text); }
+.mae-lead-icon { background: rgba(244,63,94,0.14) !important; color: #f43f5e !important; }

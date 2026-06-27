@@ -26,6 +26,7 @@ const titles: Record<string, string> = {
   '/criar-conteudo': 'Criar conteúdo',
   '/rituais-gestor': 'Rotinas & rituais',
   '/gestao-comercial': 'Gestão comercial',
+  '/treino-lideranca': 'Treino de liderança',
   '/boost': 'Cliente em atendimento',
   '/rescue': 'Resgate',
   '/meu-raiox': 'Meu Raio-X',
@@ -92,6 +93,7 @@ const BACK: Record<string, string | string[]> = {
   '/conteudo-dia': ['/maestria', '/biblioteca'],
   '/rituais-gestor': '/maestria',
   '/gestao-comercial': '/maestria',
+  '/treino-lideranca': '/maestria',
   '/coach-mensagem': ['/maestria', '/treino-hub'],
   '/analise-reuniao': ['/maestria', '/treino-hub'],
   // Raio X

@@ -101,6 +101,14 @@ export default function Maestria() {
             </div>
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
+          <button className="home-content-card card" onClick={() => navigate('/treino-lideranca')}>
+            <div className="home-content-icon mae-lead-icon"><Swords size={20} /></div>
+            <div className="home-content-text">
+              <strong>Treino de liderança</strong>
+              <span>Pratique conversas difíceis: feedback, motivar, segurar talento</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
           <button className="home-content-card card" onClick={() => navigate('/gestao-comercial')}>
             <div className="home-content-icon mae-gc-icon"><GraduationCap size={20} /></div>
             <div className="home-content-text">
