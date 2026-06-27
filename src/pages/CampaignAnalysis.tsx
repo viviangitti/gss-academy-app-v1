@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText, aiErrorMessage } from '../services/ai';
 import {
   Upload, FileText, X, Sparkles, Download,
   BarChart2, RefreshCw, ImageIcon, AlertCircle,
@@ -157,12 +157,6 @@ export default function CampaignAnalysis() {
     setSections([]);
 
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
-        systemInstruction: SYSTEM_PROMPT,
-      });
-
       const contextText = context.trim()
         || 'Analise os resultados dessa campanha de marketing e gere insights, o que funcionou, o que pode melhorar e recomendações.';
 
@@ -171,14 +165,16 @@ export default function CampaignAnalysis() {
         { text: contextText },
       ];
 
-      const response = await model.generateContent(parts);
-      const text = response.response.text();
+      const text = await generateText(API_KEY, parts, {
+        models: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+        retries: 2,
+        modelParams: { systemInstruction: SYSTEM_PROMPT },
+      });
       setResult(text);
       setSections(parseSections(text));
       saveResult({ result: text, context: contextText, fileName: file.name, analyzedAt: Date.now() });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
-      setError(msg);
+      setError(aiErrorMessage(err));
     } finally {
       setLoading(false);
     }

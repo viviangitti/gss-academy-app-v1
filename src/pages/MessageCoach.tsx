@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Wand2, Sparkles, Copy, Check, RotateCcw, AlertTriangle, ThumbsUp, MessageSquare, Lightbulb } from 'lucide-react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText, aiErrorMessage } from '../services/ai';
 import { addHistory } from '../services/history';
 import ShareButton from '../components/ShareButton';
 import SpeakButton from '../components/SpeakButton';
@@ -107,13 +107,10 @@ export default function MessageCoach() {
     setAnalysis(null);
 
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
       const contextLabel = CONTEXTS.find(c => c.value === context)?.label || '';
       const channelLabel = CHANNELS.find(c => c.value === channel)?.label || channel;
 
-      const result = await model.generateContent(ANALYSIS_PROMPT(message, contextLabel, channelLabel));
-      const text = result.response.text().trim();
+      const text = (await generateText(API_KEY, ANALYSIS_PROMPT(message, contextLabel, channelLabel), { retries: 2 })).trim();
       // Remove possíveis crases de markdown
       const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
       const parsed = JSON.parse(cleaned) as Analysis;
@@ -128,8 +125,7 @@ export default function MessageCoach() {
         data: { message, context, channel, analysis: parsed } as SavedAnalysis,
       });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : '';
-      setError(`A análise ficou indisponível. ${msg ? `(${msg})` : ''} Toque para tentar de novo.`);
+      setError(`${aiErrorMessage(e)} Toque para tentar de novo.`);
     }
     setLoading(false);
   };

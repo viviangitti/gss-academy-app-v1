@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FileText, ExternalLink, Check, RefreshCw, Calendar, Upload, Sparkles, X, Image, AlertCircle, Share2, ImageDown } from 'lucide-react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText, isOverloaded } from '../services/ai';
 import { loadData, KEYS } from '../services/storage';
 import { getActiveConditionsForMonth } from '../services/firestore/commercialConditions';
 import type { CommercialCondition } from '../services/firestore/commercialConditions';
@@ -123,8 +123,6 @@ export default function CommercialConditions() {
 
     try {
       const base64 = await readFileAsBase64(file);
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const prompt = `Você é um especialista em análise de condições comerciais do mercado brasileiro.
 Analise este documento e extraia TODAS as ofertas, condições e promoções encontradas.
@@ -140,12 +138,10 @@ Para cada condição/oferta, retorne um objeto JSON com:
 Retorne APENAS um JSON array válido, sem markdown, sem texto extra.
 Se não encontrar condições claras, retorne [].`;
 
-      const result = await model.generateContent([
+      const raw = (await generateText(API_KEY, [
         { text: prompt },
         { inlineData: { data: base64, mimeType: file.type } },
-      ]);
-
-      const raw = result.response.text().trim();
+      ], { models: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'], retries: 2 })).trim();
       const match = raw.match(/\[[\s\S]*\]/);
       const data = JSON.parse(match ? match[0] : raw) as ParsedCondition[];
 
@@ -154,8 +150,8 @@ Se não encontrar condições claras, retorne [].`;
       } else {
         setUploadError('Não encontrei condições neste documento. Tente com outra imagem ou PDF com mais detalhes.');
       }
-    } catch {
-      setUploadError('Erro ao processar. Verifique sua conexão e tente novamente.');
+    } catch (e) {
+      setUploadError(isOverloaded(e) ? 'A IA está congestionada agora — tenta de novo em alguns segundos.' : 'Erro ao processar. Verifique sua conexão e tente novamente.');
     }
 
     setUploading(false);

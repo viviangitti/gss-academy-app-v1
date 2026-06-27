@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText, aiErrorMessage } from '../services/ai';
 import { PenLine, Sparkles, Copy, Share2, RefreshCw, CheckCircle, BookOpen, AlertCircle } from 'lucide-react';
 import { useOnline } from '../hooks/useOnline';
 import OfflineState from '../components/OfflineState';
@@ -91,8 +91,6 @@ export default function CopyGenerator() {
     setCopies([]);
 
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-
       const guideBlock = guide && guide.type === 'text'
         ? `\n\nGUIA DE MARCA DA EMPRESA:\n"""\n${guide.content}\n"""\nMantenha o tom de voz, identidade e valores definidos no guia em TODAS as versões.`
         : guide
@@ -134,13 +132,11 @@ DIRETRIZES:
       }
       parts.push({ text: userPrompt });
 
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
-        systemInstruction: systemPrompt,
+      const text = await generateText(API_KEY, parts, {
+        models: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+        retries: 2,
+        modelParams: { systemInstruction: systemPrompt },
       });
-
-      const response = await model.generateContent(parts);
-      const text = response.response.text();
       const parsed = parseCopies(text);
 
       if (parsed.length === 0) {
@@ -149,7 +145,7 @@ DIRETRIZES:
         setCopies(parsed);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      setError(aiErrorMessage(err));
     } finally {
       setLoading(false);
     }
