@@ -16,6 +16,8 @@ export interface MaestriaProgress {
   streak: number;         // dias seguidos treinando
   totalTreinos: number;
   avgNota: number | null;
+  nextLevelLabel: string | null;  // próximo nível (null se já é Maestro)
+  nextLevelIn: number;            // treinos restantes (estimado) pro próximo nível
 }
 
 function dayKey(ts: number): string {
@@ -54,6 +56,11 @@ export function getMaestriaProgress(): MaestriaProgress {
   const next = THRESHOLDS[Math.min(idx + 1, THRESHOLDS.length - 1)];
   const pct = next > cur ? Math.min(100, Math.round(((points - cur) / (next - cur)) * 100)) : 100;
 
+  // Quantos treinos faltam (estimado) pro próximo nível
+  const isMax = level >= LEVELS.length;
+  const perTreino = 0.6 + 0.4 * quality;           // pontos que cada treino soma
+  const nextLevelIn = isMax ? 0 : Math.max(1, Math.ceil((next - points) / perTreino));
+
   return {
     level,
     levelLabel: LEVELS[idx],
@@ -61,6 +68,8 @@ export function getMaestriaProgress(): MaestriaProgress {
     streak,
     totalTreinos: total,
     avgNota: avg != null ? Math.round(avg * 10) / 10 : null,
+    nextLevelLabel: isMax ? null : LEVELS[idx + 1],
+    nextLevelIn,
   };
 }
 

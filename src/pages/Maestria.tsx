@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, Heart, GraduationCap, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, Heart, Trophy, GraduationCap, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
+import { getContentStats } from '../services/socialContent';
 import { getTeamCasesRaw } from '../services/memory';
 import type { Objection } from '../services/content';
 import type { UserProfile } from '../types';
@@ -30,6 +31,7 @@ export default function Maestria() {
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
   const isSales = profile.userAccessType !== 'marketing';
   const progress = getMaestriaProgress();
+  const content = getContentStats();
   const treinoDoDia = getTreinoDoDia(profile.segment);
   const caseObj = isSales ? getCaseObjection() : null;
 
@@ -45,12 +47,33 @@ export default function Maestria() {
               <div>
                 <span className="mae-evo-label">Nível: {progress.levelLabel}</span>
                 <div className="mae-evo-bar"><i style={{ width: `${progress.pct}%` }} /></div>
+                <span className="mae-evo-next">
+                  {progress.totalTreinos === 0
+                    ? 'Faça seu 1º treino pra começar a evoluir'
+                    : progress.nextLevelLabel
+                      ? `Faltam ${progress.nextLevelIn} treino${progress.nextLevelIn !== 1 ? 's' : ''} pro nível ${progress.nextLevelLabel}`
+                      : 'Nível máximo — você é Maestro! 🏆'}
+                </span>
               </div>
             </div>
             <div className="mae-evo-streak" title="dias seguidos treinando">
               <Flame size={15} /> {progress.streak}
             </div>
           </div>
+
+          {/* Resumo unificado: treinos + conteúdo num lugar só */}
+          <div className="mae-evo-metrics">
+            <button className="mae-evo-metric" onClick={() => navigate('/treino')}>
+              <Swords size={14} /> <strong>{progress.totalTreinos}</strong> treino{progress.totalTreinos !== 1 ? 's' : ''}
+            </button>
+            <button className="mae-evo-metric" onClick={() => navigate('/criar-conteudo')}>
+              <Trophy size={14} /> <strong>{content.totalPoints}</strong> pts de conteúdo
+            </button>
+            <button className="mae-evo-metric" onClick={() => navigate('/conteudo-dia')}>
+              <Flame size={14} /> <strong>{content.streak}</strong> dias postando
+            </button>
+          </div>
+
           {treinoDoDia && (
             <button
               className="mae-evo-today"

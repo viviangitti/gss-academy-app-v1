@@ -119,3 +119,14 @@
   border: 0.5px solid rgba(236,72,153,0.28);
 }
 .mae-gc-icon { background: rgba(96,165,250,0.16) !important; color: #60a5fa !important; }
+
+/* Sua evolução — próximo nível + métricas unificadas */
+.mae-evo-next { display: block; font-size: 11.5px; color: var(--text-soft); margin-top: 5px; }
+.mae-evo-metrics { display: flex; gap: 8px; margin-top: 14px; }
+.mae-evo-metric {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 9px 6px; border-radius: 11px; border: 1px solid rgba(129,140,248,0.3);
+  background: var(--bg, #fff); color: var(--text-soft); font-size: 11.5px; font-family: inherit;
+  cursor: pointer; white-space: nowrap;
+}
+.mae-evo-metric strong { font-size: 14px; color: var(--text); }
