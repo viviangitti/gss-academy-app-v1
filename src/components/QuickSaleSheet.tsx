@@ -44,7 +44,8 @@ export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
         <h3 className="quick-sale-title"><TrendingUp size={18} /> Registrar venda</h3>
         <div className="quick-sale-fields">
           <div className="quick-sale-field">
-            <label>Vendas R$ <span className="required">*</span></label>
+            <label>Sua comissão R$ <span className="required">*</span></label>
+            <span className="qs-hint">Quanto você ganhou nessa venda</span>
             <input
               type="number"
               placeholder={error === 'commission' ? 'Obrigatório!' : 'Ex: 800'}
@@ -56,10 +57,11 @@ export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
             />
           </div>
           <div className="quick-sale-field">
-            <label>Valor da venda R$</label>
+            <label>Valor da venda R$ <span style={{ fontWeight: 400, color: 'var(--text-soft)' }}>(opcional)</span></label>
+            <span className="qs-hint">Valor total do carro/negócio</span>
             <input
               type="number"
-              placeholder="Ex: 10000"
+              placeholder="Ex: 50000"
               value={form.amount}
               onChange={e => setForm({ ...form, amount: e.target.value })}
               inputMode="numeric"
