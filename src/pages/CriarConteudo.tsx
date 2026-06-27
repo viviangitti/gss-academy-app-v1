@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   PenSquare, Video, Layers, Clock, Briefcase, Sparkles,
   ChevronDown, Copy, Check, ArrowRight, Wand2,
-  BookOpen, Camera, Star, Tag,
+  BookOpen, Camera, Star, Tag, Trophy, Flame,
 } from 'lucide-react';
 import { getPostFeedback } from '../services/postFeedback';
 import type { PostFeedback } from '../services/postFeedback';
+import {
+  getWeeklyMissions, getWeeklyMissionProgress, isMissionDone, completeMission, getContentStats,
+} from '../services/socialContent';
 import './Home.css';
 import './CriarConteudo.css';
 
@@ -104,6 +107,16 @@ export default function CriarConteudo() {
   const [openFmt, setOpenFmt] = useState<string | null>('reels');
   const [copied, setCopied] = useState<string | null>(null);
 
+  // Missões da semana (social selling pontuado)
+  const [tick, setTick] = useState(0);
+  const missions = getWeeklyMissions();
+  const prog = getWeeklyMissionProgress();
+  const stats = getContentStats();
+  const doMission = (id: string) => {
+    const m = missions.find(x => x.id === id);
+    if (m && !isMissionDone(id)) { completeMission(m); setTick(tick + 1); }
+  };
+
   const [draft, setDraft] = useState('');
   const [fbPlat, setFbPlat] = useState('');
   const [fbLoading, setFbLoading] = useState(false);
@@ -132,6 +145,41 @@ export default function CriarConteudo() {
           <h2>Conteúdo pra redes</h2>
           <p>Atraia clientes postando — o que postar, como postar e feedback da IA</p>
         </div>
+      </div>
+
+      {/* Missões da semana — social selling pontuado (ref. Socialis) */}
+      <div className="day-section">
+        <div className="cc-miss-head">
+          <h3 className="section-title">Missões da semana</h3>
+          <div className="cc-miss-stats">
+            <span title="pontos no total"><Trophy size={13} /> {stats.totalPoints}</span>
+            <span title="dias seguidos postando"><Flame size={13} className={stats.streak > 0 ? 'cc-flame' : ''} /> {stats.streak}</span>
+          </div>
+        </div>
+        <div className="cc-miss-prog card">
+          <div className="cc-miss-prog-top">
+            <strong>{prog.done}/{prog.total} feitas</strong>
+            <span>{prog.earned}/{prog.points} pts</span>
+          </div>
+          <div className="cc-miss-bar"><i style={{ width: `${prog.total ? (prog.done / prog.total) * 100 : 0}%` }} /></div>
+          <p className="cc-miss-sub">{prog.done >= prog.total ? '🏆 Semana completa! Mandou bem.' : 'Complete as missões e suba no ranking do time.'}</p>
+        </div>
+        {missions.map(m => {
+          const done = isMissionDone(m.id);
+          return (
+            <div key={m.id} className={`cc-miss card ${done ? 'done' : ''}`}>
+              <div className="cc-miss-emoji">{m.emoji}</div>
+              <div className="cc-miss-text">
+                <strong>{m.title}</strong>
+                <span>{m.how}</span>
+                <span className="cc-miss-tag">{m.pilar} · +{m.points} pts</span>
+              </div>
+              <button className={`cc-miss-btn ${done ? 'done' : ''}`} onClick={() => doMission(m.id)} disabled={done}>
+                {done ? <><Check size={15} /> Feito</> : 'Marcar'}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {/* 1. O que postar — pilares */}

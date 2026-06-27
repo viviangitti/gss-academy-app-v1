@@ -178,3 +178,32 @@
 .cc-pilar-marca { background: rgba(129,140,248,0.16) !important; color: #818cf8 !important; }
 .cc-carrossel { background: rgba(124,58,237,0.14) !important; color: #7c3aed !important; }
 .cc-stories { background: rgba(236,72,153,0.14) !important; color: #ec4899 !important; }
+
+/* Missões da semana (social selling pontuado) */
+.cc-miss-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cc-miss-head .section-title { margin: 0; }
+.cc-miss-stats { display: flex; gap: 12px; }
+.cc-miss-stats span { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--text-light); }
+.cc-flame { color: #f59e0b; }
+.cc-miss-prog.card { padding: 13px 15px; margin-bottom: 10px; }
+.cc-miss-prog-top { display: flex; justify-content: space-between; font-size: 13.5px; margin-bottom: 8px; }
+.cc-miss-prog-top strong { color: var(--text); }
+.cc-miss-prog-top span { color: var(--accent); font-weight: 700; }
+.cc-miss-bar { height: 7px; border-radius: 99px; background: rgba(0,0,0,0.08); overflow: hidden; }
+.cc-miss-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), #f59e0b); transition: width .3s; }
+.cc-miss-sub { font-size: 12px; color: var(--text-soft); margin: 8px 0 0; }
+.cc-miss.card { display: flex; align-items: flex-start; gap: 11px; padding: 13px 14px; margin-bottom: 8px; }
+.cc-miss.done { opacity: 0.62; }
+.cc-miss-emoji { font-size: 22px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.cc-miss-text { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cc-miss-text strong { font-size: 14px; line-height: 1.3; color: var(--text); }
+.cc-miss.done .cc-miss-text strong { text-decoration: line-through; }
+.cc-miss-text > span { font-size: 12.5px; color: var(--text-soft); line-height: 1.4; }
+.cc-miss-tag { font-size: 11px !important; font-weight: 700; color: var(--accent) !important; margin-top: 2px; }
+.cc-miss-btn {
+  flex-shrink: 0; align-self: center; padding: 8px 14px; border-radius: 9px;
+  border: none; background: var(--accent); color: #1a1a1a; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.cc-miss-btn.done { background: rgba(52,211,153,0.18); color: #10b981; display: inline-flex; align-items: center; gap: 5px; }
+.cc-miss-btn:disabled { cursor: default; }
