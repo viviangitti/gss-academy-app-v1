@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Mic, Sparkles, RotateCcw, Users, Shield, ArrowRight, AlertTriangle, Target, Edit3, Trash2, CheckSquare, Lightbulb, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateText, aiErrorMessage } from '../services/ai';
 import { addHistory } from '../services/history';
 import { addTask } from '../services/day';
 import ShareButton from '../components/ShareButton';
@@ -264,10 +264,8 @@ export default function MeetingAnalysis() {
     setAnalysis(null);
 
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-      const result = await model.generateContent(ANALYSIS_PROMPT(fullText, lang.sessionNoun));
-      const text = result.response.text().trim();
+      // Camada resiliente: retry + fallback lite→flash quando o Gemini congestiona (503/429)
+      const text = (await generateText(API_KEY, ANALYSIS_PROMPT(fullText, lang.sessionNoun), { retries: 2 })).trim();
       const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
       const parsed = JSON.parse(cleaned) as Analysis;
       setAnalysis(parsed);
@@ -280,8 +278,7 @@ export default function MeetingAnalysis() {
         data: { transcript: fullText, analysis: parsed } as SavedMeeting,
       });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : '';
-      setError(`A análise ficou indisponível. ${msg ? `(${msg})` : ''} Toque para tentar de novo.`);
+      setError(`${aiErrorMessage(e)} Toque para tentar de novo.`);
     }
     setLoading(false);
   };
