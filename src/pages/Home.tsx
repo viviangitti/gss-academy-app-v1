@@ -5,6 +5,7 @@ import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
 import { getStats, addSale, getDailyAccumulation, getModelProgress } from '../services/goal';
+import { archiveIfNeeded } from '../services/goalHistory';
 import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
@@ -51,6 +52,7 @@ export default function Home() {
     else setGreeting('Boa noite');
 
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
+    archiveIfNeeded(profile);   // congela o mês anterior se virou
     const g = profile.monthlyGoal || 0;
     setGoal(g);
     refreshStats(g);

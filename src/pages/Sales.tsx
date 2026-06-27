@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Plus, Check, Trash2, Award, Calendar, BarChart3 } from 'lucide-react';
 import { addSale, removeSale, getPeriodStats, getSalesByPeriod, getMonthChartData, getYearChartData, getWeekChartData } from '../services/goal';
+import { getGoalHistory, formatMonthLabel } from '../services/goalHistory';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import type { Sale, Period } from '../services/goal';
@@ -89,6 +90,7 @@ export default function Sales() {
     }
   };
 
+  const history = getGoalHistory();
   const maxVal = Math.max(...chartData.map(d => d.value), monthlyGoal, 1);
   const goalToShow = period === 'mes' ? monthlyGoal : 0;
   const progress = goalToShow > 0 ? Math.min((stats.count / goalToShow) * 100, 100) : 0;
@@ -253,6 +255,36 @@ export default function Sales() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="goal-history">
+          <h3 className="section-title"><Award size={16} /> Histórico de metas</h3>
+          {history.map(h => {
+            const hit = h.goal > 0 && h.count >= h.goal;
+            return (
+              <div key={h.monthKey} className="gh-card card">
+                <div className="gh-head">
+                  <span className="gh-month">{formatMonthLabel(h.monthKey)}</span>
+                  <span className={`gh-badge ${hit ? 'hit' : 'miss'}`}>
+                    {h.goal > 0 ? (hit ? '🏆 Bateu' : 'Não bateu') : 'Sem meta'}
+                  </span>
+                </div>
+                <div className="gh-main">
+                  <strong>{h.count}{h.goal > 0 ? `/${h.goal}` : ''} {goalUnit}</strong>
+                  {h.total > 0 && <span className="gh-total">{formatBRL(h.total)} em vendas</span>}
+                </div>
+                {h.models.length > 0 && (
+                  <div className="gh-models">
+                    {h.models.map((m, i) => (
+                      <span key={i} className="gh-model">{m.model}: <strong>{m.count}/{m.target}</strong></span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

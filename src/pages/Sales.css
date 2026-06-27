@@ -344,3 +344,18 @@
 .sales-back {
   margin-top: 8px;
 }
+
+/* Histórico de metas (meta x realizado por mês) */
+.goal-history { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.gh-card.card { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.gh-head { display: flex; align-items: center; justify-content: space-between; }
+.gh-month { font-size: 13px; font-weight: 700; color: var(--text-light); text-transform: capitalize; }
+.gh-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+.gh-badge.hit { background: rgba(16,185,129,0.16); color: #10b981; }
+.gh-badge.miss { background: var(--warning-bg); color: #92400e; }
+.gh-main { display: flex; align-items: baseline; gap: 10px; }
+.gh-main strong { font-size: 18px; font-weight: 800; color: var(--text); }
+.gh-total { font-size: 12.5px; color: var(--text-soft); }
+.gh-models { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 4px; border-top: 1px solid var(--border); }
+.gh-model { font-size: 12px; color: var(--text-light); }
+.gh-model strong { color: var(--text); }
