@@ -288,3 +288,15 @@
 .roleplay-page .send-btn:disabled {
   opacity: 0.4;
 }
+
+/* Estilo do cliente — persona + dificuldade */
+.rp-style { margin: 4px 0 14px; }
+.rp-style-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-soft); margin: 8px 0 6px; text-transform: uppercase; letter-spacing: .03em; }
+.rp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rp-chip {
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--border-strong, #d8d8d8);
+  background: var(--bg, #fff); color: var(--text);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.rp-chip.on { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }

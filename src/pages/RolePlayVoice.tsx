@@ -5,6 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getObjections } from '../services/content';
 import { loadData, KEYS } from '../services/storage';
 import { addHistory } from '../services/history';
+import { PERSONAS, DIFFICULTIES, buildClientStyle } from '../services/roleplayStyle';
 import type { UserProfile } from '../types';
 import type { Objection } from '../services/content';
 import './CoachVoice.css';
@@ -58,6 +59,8 @@ export default function RolePlayVoice() {
   const [clientLine, setClientLine] = useState(''); // última fala do cliente
   const [exchanges, setExchanges] = useState(0);
   const [evaluation, setEvaluation] = useState<string | null>(null);
+  const [persona, setPersona] = useState('');
+  const [difficulty, setDifficulty] = useState('medio');
 
   const chatRef = useRef<ReturnType<ReturnType<GoogleGenerativeAI['getGenerativeModel']>['startChat']> | null>(null);
   const recognitionRef = useRef<(SpeechRecognition & { abort?: () => void }) | null>(null);
@@ -105,7 +108,7 @@ export default function RolePlayVoice() {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
     chatRef.current = model.startChat({
       history: [
-        { role: 'user', parts: [{ text: ROLEPLAY_PROMPT + `\n\nA objeção que você deve simular é: ${obj.objection}` }] },
+        { role: 'user', parts: [{ text: ROLEPLAY_PROMPT + `\n\nA objeção que você deve simular é: ${obj.objection}\n\n${buildClientStyle(persona, difficulty)}` }] },
         { role: 'model', parts: [{ text: `Entendido. Sou o cliente. Vou levantar a objeção e dificultar.` }] },
       ],
     });
@@ -238,6 +241,22 @@ export default function RolePlayVoice() {
           <h3>Treino falado</h3>
           <p>O cliente vai te desafiar por voz. Responda falando.</p>
         </div></div>
+        <div className="rp-style">
+          <span className="rp-style-label">Tipo de cliente</span>
+          <div className="rp-chips">
+            <button className={`rp-chip ${!persona ? 'on' : ''}`} onClick={() => setPersona('')}>Aleatório</button>
+            {PERSONAS.map(p => (
+              <button key={p.id} className={`rp-chip ${persona === p.id ? 'on' : ''}`} onClick={() => setPersona(persona === p.id ? '' : p.id)} title={p.desc}>{p.label}</button>
+            ))}
+          </div>
+          <span className="rp-style-label">Dificuldade</span>
+          <div className="rp-chips">
+            {DIFFICULTIES.map(d => (
+              <button key={d.id} className={`rp-chip ${difficulty === d.id ? 'on' : ''}`} onClick={() => setDifficulty(d.id)}>{d.label}</button>
+            ))}
+          </div>
+        </div>
+
         <h4 className="rpv-label">Escolha a objeção pra treinar:</h4>
         <div className="rpv-list">
           {objections.map(o => (
