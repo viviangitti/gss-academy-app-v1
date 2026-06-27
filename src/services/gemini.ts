@@ -100,10 +100,21 @@ Seu papel é ajudar líderes comerciais a dominar vendas com base nos princípio
 - Sugira técnicas como Perguntas Estratégicas, Venda Desafiadora, Qualificação em 4 Passos, Conexão e Confiança, Histórias que Vendem, Fechamento Alternativo, Método Sanduíche
 - Sempre inclua um elemento de ação prática que o vendedor possa aplicar imediatamente`;
 
+// Acréscimo pro GESTOR — vendas + gestão de equipe (anexado ao SYSTEM_PROMPT de vendas)
+const GESTOR_ADDENDUM = `
+
+--- VOCÊ ESTÁ FALANDO COM UM GESTOR / GERENTE DE VENDAS ---
+Além de tudo sobre vendas, você é também coach de GESTÃO DE EQUIPE comercial. Ajude com:
+- Rotinas e rituais de gestão: reunião diária de foco, resumo da semana, 1:1, feedback individual.
+- Ler o desempenho do time: identificar o gap de cada vendedor (produto, processo, abordagem, follow-up) e montar plano de treino.
+- Metas, cobrança saudável, motivação e reconhecimento — sem desmotivar.
+- Conduzir simulações/treinos coletivos e desenvolver cada pessoa do time.
+O gestor ainda vende, mas o foco dele é MULTIPLICAR resultado pelo time. Sempre que der, conecte o conselho de venda a COMO ele treina e aplica isso com a equipe.`;
+
 const PRIMARY_MODEL = 'gemini-2.5-flash-lite';   // rápido
 const FALLBACK_MODEL = 'gemini-2.5-flash';       // reserva quando o lite congestiona (503)
 let chat: ReturnType<ReturnType<GoogleGenerativeAI['getGenerativeModel']>['startChat']> | null = null;
-let currentChatMode: 'vendas' | 'marketing' = 'vendas';
+let currentChatMode: 'vendas' | 'marketing' | 'gestor' = 'vendas';
 let currentModel: string = PRIMARY_MODEL;
 
 export interface ImageAttachment {
@@ -167,7 +178,7 @@ function buildGeminiHistory(
 export async function sendMessage(
   message: string,
   apiKey: string,
-  mode: 'vendas' | 'marketing' = 'vendas',
+  mode: 'vendas' | 'marketing' | 'gestor' = 'vendas',
   image?: ImageAttachment,
   priorHistory?: PriorMessage[],
   memoryContext?: string,
@@ -184,12 +195,18 @@ export async function sendMessage(
       currentChatMode = mode;
       currentModel = PRIMARY_MODEL;
       const isMarketing = mode === 'marketing';
-      const base = isMarketing ? MARKETING_SYSTEM_PROMPT : SYSTEM_PROMPT;
+      const base = isMarketing
+        ? MARKETING_SYSTEM_PROMPT
+        : mode === 'gestor'
+          ? SYSTEM_PROMPT + GESTOR_ADDENDUM
+          : SYSTEM_PROMPT;
       // injeta a memória do usuário no contexto do sistema
       const prompt = memoryContext ? `${base}\n\n${memoryContext}` : base;
       const ack = isMarketing
         ? 'Entendido! Sou o Coach de Marketing da MAESTR.IA. Domino branding, estratégia de campanhas, benchmarking e alinhamento marketing-vendas. Como posso ajudar?'
-        : 'Entendido! Sou o Coach de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
+        : mode === 'gestor'
+          ? 'Entendido! Sou o Coach de Vendas e Gestão da MAESTR.IA. Domino vendas de alta performance E gestão de equipe comercial — rotinas, rituais, leitura de gaps do time, feedback e desenvolvimento de cada vendedor. Como posso ajudar?'
+          : 'Entendido! Sou o Coach de Vendas da MAESTR.IA em Vendas. Domino técnicas de alta performance em vendas, negociação e liderança comercial. Estou pronto para ajudar com objeções, abordagens, rituais de equipe e estratégias de fechamento. Como posso ajudar?';
       chat = genAI.getGenerativeModel({ model: currentModel }).startChat({
         history: buildGeminiHistory(prompt, ack, priorHistory ?? []),
       });

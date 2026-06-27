@@ -33,6 +33,15 @@ const QUICK_PROMPTS_MARKETING = [
   'Como medir o ROI de uma ação de marketing?',
 ];
 
+const QUICK_PROMPTS_GESTOR = [
+  'Como estruturar minha reunião diária com o time?',
+  'Como dar feedback pra um vendedor que caiu de rendimento?',
+  'Como montar o resumo da semana e o foco do time?',
+  'Como identificar o gap de cada vendedor?',
+  'Como cobrar meta sem desmotivar a equipe?',
+  'Roteiro de 1:1 com um vendedor',
+];
+
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 function generateId() {
@@ -103,13 +112,20 @@ export default function AICoach() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const accessType = profile.userAccessType || 'vendas';
-  const locationState = location.state as { prefill?: string; aiMode?: 'vendas' | 'marketing' } | null;
-  const defaultMode: 'vendas' | 'marketing' =
-    locationState?.aiMode || (accessType === 'marketing' ? 'marketing' : 'vendas');
-  const [aiMode, setAiMode] = useState<'vendas' | 'marketing'>(defaultMode);
+  const isGestor = profile.isGestor === true || profile.isAdmin === true;
+  // Lado "vendas" vira "gestor" quando a pessoa gerencia equipe
+  const salesMode: 'vendas' | 'gestor' = isGestor ? 'gestor' : 'vendas';
+  const locationState = location.state as { prefill?: string; aiMode?: 'vendas' | 'marketing' | 'gestor' } | null;
+  const defaultMode: 'vendas' | 'marketing' | 'gestor' =
+    locationState?.aiMode || (accessType === 'marketing' ? 'marketing' : salesMode);
+  const [aiMode, setAiMode] = useState<'vendas' | 'marketing' | 'gestor'>(defaultMode);
 
   const isAmbos = accessType === 'ambos';
-  const QUICK_PROMPTS = aiMode === 'marketing' ? QUICK_PROMPTS_MARKETING : QUICK_PROMPTS_VENDAS;
+  const QUICK_PROMPTS = aiMode === 'marketing'
+    ? QUICK_PROMPTS_MARKETING
+    : aiMode === 'gestor'
+      ? QUICK_PROMPTS_GESTOR
+      : QUICK_PROMPTS_VENDAS;
 
   // File attachment (image or PDF)
   const [attachedFile, setAttachedFile] = useState<{
@@ -154,7 +170,7 @@ export default function AICoach() {
     setIsRecording(v);
   };
 
-  const handleModeSwitch = (mode: 'vendas' | 'marketing') => {
+  const handleModeSwitch = (mode: 'vendas' | 'marketing' | 'gestor') => {
     if (mode === aiMode) return;
     setAiMode(mode);
     setMessages([]);
@@ -244,7 +260,9 @@ export default function AICoach() {
       : effectiveMsg;
     const sugLabel = aiMode === 'marketing'
       ? '(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas de acompanhamento sobre marketing, branding ou campanhas)'
-      : '(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas que o vendedor poderia fazer ao cliente em seguida)';
+      : aiMode === 'gestor'
+        ? '(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas de acompanhamento sobre gestão da equipe, desenvolvimento dos vendedores ou rotina comercial)'
+        : '(Ao final da resposta, inclua exatamente neste formato: [SUGESTÕES: pergunta 1 | pergunta 2 | pergunta 3] com 2-3 perguntas que o vendedor poderia fazer ao cliente em seguida)';
     const withSuggestions = withOffers + '\n\n' + sugLabel;
 
     try {
@@ -415,13 +433,14 @@ export default function AICoach() {
   if (!isOnline) return <OfflineState feature="o Coaching" />;
   if (!API_KEY) return <OfflineState feature="o Coaching" subtitle="Serviço indisponível no momento. Fale com o suporte." />;
 
+  const salesTabLabel = isGestor ? 'Vendas & Gestão' : 'Coaching de Vendas';
   const modeSwitcher = isAmbos ? (
     <div className="ai-mode-toggle">
       <button
-        className={`ai-mode-btn ${aiMode === 'vendas' ? 'active' : ''}`}
-        onClick={() => handleModeSwitch('vendas')}
+        className={`ai-mode-btn ${aiMode !== 'marketing' ? 'active' : ''}`}
+        onClick={() => handleModeSwitch(salesMode)}
       >
-        Coaching de Vendas
+        {salesTabLabel}
       </button>
       <button
         className={`ai-mode-btn ${aiMode === 'marketing' ? 'active' : ''}`}
@@ -438,10 +457,12 @@ export default function AICoach() {
         <div className="ai-welcome">
           {modeSwitcher}
           <div className="ai-welcome-icon"><Sparkles size={40} /></div>
-          <h3>{aiMode === 'marketing' ? 'Coaching de Marketing' : 'Coaching de Vendas'}</h3>
+          <h3>{aiMode === 'marketing' ? 'Coaching de Marketing' : aiMode === 'gestor' ? 'Coaching de Vendas & Gestão' : 'Coaching de Vendas'}</h3>
           <p>{aiMode === 'marketing'
             ? 'Tire dúvidas sobre campanhas, branding, benchmarks e estratégia de marketing.'
-            : 'Tire dúvidas sobre vendas, negociação e liderança comercial.'
+            : aiMode === 'gestor'
+              ? 'Tire dúvidas sobre vendas e sobre gestão da sua equipe — rotinas, feedback, gaps do time e desenvolvimento.'
+              : 'Tire dúvidas sobre vendas, negociação e liderança comercial.'
           }</p>
 
           <button className="voice-cta" onClick={() => navigate('/coach-voz')}>
@@ -449,14 +470,14 @@ export default function AICoach() {
             <span>Conversar por voz 🎙️</span>
           </button>
 
-          {aiMode === 'vendas' && (
+          {aiMode !== 'marketing' && (
             <button className="neg-cta" onClick={() => setShowNeg(true)}>
               <Target size={18} />
               <span>Me ajuda numa negociação 🎯</span>
             </button>
           )}
 
-          {aiMode === 'vendas' && (
+          {aiMode !== 'marketing' && (
             <button className="roleplay-cta" onClick={() => navigate('/treino')}>
               <Swords size={18} />
               <span>Treinar objeções com simulação</span>
@@ -614,7 +635,7 @@ export default function AICoach() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder={aiMode === 'marketing' ? 'Pergunte sobre marketing...' : 'Pergunte sobre vendas...'}
+              placeholder={aiMode === 'marketing' ? 'Pergunte sobre marketing...' : aiMode === 'gestor' ? 'Pergunte sobre vendas ou gestão...' : 'Pergunte sobre vendas...'}
               disabled={loading}
             />
             {/* Mic quando sem texto e sem arquivo; Send caso contrário */}
