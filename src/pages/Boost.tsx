@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap, ClipboardCheck, Dumbbell, LifeBuoy, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Rocket, Copy, Check, ThumbsUp, RotateCcw, Zap, ClipboardCheck, Dumbbell, LifeBuoy } from 'lucide-react';
 import { getBoost, reportBoostWin, getDebrief } from '../services/boost';
 import type { BoostPath, DebriefResult, BoostClientProfile } from '../services/boost';
 import { remember } from '../services/memory';
@@ -37,8 +37,7 @@ export default function Boost() {
   const [wonIdx, setWonIdx] = useState<number | null>(null);
   const askedRef = useRef('');
 
-  // Ficha opcional do perfil do cliente — deixa os caminhos sob medida
-  const [showFicha, setShowFicha] = useState(false);
+  // Perfil do cliente (sempre visível) — deixa os caminhos sob medida
   const [etapa, setEtapa] = useState('');
   const [carro, setCarro] = useState('');
   const [valoriza, setValoriza] = useState<string[]>([]);
@@ -166,33 +165,27 @@ export default function Boost() {
             onChange={e => setSituation(e.target.value)}
             rows={3}
           />
-          {/* Ficha opcional do cliente — deixa os caminhos sob medida */}
-          <button type="button" className={`boost-ficha-toggle ${showFicha ? 'open' : ''}`} onClick={() => setShowFicha(!showFicha)}>
-            <SlidersHorizontal size={14} /> Perfil do cliente
-            <span className="boost-ficha-opt">deixa os caminhos sob medida</span>
-            <ChevronDown size={16} className="boost-ficha-chev" />
-          </button>
-          {showFicha && (
-            <div className="boost-ficha">
-              <p className="boost-ficha-label">Etapa</p>
-              <div className="boost-chips">
-                {ETAPAS.map(e => (
-                  <button key={e} type="button" className={`boost-chip ${etapa === e ? 'on' : ''}`}
-                    onClick={() => setEtapa(etapa === e ? '' : e)}>{e}</button>
-                ))}
-              </div>
-              <p className="boost-ficha-label">Carro de interesse</p>
-              <input className="boost-ficha-input" placeholder="Ex: Corolla Cross"
-                value={carro} onChange={e => setCarro(e.target.value)} />
-              <p className="boost-ficha-label">O que o cliente valoriza</p>
-              <div className="boost-chips">
-                {VALORIZA.map(v => (
-                  <button key={v} type="button" className={`boost-chip ${valoriza.includes(v) ? 'on' : ''}`}
-                    onClick={() => setValoriza(valoriza.includes(v) ? valoriza.filter(x => x !== v) : [...valoriza, v])}>{v}</button>
-                ))}
-              </div>
+          {/* Perfil do cliente — sempre visível, deixa os caminhos sob medida */}
+          <div className="boost-ficha boost-ficha-inline">
+            <p className="boost-ficha-hint">Conta sobre o cliente — os caminhos saem sob medida:</p>
+            <p className="boost-ficha-label">O que ele valoriza</p>
+            <div className="boost-chips">
+              {VALORIZA.map(v => (
+                <button key={v} type="button" className={`boost-chip ${valoriza.includes(v) ? 'on' : ''}`}
+                  onClick={() => setValoriza(valoriza.includes(v) ? valoriza.filter(x => x !== v) : [...valoriza, v])}>{v}</button>
+              ))}
             </div>
-          )}
+            <p className="boost-ficha-label">Carro de interesse</p>
+            <input className="boost-ficha-input" placeholder="Ex: Corolla Cross"
+              value={carro} onChange={e => setCarro(e.target.value)} />
+            <p className="boost-ficha-label">Etapa</p>
+            <div className="boost-chips">
+              {ETAPAS.map(e => (
+                <button key={e} type="button" className={`boost-chip ${etapa === e ? 'on' : ''}`}
+                  onClick={() => setEtapa(etapa === e ? '' : e)}>{e}</button>
+              ))}
+            </div>
+          </div>
 
           <button className="boost-fire" onClick={() => fire(situation)} disabled={!situation.trim()}>
             <Zap size={18} /> Boost
