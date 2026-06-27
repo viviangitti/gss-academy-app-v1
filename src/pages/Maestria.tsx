@@ -2,7 +2,25 @@ import { useNavigate } from 'react-router-dom';
 import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, GraduationCap, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
+import { getTeamCasesRaw } from '../services/memory';
+import type { Objection } from '../services/content';
 import type { UserProfile } from '../types';
+
+const REASON_LINE: Record<string, string> = {
+  preco: 'Achei muito caro', concorrente: 'O concorrente está mais barato',
+  timing: 'Não é o momento agora', sem_orcamento: 'Não tenho orçamento',
+  sem_decisao: 'Preciso falar com outra pessoa', relacionamento: 'Prefiro meu fornecedor atual',
+  produto: 'Não é bem o que procuro', outro: 'Vou pensar melhor',
+};
+
+function getCaseObjection(): Objection | null {
+  const cases = getTeamCasesRaw();
+  const withObj = cases.find(c => c.objection && c.objection.trim().length > 3);
+  if (withObj) return { id: 'case', objection: withObj.objection, responses: [] };
+  const lost = cases.find(c => c.kind === 'lost' && c.reason);
+  if (lost) return { id: 'case', objection: `"${REASON_LINE[lost.reason] || 'Vou pensar'}"`, responses: [] };
+  return null;
+}
 import './Home.css';
 import './Maestria.css';
 
@@ -13,6 +31,7 @@ export default function Maestria() {
   const isSales = profile.userAccessType !== 'marketing';
   const progress = getMaestriaProgress();
   const treinoDoDia = getTreinoDoDia(profile.segment);
+  const caseObj = isSales ? getCaseObjection() : null;
 
   return (
     <div className="home">
@@ -105,6 +124,17 @@ export default function Maestria() {
             <span>Fale 1 min sobre como foi e receba o resumo</span>
           </button>
         </div>
+        {caseObj && (
+          <button className="home-content-card card" style={{ marginTop: 10 }}
+            onClick={() => navigate('/treino', { state: { startObjection: caseObj } })}>
+            <div className="home-content-icon mae-case-icon"><Users size={20} /></div>
+            <div className="home-content-text">
+              <strong>Treinar um caso real da equipe</strong>
+              <span>{caseObj.objection.replace(/^"|"$/g, '')}</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
+        )}
       </div>
 
       {/* Criar conteúdo */}
