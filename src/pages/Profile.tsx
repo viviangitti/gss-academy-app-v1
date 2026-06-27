@@ -173,6 +173,57 @@ export default function Profile() {
           <span className="form-hint">Quantidade de vendas no mês — exibida com barra de progresso na Home</span>
         </div>
 
+        {/* Metas por modelo — volume por carro */}
+        <div className="form-group form-group-auto">
+          <div className="form-auto-badge"><Target size={12} /> Metas por modelo</div>
+        </div>
+        {(profile.modelGoals || []).map((mg, i) => (
+          <div key={i} className="form-group custom-goal-block">
+            <div className="custom-goal-header">
+              <input
+                type="text"
+                placeholder="Modelo (ex: Corolla Cross)"
+                value={mg.model}
+                onChange={e => {
+                  const updated = [...(profile.modelGoals || [])];
+                  updated[i] = { ...updated[i], model: e.target.value };
+                  setProfile({ ...profile, modelGoals: updated });
+                }}
+                className="custom-goal-label-input"
+              />
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="Qtd"
+                value={mg.target || ''}
+                onChange={e => {
+                  const updated = [...(profile.modelGoals || [])];
+                  updated[i] = { ...updated[i], target: Number(e.target.value) || 0 };
+                  setProfile({ ...profile, modelGoals: updated });
+                }}
+                style={{ width: 70, flexShrink: 0 }}
+              />
+              <button
+                type="button"
+                className="custom-goal-remove"
+                onClick={() => setProfile({ ...profile, modelGoals: (profile.modelGoals || []).filter((_, j) => j !== i) })}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+        <div className="form-group">
+          <button
+            type="button"
+            className="goal-preset-chip"
+            onClick={() => setProfile({ ...profile, modelGoals: [...(profile.modelGoals || []), { model: '', target: 0 }] })}
+          >
+            <Plus size={12} /> Adicionar modelo
+          </button>
+        </div>
+
         {/* Metas adicionais — modulares para todos os segmentos */}
         <div className="form-group form-group-auto">
           <div className="form-auto-badge"><Target size={12} /> Metas adicionais</div>

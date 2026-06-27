@@ -1362,3 +1362,14 @@
 .home-outcome-btn.lost { color: #ef4444; border-color: rgba(239,68,68,0.35); }
 .home-outcome-btn.lost:active { background: rgba(239,68,68,0.08); }
 .home-outcome-note { margin: 9px 0 0; font-size: 11.5px; color: var(--text-soft); text-align: center; }
+
+/* Metas por modelo */
+.model-goals.card { margin-top: 10px; padding: 13px 15px; display: flex; flex-direction: column; gap: 11px; }
+.model-goals-title { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-soft); }
+.model-goal-row { display: flex; flex-direction: column; gap: 5px; }
+.model-goal-head { display: flex; justify-content: space-between; align-items: baseline; }
+.model-goal-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.model-goal-count { font-size: 12.5px; font-weight: 700; color: var(--text-light); }
+.model-goal-bar { height: 6px; border-radius: 99px; background: rgba(0,0,0,0.08); overflow: hidden; }
+.model-goal-bar i { display: block; height: 100%; border-radius: 99px; background: var(--accent); transition: width .3s; }
+.model-goal-bar i.done { background: #10b981; }

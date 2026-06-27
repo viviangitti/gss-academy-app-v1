@@ -51,6 +51,11 @@ export interface GoalItem {
   icon?: string;   // emoji opcional
 }
 
+export interface ModelGoal {
+  model: string;   // ex: "Corolla Cross", "Hilux"
+  target: number;  // meta de QUANTIDADE no mês
+}
+
 export interface UserProfile {
   name: string;
   role: string;
@@ -62,6 +67,7 @@ export interface UserProfile {
   /** @deprecated use customGoals */
   monthlyGoalAccessories?: number;
   customGoals?: GoalItem[];         // metas adicionais modulares (todos os segmentos)
+  modelGoals?: ModelGoal[];         // metas de volume por modelo (ex: 5 Corolla, 3 Hilux)
   email?: string;
   teamId?: string | null;
   isAdmin?: boolean;

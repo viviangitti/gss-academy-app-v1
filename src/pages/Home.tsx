@@ -4,7 +4,7 @@ import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Megaphone, Users
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
-import { getStats, addSale, getDailyAccumulation } from '../services/goal';
+import { getStats, addSale, getDailyAccumulation, getModelProgress } from '../services/goal';
 import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
@@ -104,6 +104,7 @@ export default function Home() {
 
   const chartData = stats && goal > 0 ? getDailyAccumulation() : [];
   const maxVal = Math.max(goal, ...chartData.map(d => d.accumulated), 1);
+  const modelProgress = getModelProgress(profile.modelGoals || []);
 
   const dismissFeedbackBanner = () => {
     localStorage.setItem('gss_feedback_last_action', String(Date.now()));
@@ -288,6 +289,25 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Metas por modelo — volume por carro */}
+          {modelProgress.filter(m => m.target > 0).length > 0 && (
+            <div className="model-goals card">
+              <span className="model-goals-title">Por modelo</span>
+              {modelProgress.filter(m => m.target > 0).map((m, i) => {
+                const pct = Math.min(100, Math.round((m.count / m.target) * 100));
+                return (
+                  <div key={i} className="model-goal-row">
+                    <div className="model-goal-head">
+                      <span className="model-goal-name">{m.model}</span>
+                      <span className="model-goal-count">{m.count}/{m.target}</span>
+                    </div>
+                    <div className="model-goal-bar"><i style={{ width: `${pct}%` }} className={m.count >= m.target ? 'done' : ''} /></div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Mini-goal chips — metas adicionais de todos os segmentos */}
           {(profile.customGoals || []).some(cg => cg.label && cg.target > 0) && (

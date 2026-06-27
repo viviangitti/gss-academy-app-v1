@@ -128,6 +128,20 @@ export function getStats(goal: number): GoalStats {
   };
 }
 
+export interface ModelGoalProgress { model: string; target: number; count: number }
+
+/** Progresso por modelo no mês: conta vendas cujo modelo casa (contém) o alvo. */
+export function getModelProgress(goals: { model: string; target: number }[]): ModelGoalProgress[] {
+  const sales = getCurrentMonthSales();
+  return goals
+    .filter(g => g.model && g.model.trim())
+    .map(g => {
+      const key = g.model.trim().toLowerCase();
+      const count = sales.filter(s => (s.model || '').toLowerCase().includes(key)).length;
+      return { model: g.model.trim(), target: g.target, count };
+    });
+}
+
 export type Period = 'dia' | 'semana' | 'mes' | 'ano';
 
 export function getSalesByPeriod(period: Period): Sale[] {
