@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell, Map } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell } from 'lucide-react';
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
@@ -400,13 +400,6 @@ export default function Profile() {
 
       <div className="profile-links">
         <h3 className="section-title">MAESTR.IA em Vendas</h3>
-        <Link to="/mapa" className="link-card card">
-          <div className="link-info">
-            <h4><Map size={14} /> Mapa do app</h4>
-            <p>Veja tudo que existe — e vá direto</p>
-          </div>
-          <ExternalLink size={16} />
-        </Link>
         <Link to="/instalar" className="link-card card">
           <div className="link-info">
             <h4><Download size={14} /> Instalar no celular</h4>

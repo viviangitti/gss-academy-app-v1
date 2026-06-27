@@ -17,7 +17,7 @@ const STEPS: Step[] = [
   { sel: '[data-tour="news"]', title: 'Notícias do setor', body: 'Munição na mão: notícias do seu mercado, lançamentos e ofertas dos concorrentes.' },
   { sel: '[data-tour="nav-painel"]', title: 'Painel', body: 'Follow-ups, treino, playbook e o seu Raio-X de competências ficam aqui.' },
   { sel: '[data-tour="nav-coaching"]', title: 'Coaching', body: 'Seu coach de vendas por texto e voz — sempre no bolso.' },
-  { sel: null, title: 'É só começar 🚀', body: 'Pronto! Explore à vontade. Você pode rever isso quando quiser no Mapa do app.' },
+  { sel: null, title: 'É só começar 🚀', body: 'Pronto! Explore à vontade — cada aba tem suas ferramentas prontas pra usar.' },
 ];
 
 const CARD_W = 320;
