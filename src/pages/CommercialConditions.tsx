@@ -284,6 +284,7 @@ Se não encontrar condições claras, retorne [].`;
           <div>
             <h2>Condições Comerciais</h2>
             {segmentLabel && <p className="cc-segment">{segmentLabel}</p>}
+            <p className="cc-source">📣 Publicadas pelo Marketing</p>
           </div>
         </div>
 

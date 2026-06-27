@@ -581,3 +581,5 @@
   transition: all 0.15s;
 }
 .cc-card-btn:hover { background: rgba(99,102,241,0.18); }
+
+.cc-source { font-size: 12px; font-weight: 600; color: var(--accent); margin: 3px 0 0; }

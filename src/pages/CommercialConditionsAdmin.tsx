@@ -194,6 +194,7 @@ export default function CommercialConditionsAdmin() {
         <div>
           <h2>Campanhas e Condições</h2>
           <p>Publique ofertas, tabelas, promoções e PDFs para os vendedores</p>
+          <span className="cca-owner-badge">📣 Área do Marketing — você é responsável por manter as condições do mês atualizadas para o time</span>
         </div>
       </div>
 
