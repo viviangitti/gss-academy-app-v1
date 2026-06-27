@@ -4,7 +4,7 @@ import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import './BottomNav.css';
 
-const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao'];
+const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao', '/prospeccao'];
 const MAESTRIA_PATHS = [
   '/maestria', '/treino', '/treino-voz', '/treino-video', '/treino-hub', '/objecoes', '/scripts',
   '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo', '/rituais-gestor', '/conteudo-dia', '/narrativa',

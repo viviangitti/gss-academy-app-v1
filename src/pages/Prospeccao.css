@@ -1,0 +1,31 @@
+.prosp-page { display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+.prosp-hero.card {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(16,185,129,0.03));
+  border: 0.5px solid rgba(16,185,129,0.30);
+}
+.prosp-hero-icon {
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px;
+  background: rgba(16,185,129,0.2); color: #10b981;
+  display: flex; align-items: center; justify-content: center;
+}
+.prosp-hero h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.prosp-hero p { margin: 3px 0 0; font-size: 13px; color: var(--text-soft); }
+.prosp-msg.card { padding: 14px 16px; }
+.prosp-msg-titles { display: flex; flex-direction: column; }
+.prosp-msg-titles strong { font-size: 14.5px; }
+.prosp-msg-titles span { font-size: 12px; color: var(--text-soft); margin-top: 1px; }
+.prosp-msg-text {
+  font-size: 13.5px; line-height: 1.5; color: var(--text-light);
+  background: var(--bg, rgba(0,0,0,0.03)); border-radius: 10px;
+  padding: 11px 13px; margin: 10px 0;
+}
+.prosp-msg-actions { display: flex; gap: 8px; }
+.prosp-copy, .prosp-wa {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px; border-radius: 9px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.prosp-copy { background: var(--bg, #fff); border: 1px solid var(--border-strong, #d8d8d8); color: var(--text); }
+.prosp-wa { background: #10b981; border: none; color: #fff; }
+.prosp-note { font-size: 12px; color: var(--text-soft); text-align: center; margin: 4px 0 0; }

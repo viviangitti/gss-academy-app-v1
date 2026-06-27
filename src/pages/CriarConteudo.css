@@ -166,3 +166,15 @@
   color: var(--text-light);
 }
 .cc-fb-list li { margin-bottom: 3px; }
+
+/* Pilares de conteúdo + ideias */
+.cc-intro { font-size: 13px; color: var(--text-soft); margin: 0 0 10px; line-height: 1.45; }
+.cc-ideas { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.6; color: var(--text-light); }
+.cc-ideas li { margin-bottom: 5px; }
+.cc-pilar-educar { background: rgba(59,130,246,0.14) !important; color: #3b82f6 !important; }
+.cc-pilar-bastidores { background: rgba(236,72,153,0.14) !important; color: #ec4899 !important; }
+.cc-pilar-prova { background: rgba(245,158,11,0.16) !important; color: #f59e0b !important; }
+.cc-pilar-oferta { background: rgba(16,185,129,0.14) !important; color: #10b981 !important; }
+.cc-pilar-marca { background: rgba(129,140,248,0.16) !important; color: #818cf8 !important; }
+.cc-carrossel { background: rgba(124,58,237,0.14) !important; color: #7c3aed !important; }
+.cc-stories { background: rgba(236,72,153,0.14) !important; color: #ec4899 !important; }

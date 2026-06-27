@@ -18,6 +18,7 @@ const titles: Record<string, string> = {
   '/treino-voz': 'Treino falado',
   '/treino-video': 'Treino em vídeo',
   '/narrativa': 'Narrativa aspiracional',
+  '/prospeccao': 'Prospecção',
   '/follow-ups': 'Follow-ups',
   '/negociacoes': 'Negociações',
   '/maestria': 'Maestria',
@@ -73,6 +74,7 @@ const BACK: Record<string, string | string[]> = {
   // Negociações
   '/boost': '/negociacoes',
   '/rescue': '/negociacoes',
+  '/prospeccao': '/negociacoes',
   '/pre-reuniao': ['/negociacoes', '/maestria'],
   // Maestria
   '/treino-hub': '/maestria',

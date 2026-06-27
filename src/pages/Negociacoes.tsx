@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ClipboardList, Zap, Check, X, LifeBuoy, ArrowRight } from 'lucide-react';
+import { ClipboardList, Zap, Check, X, LifeBuoy, MessageCircle, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import QuickSaleSheet from '../components/QuickSaleSheet';
@@ -26,6 +26,16 @@ export default function Negociacoes() {
           </div>
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
+        {isSales && (
+          <button className="home-content-card card" onClick={() => navigate('/prospeccao')}>
+            <div className="home-content-icon neg-prosp-icon"><MessageCircle size={20} /></div>
+            <div className="home-content-text">
+              <strong>Prospecção por WhatsApp</strong>
+              <span>Mensagens prontas pra abordar, reativar e resgatar</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
+        )}
       </div>
 
       {/* Cliente em atendimento */}

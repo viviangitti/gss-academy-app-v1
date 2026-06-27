@@ -1,111 +1,109 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  PenSquare, Video, Camera, Briefcase, MessageCircle, Sparkles,
+  PenSquare, Video, Layers, Clock, Briefcase, Sparkles,
   ChevronDown, Copy, Check, ArrowRight, Wand2,
+  BookOpen, Camera, Star, Tag,
 } from 'lucide-react';
 import { getPostFeedback } from '../services/postFeedback';
 import type { PostFeedback } from '../services/postFeedback';
 import './Home.css';
 import './CriarConteudo.css';
 
-interface Plataforma {
-  id: string;
-  nome: string;
-  tipo: string;
-  icon: typeof Video;
-  estrutura: string[];
-  exemplo: string;
-}
+interface Pilar { id: string; nome: string; desc: string; icon: typeof BookOpen; ideias: string[] }
 
-const PLATAFORMAS: Plataforma[] = [
+// O que postar (a base de uma estratégia de agência: pilares, não posts soltos)
+const PILARES: Pilar[] = [
+  { id: 'educar', nome: 'Educar', desc: 'Dicas que ajudam — gera autoridade e salvamento', icon: BookOpen, ideias: [
+    '3 erros de quem vai financiar o primeiro carro',
+    '0km x seminovo: como decidir em 3 perguntas',
+    'O que olhar num test-drive que ninguém te conta',
+  ] },
+  { id: 'bastidores', nome: 'Bastidores', desc: 'O seu dia a dia — gera conexão', icon: Camera, ideias: [
+    'A entrega de hoje (cliente saindo de carro novo)',
+    'Como eu preparo um atendimento antes do cliente chegar',
+    'Um dia na loja em 30 segundos',
+  ] },
+  { id: 'prova', nome: 'Prova social', desc: 'Clientes felizes — gera confiança', icon: Star, ideias: [
+    'Depoimento de quem comprou com você',
+    'Antes e depois: a busca do cliente até achar o carro certo',
+    'Print de uma conversa de cliente satisfeito (com permissão)',
+  ] },
+  { id: 'oferta', nome: 'Novidade & oferta', desc: 'Lançamento / condição — gera conversão (use com parcimônia)', icon: Tag, ideias: [
+    'Chegou o [modelo] — 3 motivos pra conhecer',
+    'A condição do mês explicada em 15 segundos',
+    'Estoque chegando: o que tem de novo na loja',
+  ] },
+  { id: 'marca', nome: 'Sua marca pessoal', desc: 'Por que confiar em você — gera autoridade', icon: PenSquare, ideias: [
+    'Por que eu escolhi trabalhar com carros',
+    'Como eu cuido do cliente depois da venda',
+    'Um valor que eu não abro mão no atendimento',
+  ] },
+];
+
+interface Formato { id: string; nome: string; tipo: string; icon: typeof Video; estrutura: string[]; exemplo: string }
+
+const FORMATOS: Formato[] = [
   {
-    id: 'reels',
-    nome: 'Reels',
-    tipo: 'Vídeo curto — alcance',
-    icon: Video,
+    id: 'reels', nome: 'Reels', tipo: 'Vídeo curto — traz ALCANCE (novos seguidores)', icon: Video,
     estrutura: [
       'Gancho nos 3 primeiros segundos (uma dor ou curiosidade).',
-      'Entregue 1 dica rápida — mostre, não só fale.',
-      'Feche com um convite: "me chama no direct".',
+      'Entregue 1 ideia rápida — mostre, não só fale.',
+      'Feche com convite: "comenta EU" ou "me chama no direct".',
     ],
     exemplo:
       'POV: você vai trocar de carro e não sabe se compra 0km ou seminovo. 🚗\n' +
-      '3 perguntas que eu faço pro meu cliente antes de decidir:\n' +
-      '1) Quanto você roda por mês? 2) Vai usar na cidade ou estrada? 3) Pensa em trocar de novo em quanto tempo?\n' +
-      'Responde aqui que eu monto a conta pro seu caso. Comenta "EU" 👇',
+      '3 perguntas que eu faço antes de decidir:\n' +
+      '1) Quanto você roda por mês? 2) Cidade ou estrada? 3) Pensa em trocar de novo em quanto tempo?\n' +
+      'Comenta "EU" que eu monto a conta pro seu caso 👇',
   },
   {
-    id: 'insta',
-    nome: 'Instagram',
-    tipo: 'Post / carrossel — relacionamento',
-    icon: Camera,
+    id: 'carrossel', nome: 'Carrossel', tipo: 'Vários slides — traz AUTORIDADE (salvamentos)', icon: Layers,
     estrutura: [
       'Capa com promessa clara (número + benefício).',
-      '3 a 5 slides, 1 ideia por slide.',
+      '3 a 6 slides, 1 ideia por slide, fácil de deslizar.',
       'Último slide: chamada pra ação + sua assinatura.',
     ],
     exemplo:
-      'Capa: "5 coisas que ninguém te conta antes de financiar um carro"\n' +
-      'Slide 1: A parcela baixa pode esconder um custo maior lá na frente.\n' +
-      'Slide 2: Entrada maior nem sempre é o melhor negócio — te explico.\n' +
-      'Slide 3: Seu usado vale mais na troca do que num site de anúncio.\n' +
-      'Último: "Quer simular sem compromisso? Me chama no direct 🚗 — [seu nome]"',
+      'Capa: "5 coisas que ninguém te conta antes de financiar"\n' +
+      'Slide 1: Parcela baixa pode esconder um custo maior lá na frente.\n' +
+      'Slide 2: Entrada maior nem sempre é o melhor negócio.\n' +
+      'Slide 3: Seu usado vale mais na troca do que num site.\n' +
+      'Último: "Quer simular sem compromisso? Me chama 🚗 — [seu nome]"',
   },
   {
-    id: 'linkedin',
-    nome: 'LinkedIn',
-    tipo: 'Autoridade — profissional',
-    icon: Briefcase,
+    id: 'stories', nome: 'Stories', tipo: 'Diário — traz RELACIONAMENTO (quem já te segue)', icon: Clock,
+    estrutura: [
+      'Mostre o bastidor do dia (real, sem produção).',
+      'Use enquete/caixinha pra puxar resposta.',
+      'Feche com link ou "responde aqui".',
+    ],
+    exemplo:
+      'Story 1 (vídeo): "Olha a entrega de hoje 🎉" (cliente pegando o carro)\n' +
+      'Story 2 (enquete): "Seu próximo carro vai ser? 🚗 0km / Seminovo"\n' +
+      'Story 3: "Quer que eu veja uma condição pro modelo que você quer? Responde aqui 👇"',
+  },
+  {
+    id: 'linkedin', nome: 'LinkedIn', tipo: 'Texto — AUTORIDADE profissional', icon: Briefcase,
     estrutura: [
       'Abra com uma situação real (história curta).',
       'Traga o aprendizado / o insight.',
       'Convite sutil, sem parecer vendedor.',
     ],
     exemplo:
-      'Semana passada um cliente quase desistiu do carro que ele queria por causa da parcela.\n\n' +
-      'Em vez de sair dando desconto, eu mostrei o custo real de manter o carro antigo dele por mais um ano. ' +
+      'Semana passada um cliente quase desistiu do carro por causa da parcela.\n\n' +
+      'Em vez de dar desconto, mostrei o custo real de manter o carro antigo por mais um ano. ' +
       'Ele fechou — e ainda indicou dois amigos.\n\n' +
-      'A lição: na maioria das vezes o cliente não quer o menor preço. Quer ter certeza de que está fazendo um bom negócio.\n\n' +
-      'É disso que eu cuido todo dia. 🚗',
-  },
-];
-
-interface Modelo {
-  titulo: string;
-  quando: string;
-  msg: string;
-}
-
-const WHATSAPP: Modelo[] = [
-  {
-    titulo: 'Primeiro contato (prospecção)',
-    quando: 'Lead novo / indicação',
-    msg: 'Oi [Nome], tudo bem? Aqui é o [seu nome], da [loja]. Vi que você demonstrou interesse no [modelo]. Posso te mandar as condições desse mês e tirar suas dúvidas por aqui, sem compromisso?',
-  },
-  {
-    titulo: 'Reativar cliente frio',
-    quando: 'Sumiu há semanas',
-    msg: 'Oi [Nome]! Lembrei de você 😊 Saiu uma condição nova no [modelo] que combina com o que você procurava. Quer que eu te mande os números atualizados?',
-  },
-  {
-    titulo: 'Resgate — não fechou',
-    quando: 'Cliente desistiu / achou caro',
-    msg: 'Oi [Nome], fiquei pensando no nosso papo. Consegui revisar a proposta e acho que dá pra deixar mais perto do que você precisa. Posso te ligar 5 min hoje pra te mostrar?',
-  },
-  {
-    titulo: 'Follow-up pós test-drive',
-    quando: 'Logo após o test-drive',
-    msg: 'Oi [Nome]! Que bom ter te recebido hoje 🚗 E aí, o que achou do [modelo]? Qualquer dúvida que ficou, me chama — tô aqui pra te ajudar a decidir com tranquilidade.',
+      'Na maioria das vezes o cliente não quer o menor preço. Quer ter certeza de que está fazendo um bom negócio. 🚗',
   },
 ];
 
 export default function CriarConteudo() {
   const navigate = useNavigate();
-  const [openPlat, setOpenPlat] = useState<string | null>('reels');
+  const [openPilar, setOpenPilar] = useState<string | null>(null);
+  const [openFmt, setOpenFmt] = useState<string | null>('reels');
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Monte o seu post → feedback da IA
   const [draft, setDraft] = useState('');
   const [fbPlat, setFbPlat] = useState('');
   const [fbLoading, setFbLoading] = useState(false);
@@ -114,61 +112,80 @@ export default function CriarConteudo() {
 
   const pedirFeedback = async () => {
     if (!draft.trim() || fbLoading) return;
-    setFbLoading(true);
-    setFbError('');
-    setFeedback(null);
-    try {
-      setFeedback(await getPostFeedback(draft.trim(), fbPlat));
-    } catch {
-      setFbError('Não consegui analisar agora. Tenta de novo em segundos.');
-    }
+    setFbLoading(true); setFbError(''); setFeedback(null);
+    try { setFeedback(await getPostFeedback(draft.trim(), fbPlat)); }
+    catch { setFbError('Não consegui analisar agora. Tenta de novo em segundos.'); }
     setFbLoading(false);
   };
 
   const copy = (id: string, text: string) => {
-    const clean = text.replace(/\n/g, '\n');
-    navigator.clipboard?.writeText(clean).catch(() => {});
+    navigator.clipboard?.writeText(text).catch(() => {});
     setCopied(id);
     setTimeout(() => setCopied(null), 1800);
   };
 
   return (
     <div className="home">
-      {/* Hero */}
       <div className="cc-hero card">
         <div className="cc-hero-icon"><PenSquare size={24} /></div>
         <div>
-          <h2>Criar conteúdo</h2>
-          <p>Atraia clientes postando — roteiros e modelos prontos pra adaptar</p>
+          <h2>Conteúdo pra redes</h2>
+          <p>Atraia clientes postando — o que postar, como postar e feedback da IA</p>
         </div>
       </div>
 
-      {/* Roteiros por plataforma */}
+      {/* 1. O que postar — pilares */}
       <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Roteiros por plataforma</h3></div>
-        {PLATAFORMAS.map(p => {
+        <div className="day-section-header"><h3 className="section-title">1. O que postar</h3></div>
+        <p className="cc-intro">Não poste solto. Gire entre estes pilares — é assim que se constrói marca:</p>
+        {PILARES.map(p => {
           const Icon = p.icon;
-          const isOpen = openPlat === p.id;
+          const isOpen = openPilar === p.id;
           return (
             <div key={p.id} className={`cc-plat card ${isOpen ? 'open' : ''}`}>
-              <button className="cc-plat-head" onClick={() => setOpenPlat(isOpen ? null : p.id)}>
-                <div className={`cc-plat-icon cc-${p.id}`}><Icon size={18} /></div>
+              <button className="cc-plat-head" onClick={() => setOpenPilar(isOpen ? null : p.id)}>
+                <div className={`cc-plat-icon cc-pilar-${p.id}`}><Icon size={18} /></div>
                 <div className="cc-plat-text">
                   <strong>{p.nome}</strong>
-                  <span>{p.tipo}</span>
+                  <span>{p.desc}</span>
+                </div>
+                <ChevronDown size={18} className="cc-chevron" />
+              </button>
+              {isOpen && (
+                <div className="cc-plat-body">
+                  <p className="cc-label">Ideias pra postar</p>
+                  <ul className="cc-ideas">{p.ideias.map((d, i) => <li key={i}>{d}</li>)}</ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 2. Como postar — formatos */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">2. Como postar (formato)</h3></div>
+        {FORMATOS.map(f => {
+          const Icon = f.icon;
+          const isOpen = openFmt === f.id;
+          return (
+            <div key={f.id} className={`cc-plat card ${isOpen ? 'open' : ''}`}>
+              <button className="cc-plat-head" onClick={() => setOpenFmt(isOpen ? null : f.id)}>
+                <div className={`cc-plat-icon cc-${f.id}`}><Icon size={18} /></div>
+                <div className="cc-plat-text">
+                  <strong>{f.nome}</strong>
+                  <span>{f.tipo}</span>
                 </div>
                 <ChevronDown size={18} className="cc-chevron" />
               </button>
               {isOpen && (
                 <div className="cc-plat-body">
                   <p className="cc-label">Estrutura</p>
-                  <ol className="cc-steps">
-                    {p.estrutura.map((s, i) => <li key={i}>{s}</li>)}
-                  </ol>
+                  <ol className="cc-steps">{f.estrutura.map((s, i) => <li key={i}>{s}</li>)}</ol>
                   <p className="cc-label">Exemplo (carro)</p>
-                  <div className="cc-example">{p.exemplo}</div>
-                  <button className="cc-copy" onClick={() => copy(p.id, p.exemplo)}>
-                    {copied === p.id ? <><Check size={14} /> Copiado</> : <><Copy size={14} /> Copiar exemplo</>}
+                  <div className="cc-example">{f.exemplo}</div>
+                  <button className="cc-copy" onClick={() => copy(f.id, f.exemplo)}>
+                    {copied === f.id ? <><Check size={14} /> Copiado</> : <><Copy size={14} /> Copiar exemplo</>}
                   </button>
                 </div>
               )}
@@ -177,12 +194,12 @@ export default function CriarConteudo() {
         })}
       </div>
 
-      {/* Monte o seu post → feedback da IA */}
+      {/* 3. Feedback da IA no seu post */}
       <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Monte o seu post → feedback da IA</h3></div>
+        <div className="day-section-header"><h3 className="section-title">3. Já escreveu? Peça feedback</h3></div>
         <div className="cc-fb-form card">
           <div className="cc-fb-plats">
-            {['Reels', 'Instagram', 'LinkedIn'].map(p => (
+            {['Reels', 'Carrossel', 'Stories', 'LinkedIn'].map(p => (
               <button key={p} type="button" className={`cc-fb-chip ${fbPlat === p ? 'on' : ''}`}
                 onClick={() => setFbPlat(fbPlat === p ? '' : p)}>{p}</button>
             ))}
@@ -220,34 +237,13 @@ export default function CriarConteudo() {
         )}
       </div>
 
-      {/* Modelos de WhatsApp */}
+      {/* Atalho: ideia pronta do dia */}
       <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">WhatsApp & prospecção</h3></div>
-        {WHATSAPP.map((m, i) => (
-          <div key={i} className="cc-msg card">
-            <div className="cc-msg-head">
-              <MessageCircle size={16} className="cc-msg-icon" />
-              <div className="cc-msg-titles">
-                <strong>{m.titulo}</strong>
-                <span>{m.quando}</span>
-              </div>
-            </div>
-            <div className="cc-msg-text">{m.msg}</div>
-            <button className="cc-copy" onClick={() => copy(`wpp-${i}`, m.msg)}>
-              {copied === `wpp-${i}` ? <><Check size={14} /> Copiado</> : <><Copy size={14} /> Copiar mensagem</>}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Sugestões prontas */}
-      <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Quer ideia pronta de hoje?</h3></div>
         <button className="home-content-card card" onClick={() => navigate('/conteudo-dia')}>
           <div className="home-content-icon"><Sparkles size={20} /></div>
           <div className="home-content-text">
-            <strong>Sugestões de post do dia</strong>
-            <span>Conteúdo pronto do seu segmento pra postar agora</span>
+            <strong>Sem tempo? Pega a ideia do dia</strong>
+            <span>Post pronto do seu segmento pra publicar agora</span>
           </div>
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
