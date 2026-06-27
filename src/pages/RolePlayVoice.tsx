@@ -120,7 +120,9 @@ export default function RolePlayVoice() {
       setClientLine(line);
       speak(line);
     } catch {
-      const line = `Olha, ${obj.objection.replace(/"/g, '')}. Não sei se faz sentido pra mim agora.`;
+      const raw = obj.objection.replace(/"/g, '').trim();
+      const natural = raw.charAt(0).toLowerCase() + raw.slice(1);
+      const line = `Olha... ${natural}. Sinceramente, não sei se vale a pena pra mim agora.`;
       setClientLine(line);
       speak(line);
     }

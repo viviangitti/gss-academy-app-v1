@@ -121,7 +121,9 @@ export default function RolePlay() {
       const result = await chatRef.current.sendMessage(`Comece a simulação. Diga a objeção ${obj.objection} de forma natural, como um cliente real diria.`);
       setMessages([{ role: 'client', content: result.response.text() }]);
     } catch {
-      setMessages([{ role: 'client', content: `Olha, ${obj.objection.replace(/"/g, '')}. Não sei se faz sentido para nós agora.` }]);
+      const line = obj.objection.replace(/"/g, '').trim();
+      const natural = line.charAt(0).toLowerCase() + line.slice(1);
+      setMessages([{ role: 'client', content: `Olha... ${natural}. Sinceramente, não sei se vale a pena pra mim agora.` }]);
     }
     setLoading(false);
   };
