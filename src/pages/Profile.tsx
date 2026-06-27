@@ -3,7 +3,7 @@ import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Tar
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
-import { SEGMENTS, SEGMENT_GOAL_PRESETS, PRICE_RANGES, getUserPriceRanges } from '../types';
+import { SEGMENTS, SEGMENT_GOAL_PRESETS, PRICE_RANGES, getUserPriceRanges, VEHICLE_BRANDS } from '../types';
 import type { UserProfile, GoalItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../services/auth';
@@ -142,11 +142,13 @@ export default function Profile() {
         </div>
         <div className="form-group">
           <label><Tag size={14} /> Marca</label>
-          <input
+          <select
             value={profile.brand || ''}
             onChange={e => setProfile({ ...profile, brand: e.target.value })}
-            placeholder="Ex: Toyota"
-          />
+          >
+            <option value="">Selecione a marca</option>
+            {VEHICLE_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
         </div>
         <div className="form-group">
           <label><Building2 size={14} /> Concessionária</label>

@@ -4,7 +4,7 @@ import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, tran
 import { saveRemoteProfile } from '../services/firestore/profile';
 import { claimDealershipManager } from '../services/firestore/dealership';
 import { saveData, loadData, KEYS } from '../services/storage';
-import { SEGMENTS } from '../types';
+import { SEGMENTS, VEHICLE_BRANDS } from '../types';
 import type { UserProfile, Segment } from '../types';
 import './Auth.css';
 
@@ -263,12 +263,10 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
             </div>
             <div className="auth-field">
               <Tag size={14} />
-              <input
-                type="text"
-                placeholder="Marca (ex: Toyota)"
-                value={brand}
-                onChange={e => setBrand(e.target.value)}
-              />
+              <select value={brand} onChange={e => setBrand(e.target.value)}>
+                <option value="">Marca (ex: Toyota)</option>
+                {VEHICLE_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
             </div>
             <div className="auth-field">
               <Building2 size={14} />

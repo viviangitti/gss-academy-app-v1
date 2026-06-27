@@ -57,6 +57,15 @@ export interface ModelGoal {
   target: number;  // meta de QUANTIDADE no mês
 }
 
+// Marcas de veículos vendidas no Brasil (para o seletor de Marca no perfil)
+export const VEHICLE_BRANDS = [
+  'Audi', 'BMW', 'BYD', 'Caoa Chery', 'Chevrolet', 'Citroën', 'Fiat', 'Ford',
+  'GWM', 'Honda', 'Hyundai', 'Iveco', 'JAC', 'Jaguar', 'Jeep', 'Kia',
+  'Land Rover', 'Lexus', 'Maserati', 'Mercedes-Benz', 'Mini', 'Mitsubishi',
+  'Nissan', 'Peugeot', 'Porsche', 'RAM', 'Renault', 'Subaru', 'Suzuki',
+  'Toyota', 'Volkswagen', 'Volvo', 'Outra',
+] as const;
+
 export interface UserProfile {
   name: string;
   role: string;
