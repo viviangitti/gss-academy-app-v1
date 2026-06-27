@@ -10,8 +10,8 @@ function syncSales(sales: Sale[]) {
 
 export interface Sale {
   id: string;
-  amount: number;       // valor total da venda
-  commission: number;   // comissão do vendedor nessa venda
+  amount: number;       // valor total da venda (opcional — pra faturamento/ticket)
+  model?: string;       // modelo vendido (ex: "Corolla Cross XRE")
   client: string;
   date: string; // ISO
   notes?: string;
@@ -22,14 +22,13 @@ export interface Sale {
 export const BUSINESS_AREAS = ['Veículo', 'Financiamento', 'Seguro', 'Acessórios', 'Outro'];
 
 export interface GoalStats {
-  goal: number;                // meta de comissão
-  monthSales: number;     // comissão acumulada no mês
-  monthTotal: number;          // valor vendido no mês (referência)
-  monthCount: number;
+  goal: number;                // meta de vendas (QUANTIDADE) no mês
+  monthCount: number;          // vendas fechadas no mês (puxa o progresso)
+  monthTotal: number;          // valor vendido no mês (faturamento, referência)
   progress: number; // 0-100
   daysLeft: number;
+  remaining: number;           // vendas faltando pra meta
   pace: 'atras' | 'no_ritmo' | 'adiantado' | 'sem_meta';
-  dailyTarget: number;
 }
 
 const SALES_KEY = 'gss_sales';
@@ -51,21 +50,21 @@ export function getSales(): Sale[] {
   }
 }
 
-export function addSale(amount: number, commission: number, client: string, notes?: string, area?: string): Sale {
+export function addSale(opts: { amount?: number; client: string; model?: string; notes?: string; area?: string }): Sale {
+  const { amount = 0, client, model, notes, area } = opts;
   const sale: Sale = {
     id: generateId(),
     amount,
-    commission,
+    model,
     client,
     notes,
     area,
     date: new Date().toISOString(),
   };
   const sales = getSales();
-  const normalized = sales.map(s => ({ ...s, commission: s.commission ?? 0 }));
-  normalized.push(sale);
-  localStorage.setItem(SALES_KEY, JSON.stringify(normalized));
-  syncSales(normalized);
+  sales.push(sale);
+  localStorage.setItem(SALES_KEY, JSON.stringify(sales));
+  syncSales(sales);
 
   // Cérebro coletivo: a venda vira um caso anônimo da empresa
   try {
@@ -98,16 +97,15 @@ export function getCurrentMonthSales(): Sale[] {
 
 export function getStats(goal: number): GoalStats {
   const rawSales = getCurrentMonthSales();
-  const monthSales = rawSales.reduce((sum, s) => sum + (s.commission ?? 0), 0);
-  const monthTotal = rawSales.reduce((sum, s) => sum + s.amount, 0);
-  const progress = goal > 0 ? Math.min((monthSales / goal) * 100, 100) : 0;
+  const monthCount = rawSales.length;
+  const monthTotal = rawSales.reduce((sum, s) => sum + (s.amount || 0), 0);
+  const progress = goal > 0 ? Math.min((monthCount / goal) * 100, 100) : 0;
 
   const now = new Date();
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   const daysLeft = Math.max(0, lastDay.getDate() - now.getDate());
 
-  const remaining = Math.max(0, goal - monthSales);
-  const dailyTarget = daysLeft > 0 ? remaining / daysLeft : remaining;
+  const remaining = Math.max(0, goal - monthCount);
 
   let pace: GoalStats['pace'] = 'sem_meta';
   if (goal > 0) {
@@ -121,13 +119,12 @@ export function getStats(goal: number): GoalStats {
 
   return {
     goal,
-    monthSales,
+    monthCount,
     monthTotal,
-    monthCount: rawSales.length,
     progress,
     daysLeft,
+    remaining,
     pace,
-    dailyTarget,
   };
 }
 
@@ -150,16 +147,15 @@ export function getSalesByPeriod(period: Period): Sale[] {
   });
 }
 
-export function getPeriodStats(period: Period): { total: number; commission: number; count: number; average: number } {
+export function getPeriodStats(period: Period): { total: number; count: number; average: number } {
   const sales = getSalesByPeriod(period);
-  const total = sales.reduce((s, x) => s + x.amount, 0);
-  const commission = sales.reduce((s, x) => s + (x.commission ?? 0), 0);
+  const total = sales.reduce((s, x) => s + (x.amount || 0), 0);
   const count = sales.length;
-  const average = count > 0 ? total / count : 0;
-  return { total, commission, count, average };
+  const average = count > 0 ? total / count : 0;  // ticket médio
+  return { total, count, average };
 }
 
-// Dados para gráfico mensal (comissão acumulada por dia)
+// Dados para gráfico mensal (vendas acumuladas por dia)
 export function getMonthChartData(): { label: string; value: number }[] {
   const sales = getSalesByPeriod('mes').sort((a, b) => a.date.localeCompare(b.date));
   const now = new Date();
@@ -170,7 +166,7 @@ export function getMonthChartData(): { label: string; value: number }[] {
   let idx = 0;
   for (let d = 1; d <= Math.min(today, lastDay); d++) {
     while (idx < sales.length && new Date(sales[idx].date).getDate() <= d) {
-      acc += (sales[idx].commission ?? 0);
+      acc += 1;
       idx++;
     }
     result.push({ label: String(d), value: acc });
@@ -178,7 +174,7 @@ export function getMonthChartData(): { label: string; value: number }[] {
   return result;
 }
 
-// Dados para gráfico anual (comissão acumulada por mês)
+// Dados para gráfico anual (vendas acumuladas por mês)
 export function getYearChartData(): { label: string; value: number }[] {
   const sales = getSalesByPeriod('ano');
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -186,16 +182,14 @@ export function getYearChartData(): { label: string; value: number }[] {
   const result: { label: string; value: number }[] = [];
   let acc = 0;
   for (let m = 0; m <= now.getMonth(); m++) {
-    const monthTotal = sales
-      .filter(s => new Date(s.date).getMonth() === m)
-      .reduce((sum, s) => sum + (s.commission ?? 0), 0);
-    acc += monthTotal;
+    const monthCount = sales.filter(s => new Date(s.date).getMonth() === m).length;
+    acc += monthCount;
     result.push({ label: months[m], value: acc });
   }
   return result;
 }
 
-// Dados para gráfico semanal (comissão acumulada por dia da semana)
+// Dados para gráfico semanal (vendas acumuladas por dia da semana)
 export function getWeekChartData(): { label: string; value: number }[] {
   const sales = getSalesByPeriod('semana');
   const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -203,16 +197,14 @@ export function getWeekChartData(): { label: string; value: number }[] {
   const result: { label: string; value: number }[] = [];
   let acc = 0;
   for (let d = 0; d <= now.getDay(); d++) {
-    const dayTotal = sales
-      .filter(s => new Date(s.date).getDay() === d)
-      .reduce((sum, s) => sum + (s.commission ?? 0), 0);
-    acc += dayTotal;
+    const dayCount = sales.filter(s => new Date(s.date).getDay() === d).length;
+    acc += dayCount;
     result.push({ label: labels[d], value: acc });
   }
   return result;
 }
 
-// Agrupa vendas por dia do mês atual para gráfico
+// Agrupa vendas por dia do mês atual para gráfico (vendas acumuladas)
 export function getDailyAccumulation(): { day: number; accumulated: number }[] {
   const sales = getCurrentMonthSales().sort((a, b) => a.date.localeCompare(b.date));
   const now = new Date();
@@ -227,7 +219,7 @@ export function getDailyAccumulation(): { day: number; accumulated: number }[] {
     while (saleIdx < sales.length) {
       const saleDay = new Date(sales[saleIdx].date).getDate();
       if (saleDay <= d) {
-        acc += (sales[saleIdx].commission ?? 0);
+        acc += 1;
         saleIdx++;
       } else break;
     }

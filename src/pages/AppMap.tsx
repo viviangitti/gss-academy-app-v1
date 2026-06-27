@@ -18,7 +18,7 @@ const SECTIONS: MapSection[] = [
       { label: 'Vendi / Não fechou', desc: 'Registro rápido do atendimento', to: '/' },
       { label: 'Boost', desc: 'Destrave a argumentação', to: '/boost' },
       { label: 'Coach por voz', desc: 'Converse falando', to: '/coach-voz' },
-      { label: 'Meta e vendas', desc: 'Acompanhe sua comissão', to: '/vendas' },
+      { label: 'Meta e vendas', desc: 'Acompanhe suas vendas', to: '/vendas' },
       { label: 'Tarefas do dia', desc: 'Organize e marque o que fez', to: '/' },
     ],
   },

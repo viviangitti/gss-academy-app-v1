@@ -40,11 +40,12 @@ export default function Sales() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<Period>('mes');
   const [sales, setSales] = useState<Sale[]>([]);
-  const [stats, setStats] = useState({ total: 0, commission: 0, count: 0, average: 0 });
+  const [stats, setStats] = useState({ total: 0, count: 0, average: 0 });
   const [monthlyGoal, setMonthlyGoal] = useState(0);
+  const [goalUnit, setGoalUnit] = useState('vendas');
   const [chartData, setChartData] = useState<{ label: string; value: number }[]>([]);
   const [showAddSale, setShowAddSale] = useState(false);
-  const [saleForm, setSaleForm] = useState({ amount: '', commission: '', client: '' });
+  const [saleForm, setSaleForm] = useState({ amount: '', model: '', client: '' });
   const [addSaleError, setAddSaleError] = useState(false);
 
   const refresh = (p: Period) => {
@@ -60,6 +61,7 @@ export default function Sales() {
     refresh(period);
     const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
     setMonthlyGoal(profile.monthlyGoal || 0);
+    setGoalUnit((profile.segment || '').startsWith('automotivo') ? 'carros' : 'vendas');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -69,14 +71,12 @@ export default function Sales() {
   };
 
   const handleAddSale = () => {
-    const amount = Number(saleForm.amount);
-    const commission = Number(saleForm.commission);
-    if (!amount || !saleForm.client.trim()) {
+    if (!saleForm.model.trim()) {
       setAddSaleError(true);
       return;
     }
-    addSale(amount, commission || 0, saleForm.client);
-    setSaleForm({ amount: '', commission: '', client: '' });
+    addSale({ amount: Number(saleForm.amount) || 0, model: saleForm.model.trim(), client: saleForm.client.trim() || 'Venda' });
+    setSaleForm({ amount: '', model: '', client: '' });
     setAddSaleError(false);
     setShowAddSale(false);
     refresh(period);
@@ -91,7 +91,7 @@ export default function Sales() {
 
   const maxVal = Math.max(...chartData.map(d => d.value), monthlyGoal, 1);
   const goalToShow = period === 'mes' ? monthlyGoal : 0;
-  const progress = goalToShow > 0 ? Math.min((stats.commission / goalToShow) * 100, 100) : 0;
+  const progress = goalToShow > 0 ? Math.min((stats.count / goalToShow) * 100, 100) : 0;
 
   return (
     <div className="sales-page">
@@ -111,15 +111,14 @@ export default function Sales() {
       {/* Resumo */}
       <div className="sales-summary card">
         <div className="summary-main">
-          <span className="summary-label">Comissão no período</span>
-          <span className="summary-value">{formatBRL(stats.commission)}</span>
-          <span className="summary-sub">Vendido: {formatBRL(stats.total)}</span>
+          <span className="summary-label">Vendas no período</span>
+          <span className="summary-value">{stats.count}</span>
         </div>
         <div className="summary-divider" />
         <div className="summary-stats">
           <div>
-            <span className="stat-label">Vendas</span>
-            <span className="stat-value">{stats.count}</span>
+            <span className="stat-label">Faturamento</span>
+            <span className="stat-value">{formatBRL(stats.total)}</span>
           </div>
           <div>
             <span className="stat-label">Ticket médio</span>
@@ -132,15 +131,15 @@ export default function Sales() {
             <div className="summary-divider" />
             <div className="summary-goal">
               <div className="goal-row">
-                <span><Award size={14} /> Meta de comissão</span>
-                <span className="goal-val">{formatBRL(monthlyGoal)}</span>
+                <span><Award size={14} /> Meta de {goalUnit}</span>
+                <span className="goal-val">{monthlyGoal} {goalUnit}</span>
               </div>
               <div className="goal-progress-bar">
                 <div className="goal-progress-fill" style={{ width: `${progress}%` }} />
               </div>
               <div className="goal-row-small">
                 <span>{Math.round(progress)}% concluído</span>
-                <span>{formatBRL(Math.max(0, monthlyGoal - stats.commission))} faltando</span>
+                <span>{Math.max(0, monthlyGoal - stats.count)} {goalUnit} faltando</span>
               </div>
             </div>
           </>
@@ -202,24 +201,23 @@ export default function Sales() {
         <div className="new-sale-form card">
           <input
             type="text"
-            placeholder={addSaleError && !saleForm.client.trim() ? 'Cliente obrigatório!' : 'Cliente'}
-            value={saleForm.client}
-            onChange={e => { setSaleForm({ ...saleForm, client: e.target.value }); setAddSaleError(false); }}
-            className={addSaleError && !saleForm.client.trim() ? 'input-error' : undefined}
+            placeholder={addSaleError && !saleForm.model.trim() ? 'Modelo obrigatório!' : 'Modelo vendido'}
+            value={saleForm.model}
+            onChange={e => { setSaleForm({ ...saleForm, model: e.target.value }); setAddSaleError(false); }}
+            className={addSaleError && !saleForm.model.trim() ? 'input-error' : undefined}
           />
           <div className="sale-amount-row">
             <input
-              type="number"
-              placeholder={addSaleError && !Number(saleForm.amount) ? 'Valor obrigatório!' : 'Venda R$'}
-              value={saleForm.amount}
-              onChange={e => { setSaleForm({ ...saleForm, amount: e.target.value }); setAddSaleError(false); }}
-              className={addSaleError && !Number(saleForm.amount) ? 'input-error' : undefined}
+              type="text"
+              placeholder="Cliente"
+              value={saleForm.client}
+              onChange={e => setSaleForm({ ...saleForm, client: e.target.value })}
             />
             <input
               type="number"
-              placeholder="Comissão R$"
-              value={saleForm.commission}
-              onChange={e => setSaleForm({ ...saleForm, commission: e.target.value })}
+              placeholder="Valor R$ (opcional)"
+              value={saleForm.amount}
+              onChange={e => setSaleForm({ ...saleForm, amount: e.target.value })}
             />
           </div>
           <button className="btn btn-primary" onClick={handleAddSale}>
@@ -241,14 +239,15 @@ export default function Sales() {
           {sales.map(sale => (
             <div key={sale.id} className="sale-item card">
               <div className="sale-info">
-                <span className="sale-client">{sale.client}</span>
-                <span className="sale-date">{formatDate(sale.date)} • {formatTime(sale.date)}</span>
-                <span className="sale-value-row">Venda: {formatBRL(sale.amount)}</span>
+                <span className="sale-client">{sale.model || sale.client}</span>
+                <span className="sale-date">{formatDate(sale.date)} • {formatTime(sale.date)}{sale.client && sale.model ? ` • ${sale.client}` : ''}</span>
               </div>
-              <div className="sale-commission-box">
-                <span className="sale-commission-label">comissão</span>
-                <span className="sale-amount">{formatBRL(sale.commission ?? 0)}</span>
-              </div>
+              {sale.amount ? (
+                <div className="sale-commission-box">
+                  <span className="sale-commission-label">valor</span>
+                  <span className="sale-amount">{formatBRL(sale.amount)}</span>
+                </div>
+              ) : null}
               <button className="sale-delete" onClick={() => handleRemove(sale.id)}>
                 <Trash2 size={14} />
               </button>

@@ -56,7 +56,7 @@ export interface UserProfile {
   role: string;
   company: string;
   segment: Segment;
-  monthlyGoal?: number;             // meta principal (ex: vendas de carros / faturamento)
+  monthlyGoal?: number;             // meta principal: QUANTIDADE de vendas no mês (ex: carros)
   /** @deprecated use customGoals */
   monthlyGoalFinancing?: number;
   /** @deprecated use customGoals */

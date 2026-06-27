@@ -6,7 +6,7 @@ export interface MonthWins {
   boostWins: number;       // objeções contornadas com o Boost ("Funcionou!")
   rescuesSent: number;     // mensagens de resgate enviadas/copiadas
   fuWon: number;           // vendas fechadas via follow-up
-  fuCommission: number;    // comissão dessas vendas
+  fuValue: number;         // valor dessas vendas
 }
 
 const KEY = 'gss_wins';
@@ -26,16 +26,16 @@ function load(): Record<string, MonthWins> {
 
 export function getMonthWins(): MonthWins {
   const all = load();
-  return all[monthKey()] || { boostWins: 0, rescuesSent: 0, fuWon: 0, fuCommission: 0 };
+  return all[monthKey()] || { boostWins: 0, rescuesSent: 0, fuWon: 0, fuValue: 0 };
 }
 
-export function addWin(kind: 'boost' | 'rescue' | 'fuWon', commission = 0): void {
+export function addWin(kind: 'boost' | 'rescue' | 'fuWon', value = 0): void {
   const all = load();
   const mk = monthKey();
-  const m = all[mk] || { boostWins: 0, rescuesSent: 0, fuWon: 0, fuCommission: 0 };
+  const m = all[mk] || { boostWins: 0, rescuesSent: 0, fuWon: 0, fuValue: 0 };
   if (kind === 'boost') m.boostWins++;
   else if (kind === 'rescue') m.rescuesSent++;
-  else { m.fuWon++; m.fuCommission += commission; }
+  else { m.fuWon++; m.fuValue += value; }
   all[mk] = m;
   // guarda só os últimos 3 meses
   const keys = Object.keys(all).sort().slice(-3);

@@ -39,6 +39,7 @@ export default function DailyBriefing() {
   const [latestCondition, setLatestCondition] = useState('');
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const goalUnit = (profile.segment || '').startsWith('automotivo') ? 'carros' : 'vendas';
   const goal = profile.monthlyGoal || 0;
   const stats = goal > 0 ? getStats(goal) : null;
   const due = getDueFollowUps();
@@ -64,13 +65,14 @@ export default function DailyBriefing() {
   const rows: { icon: React.ReactNode; text: React.ReactNode; to: string }[] = [];
 
   if (stats && goal > 0) {
-    const remaining = Math.max(0, goal - stats.monthSales);
+    const remaining = Math.max(0, goal - stats.monthCount);
+    const perDay = Math.ceil(remaining / Math.max(1, daysLeft));
     rows.push({
       icon: <Target size={15} />,
       to: '/vendas',
       text: remaining > 0
-        ? <>Faltam <strong>{brl(remaining)}</strong> pra meta — <strong>{brl(Math.ceil(remaining / daysLeft))}</strong>/dia útil ({daysLeft} dias)</>
-        : <><strong>Meta batida! 🏆</strong> Agora é recorde: cada venda é lucro seu</>,
+        ? <>Faltam <strong>{remaining} {goalUnit}</strong> pra meta — <strong>{perDay}/dia útil</strong> ({daysLeft} dias)</>
+        : <><strong>Meta batida! 🏆</strong> Agora é recorde: cada venda conta</>,
     });
   }
 
@@ -82,11 +84,11 @@ export default function DailyBriefing() {
       : <>Nenhum follow-up hoje — <strong>registre seus atendimentos</strong> pra não perder retorno</>,
   });
 
-  if (pipeline.totalCommission > 0) {
+  if (pipeline.totalValue > 0) {
     rows.push({
       icon: <Wallet size={15} />,
       to: '/follow-ups',
-      text: <><strong>{brl(pipeline.totalCommission)}</strong> de comissão em jogo na sua carteira ({pipeline.count} cliente{pipeline.count > 1 ? 's' : ''})</>,
+      text: <><strong>{brl(pipeline.totalValue)}</strong> em vendas na sua carteira ({pipeline.count} cliente{pipeline.count > 1 ? 's' : ''})</>,
     });
   }
 
@@ -103,7 +105,7 @@ export default function DailyBriefing() {
     const w = getMonthWins();
     const bits: string[] = [];
     if (w.boostWins) bits.push(`${w.boostWins} objeç${w.boostWins > 1 ? 'ões viradas' : 'ão virada'} no Boost`);
-    if (w.fuWon) bits.push(`${w.fuWon} venda${w.fuWon > 1 ? 's' : ''} via follow-up${w.fuCommission ? ` (${brl(w.fuCommission)})` : ''}`);
+    if (w.fuWon) bits.push(`${w.fuWon} venda${w.fuWon > 1 ? 's' : ''} via follow-up${w.fuValue ? ` (${brl(w.fuValue)})` : ''}`);
     if (w.rescuesSent) bits.push(`${w.rescuesSent} resgate${w.rescuesSent > 1 ? 's' : ''} enviado${w.rescuesSent > 1 ? 's' : ''}`);
     rows.push({
       icon: <Trophy size={15} />,

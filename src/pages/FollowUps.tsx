@@ -38,7 +38,7 @@ function dateLabel(iso: string): string {
 
 const EMPTY_FORM = {
   clientName: '', interest: '', stage: 'novo' as FollowUpStage,
-  note: '', nextAction: 'Ligar', nextDate: todayStr(1), estValue: '', estCommission: '',
+  note: '', nextAction: 'Ligar', nextDate: todayStr(1), estValue: '',
 };
 
 const ACTIONS = ['Ligar', 'WhatsApp', 'Mandar proposta', 'Visita / test-drive', 'Cobrar resposta'];
@@ -68,7 +68,6 @@ export default function FollowUps() {
       nextAction: form.nextAction,
       nextDate: form.nextDate,
       estValue: form.estValue ? Number(form.estValue) : undefined,
-      estCommission: form.estCommission ? Number(form.estCommission) : undefined,
       lastTouchAt: Date.now(),
     });
     setForm(EMPTY_FORM);
@@ -85,10 +84,8 @@ export default function FollowUps() {
 
   const handleWon = (f: FollowUp) => {
     closeFollowUp(f.id, 'won');
-    addWin('fuWon', f.estCommission || 0);
-    if (f.estValue || f.estCommission) {
-      addSale(f.estValue || 0, f.estCommission || 0, f.clientName, `Follow-up: ${f.interest}`);
-    }
+    addWin('fuWon', f.estValue || 0);
+    addSale({ amount: f.estValue || 0, model: f.interest, client: f.clientName, notes: `Follow-up: ${f.interest}` });
     refresh();
   };
 
@@ -112,7 +109,7 @@ export default function FollowUps() {
       <div className="fu-card-mid">
         <span className="fu-stage">{STAGE_LABELS[f.stage]}</span>
         <span className="fu-action"><Phone size={12} /> {f.nextAction}</span>
-        {f.estCommission ? <span className="fu-comm">{formatBRL(f.estCommission)} comissão</span> : null}
+        {f.estValue ? <span className="fu-comm">{formatBRL(f.estValue)}</span> : null}
       </div>
       {f.note && <p className="fu-note">{f.note}</p>}
 
@@ -164,8 +161,8 @@ export default function FollowUps() {
           </div>
           <div className="fu-stat-divider" />
           <div className="fu-stat">
-            <span className="fu-stat-value">{formatBRL(pipeline.totalCommission)}</span>
-            <span className="fu-stat-label">Comissão em jogo</span>
+            <span className="fu-stat-value">{formatBRL(pipeline.totalValue)}</span>
+            <span className="fu-stat-label">Valor em jogo</span>
           </div>
         </div>
       )}
@@ -262,21 +259,12 @@ export default function FollowUps() {
               </div>
               <div className="fu-row">
                 <div className="fu-field">
-                  <label>Valor estimado R$</label>
+                  <label>Valor estimado R$ <span style={{ fontWeight: 400, color: 'var(--text-soft)' }}>(opcional)</span></label>
                   <CurrencyInput
                     value={Number(form.estValue) || 0}
                     onChange={v => setForm({ ...form, estValue: v ? String(v) : '' })}
                     presets={[]}
                     placeholder="800.000"
-                  />
-                </div>
-                <div className="fu-field">
-                  <label>Sua comissão R$</label>
-                  <CurrencyInput
-                    value={Number(form.estCommission) || 0}
-                    onChange={v => setForm({ ...form, estCommission: v ? String(v) : '' })}
-                    presets={[]}
-                    placeholder="40.000"
                   />
                 </div>
               </div>

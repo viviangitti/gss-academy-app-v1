@@ -36,7 +36,7 @@ export default function Home() {
   const [welcomeBack, setWelcomeBack] = useState<string | null>(null);
   const [showAddSale, setShowAddSale] = useState(false);   // inline form (Meta do mês)
   const [showQuickSale, setShowQuickSale] = useState(false); // FAB modal
-  const [saleForm, setSaleForm] = useState({ amount: '', commission: '', client: '' });
+  const [saleForm, setSaleForm] = useState({ amount: '', model: '', client: '' });
   const [saleError, setSaleError] = useState(false);
   const [showFeedbackBanner, setShowFeedbackBanner] = useState(false);
 
@@ -78,6 +78,7 @@ export default function Home() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
   const name = profile.name ? `, ${profile.name.split(' ')[0]}` : '';
+  const goalUnit = (profile.segment || '').startsWith('automotivo') ? 'carros' : 'vendas';
 
   const handleAddTask = () => {
     if (!newTask.trim()) return;
@@ -86,15 +87,13 @@ export default function Home() {
   };
 
   const handleRegisterSale = () => {
-    const amount = Number(saleForm.amount);
-    const commission = Number(saleForm.commission);
-    if (!amount || !saleForm.client.trim()) {
+    if (!saleForm.model.trim()) {
       setSaleError(true);
       return;
     }
-    addSale(amount, commission || 0, saleForm.client);
+    addSale({ amount: Number(saleForm.amount) || 0, model: saleForm.model.trim(), client: saleForm.client.trim() || 'Venda' });
     refreshStats(goal);
-    setSaleForm({ amount: '', commission: '', client: '' });
+    setSaleForm({ amount: '', model: '', client: '' });
     setSaleError(false);
     setShowAddSale(false);
   };
@@ -211,23 +210,23 @@ export default function Home() {
             <div className="new-sale card">
               <input
                 type="text"
-                placeholder={saleError && !saleForm.client.trim() ? 'Cliente obrigatório!' : 'Cliente'}
+                placeholder={saleError && !saleForm.model.trim() ? 'Modelo obrigatório!' : 'Modelo vendido'}
+                value={saleForm.model}
+                onChange={e => { setSaleForm({ ...saleForm, model: e.target.value }); setSaleError(false); }}
+                className={`sale-client-input${saleError && !saleForm.model.trim() ? ' input-error' : ''}`}
+              />
+              <input
+                type="text"
+                placeholder="Cliente"
                 value={saleForm.client}
-                onChange={e => { setSaleForm({ ...saleForm, client: e.target.value }); setSaleError(false); }}
-                className={`sale-client-input${saleError && !saleForm.client.trim() ? ' input-error' : ''}`}
+                onChange={e => setSaleForm({ ...saleForm, client: e.target.value })}
+                className="sale-client-input"
               />
               <input
                 type="number"
-                placeholder={saleError && !Number(saleForm.amount) ? 'Valor obrigatório!' : 'Venda R$'}
+                placeholder="Valor R$ (opcional)"
                 value={saleForm.amount}
-                onChange={e => { setSaleForm({ ...saleForm, amount: e.target.value }); setSaleError(false); }}
-                className={`sale-amount-input${saleError && !Number(saleForm.amount) ? ' input-error' : ''}`}
-              />
-              <input
-                type="number"
-                placeholder="Vendas R$"
-                value={saleForm.commission}
-                onChange={e => setSaleForm({ ...saleForm, commission: e.target.value })}
+                onChange={e => setSaleForm({ ...saleForm, amount: e.target.value })}
                 className="sale-amount-input"
               />
               <button className="btn btn-primary btn-sm" onClick={handleRegisterSale}>
@@ -239,8 +238,8 @@ export default function Home() {
           <div className="goal-card card">
             <div className="goal-numbers">
               <div>
-                <span className="goal-value">{formatBRL(stats.monthSales)}</span>
-                <span className="goal-of">de {formatBRL(stats.goal)} em vendas</span>
+                <span className="goal-value">{stats.monthCount}</span>
+                <span className="goal-of">de {stats.goal} {goalUnit}</span>
               </div>
               <span className={`goal-pace goal-pace-${stats.pace}`}>
                 {stats.pace === 'adiantado' && '🔥 Adiantado'}
@@ -263,8 +262,8 @@ export default function Home() {
                 <span className="goal-stat-value">{stats.daysLeft}</span>
               </div>
               <div>
-                <span className="goal-stat-label">Por dia</span>
-                <span className="goal-stat-value">{formatBRL(stats.dailyTarget)}</span>
+                <span className="goal-stat-label">Faltam</span>
+                <span className="goal-stat-value">{stats.remaining}</span>
               </div>
             </div>
 

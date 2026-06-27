@@ -161,12 +161,16 @@ export default function Profile() {
           <span className="form-hint">Personaliza objeções, roteiros e notícias do seu mercado</span>
         </div>
         <div className="form-group">
-          <label><Target size={14} /> Meta principal mensal</label>
-          <CurrencyInput
-            value={profile.monthlyGoal || 0}
-            onChange={v => setProfile({ ...profile, monthlyGoal: v })}
+          <label><Target size={14} /> Meta de {(profile.segment || '').startsWith('automotivo') ? 'carros' : 'vendas'} no mês</label>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            placeholder="Ex: 12"
+            value={profile.monthlyGoal || ''}
+            onChange={e => setProfile({ ...profile, monthlyGoal: Number(e.target.value) || 0 })}
           />
-          <span className="form-hint">Exibida com barra de progresso na Home</span>
+          <span className="form-hint">Quantidade de vendas no mês — exibida com barra de progresso na Home</span>
         </div>
 
         {/* Metas adicionais — modulares para todos os segmentos */}

@@ -1,6 +1,6 @@
 // Follow-ups: os clientes do vendedor moram no app.
 // Cada atendimento vira um card com próximo passo + data. É a fundação do
-// Briefing do Dia, do Rescue e da comissão projetada.
+// Briefing do Dia, do Rescue e do valor projetado da carteira.
 import { auth } from './firebase';
 import { pushData } from './firestore/sync';
 
@@ -15,7 +15,6 @@ export interface FollowUp {
   nextAction: string;      // ex: "Ligar", "Mandar proposta"
   nextDate: string;        // YYYY-MM-DD
   estValue?: number;       // valor estimado da venda
-  estCommission?: number;  // comissão estimada
   createdAt: number;
   updatedAt: number;
   lastTouchAt?: number;    // último contato real
@@ -104,13 +103,12 @@ export function getDueFollowUps(): { today: FollowUp[]; overdue: FollowUp[] } {
   };
 }
 
-/** Comissão estimada dos follow-ups em aberto (alimenta "quanto vale sua carteira"). */
-export function getPipelineValue(): { count: number; totalValue: number; totalCommission: number } {
+/** Valor estimado dos follow-ups em aberto (alimenta "quanto vale sua carteira"). */
+export function getPipelineValue(): { count: number; totalValue: number } {
   const open = getOpenFollowUps();
   return {
     count: open.length,
     totalValue: open.reduce((s, f) => s + (f.estValue || 0), 0),
-    totalCommission: open.reduce((s, f) => s + (f.estCommission || 0), 0),
   };
 }
 

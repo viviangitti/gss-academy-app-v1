@@ -16,20 +16,24 @@ const DETERMINANTES = [
 
 /** Folha de registro rápido de venda — usada na Início (FAB) e em Negociações. */
 export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
-  const [form, setForm] = useState({ amount: '', commission: '', client: '' });
+  const [form, setForm] = useState({ amount: '', model: '', client: '' });
   const [determinante, setDeterminante] = useState('');
   const [area, setArea] = useState('');
-  const [error, setError] = useState<'' | 'commission' | 'determinante'>('');
+  const [error, setError] = useState<'' | 'model' | 'determinante'>('');
 
   if (!open) return null;
 
   const confirm = () => {
-    if (!form.commission) { setError('commission'); return; }
+    if (!form.model.trim()) { setError('model'); return; }
     if (!determinante) { setError('determinante'); return; }
-    const commission = Number(form.commission);
-    const amount = Number(form.amount) || commission;
-    addSale(amount, commission, form.client || 'Venda', `Determinante pra venda: ${determinante}`, area || undefined);
-    setForm({ amount: '', commission: '', client: '' });
+    addSale({
+      amount: Number(form.amount) || 0,
+      model: form.model.trim(),
+      client: form.client || 'Venda',
+      notes: `Determinante pra venda: ${determinante}`,
+      area: area || undefined,
+    });
+    setForm({ amount: '', model: '', client: '' });
     setDeterminante('');
     setArea('');
     setError('');
@@ -44,16 +48,15 @@ export default function QuickSaleSheet({ open, onClose, onRegistered }: Props) {
         <h3 className="quick-sale-title"><TrendingUp size={18} /> Registrar venda</h3>
         <div className="quick-sale-fields">
           <div className="quick-sale-field">
-            <label>Sua comissão R$ <span className="required">*</span></label>
-            <span className="qs-hint">Quanto você ganhou nessa venda</span>
+            <label>Modelo vendido <span className="required">*</span></label>
+            <span className="qs-hint">Qual carro você vendeu</span>
             <input
-              type="number"
-              placeholder={error === 'commission' ? 'Obrigatório!' : 'Ex: 800'}
-              value={form.commission}
-              onChange={e => { setForm({ ...form, commission: e.target.value }); setError(''); }}
+              type="text"
+              placeholder={error === 'model' ? 'Obrigatório!' : 'Ex: Corolla Cross XRE'}
+              value={form.model}
+              onChange={e => { setForm({ ...form, model: e.target.value }); setError(''); }}
               autoFocus
-              inputMode="numeric"
-              className={error === 'commission' ? 'input-error' : undefined}
+              className={error === 'model' ? 'input-error' : undefined}
             />
           </div>
           <div className="quick-sale-field">
