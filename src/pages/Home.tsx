@@ -11,6 +11,7 @@ import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
 import QuickSaleSheet from '../components/QuickSaleSheet';
 import ConditionReminder from '../components/ConditionReminder';
+import GestorWeekPlan from '../components/GestorWeekPlan';
 import type { FollowUp } from '../services/followups';
 import type { WeekStats } from '../services/history';
 import type { UserProfile } from '../types';
@@ -147,6 +148,9 @@ export default function Home() {
 
       {/* Lembrete pro Marketing: subir a condição do mês (some ao publicar/dispensar) */}
       <ConditionReminder />
+
+      {/* Gestor: plano da semana com o time (ação concreta a partir do Raio X) */}
+      {(profile.isGestor || profile.isAdmin) && <GestorWeekPlan />}
 
       {/* Tarefas do dia — logo após a saudação */}
       <div className="day-section">

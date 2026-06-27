@@ -1,0 +1,24 @@
+.gwp-head { display: flex; align-items: center; justify-content: space-between; }
+.gwp-head .section-title { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+.gwp-count { font-size: 13px; font-weight: 800; color: var(--accent); }
+.gwp-bar { height: 6px; border-radius: 99px; background: rgba(0,0,0,0.08); overflow: hidden; margin: 8px 0 4px; }
+.gwp-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), #f59e0b); transition: width .3s; }
+.gwp-list { display: flex; flex-direction: column; gap: 8px; }
+.gwp-item.card { display: flex; align-items: center; gap: 11px; padding: 12px 14px; }
+.gwp-item.done { opacity: 0.6; }
+.gwp-check {
+  width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--border-strong, #cfcfcf); background: transparent;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.gwp-check.on { background: var(--success, #10b981); border-color: var(--success, #10b981); }
+.gwp-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; cursor: pointer; }
+.gwp-text strong { font-size: 14px; line-height: 1.3; color: var(--text); }
+.gwp-item.done .gwp-text strong { text-decoration: line-through; }
+.gwp-text span { font-size: 12px; color: var(--text-soft); }
+.gwp-go {
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+  border: none; background: rgba(201,168,76,0.14); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.gwp-done-msg { font-size: 12.5px; color: var(--text-soft); margin: 8px 2px 0; }
