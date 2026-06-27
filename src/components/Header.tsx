@@ -59,6 +59,8 @@ const LIBRARY_SUB_PAGES = [
   '/condicoes', '/gatilhos', '/concorrencia', '/ofertas', '/playbook',
   '/analise-campanha', '/follow-ups', '/meu-raiox', '/mapa',
 ];
+// Abas principais (destinos da barra inferior) — sem botão "voltar"
+const TOP_TAB_PAGES = ['/negociacoes', '/maestria', '/raio-x', '/painel-gestor', '/ia-coach'];
 // Treino sub-pages go back to /treino-hub
 const TRAINING_SUB_PAGES = ['/treino', '/treino-voz', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao', '/vendas-perdidas'];
 // Treino hub itself goes back to /biblioteca
@@ -71,6 +73,8 @@ export default function Header() {
   const navigate = useNavigate();
   const title = titles[location.pathname] || 'MAESTR.IA';
   const isHome = location.pathname === '/';
+  // Abas principais (destinos da barra inferior) — não mostram "voltar"
+  const isTopTab = TOP_TAB_PAGES.includes(location.pathname);
   const isLibrarySub = LIBRARY_SUB_PAGES.includes(location.pathname);
   const isTrainingSub = TRAINING_SUB_PAGES.includes(location.pathname);
   const isTrainingHub = TRAINING_HUB_PAGES.includes(location.pathname);
@@ -98,6 +102,10 @@ export default function Header() {
               <span className="header-title-main">MAESTRIA</span>
               <span className="header-subtitle">{subtitle}</span>
             </div>
+          </div>
+        ) : isTopTab ? (
+          <div className="header-nav">
+            <h1 className="header-title header-title-tab">{title}</h1>
           </div>
         ) : (
           <div className="header-nav">
