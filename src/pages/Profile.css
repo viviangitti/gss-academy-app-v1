@@ -463,3 +463,8 @@
   color: var(--text-soft); cursor: pointer; font-family: inherit;
 }
 .cg-unit-chip.on { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+
+.profile-role-locked {
+  padding: 11px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text);
+  background: rgba(0,0,0,0.04); border: 1px solid var(--border, #e5e5e5);
+}

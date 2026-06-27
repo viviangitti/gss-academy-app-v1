@@ -263,3 +263,8 @@
   margin-bottom: 16px;
   text-align: center;
 }
+
+/* Seletor de papel (3 opções) — empilhado pra caber os rótulos longos */
+.auth-roles { display: flex; flex-direction: column; gap: 8px; }
+.auth-roles .auth-access-option { flex-direction: row; justify-content: flex-start; gap: 10px; width: 100%; padding: 12px 14px; }
+.auth-role-note { font-size: 12px; color: var(--text-soft); margin: 8px 2px 0; line-height: 1.4; }

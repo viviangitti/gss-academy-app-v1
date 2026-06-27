@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone, Users } from 'lucide-react';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, translateAuthError } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
 import { claimDealershipManager } from '../services/firestore/dealership';
@@ -32,7 +32,8 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
   const [role, setRole] = useState('');
   const [company, setCompany] = useState('');
   const [segment, setSegment] = useState<Segment>('');
-  const [accessType, setAccessType] = useState<'vendas' | 'marketing' | 'ambos'>('vendas');
+  // Papel escolhido no cadastro — define acesso e se é gestor. Travado depois (só admin ajusta).
+  const [papel, setPapel] = useState<'executivo' | 'gerente' | 'marketing'>('executivo');
   // Pré-carrega do localStorage se existir (migração)
   const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
@@ -63,8 +64,11 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
     setLoading(true);
     try {
       const user = await signUpWithEmail(email, password, name);
-      // Primeiro cadastro da concessionária vira o gerente (gestor); os próximos entram comuns.
-      const isGestor = await claimDealershipManager(company.trim(), user.uid, name);
+      // Papel é escolhido no cadastro (não muda depois)
+      const isGestor = papel === 'gerente';
+      const userAccessType: 'vendas' | 'marketing' = papel === 'marketing' ? 'marketing' : 'vendas';
+      // Gerente também é registrado como gestor da concessionária (best-effort)
+      if (isGestor) { try { await claimDealershipManager(company.trim(), user.uid, name); } catch { /* ignora */ } }
       const profile: UserProfile = {
         name,
         role: role.trim(),
@@ -75,8 +79,8 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
         teamId: null,
         isAdmin: false,
         isGestor,
-        isMarketing: accessType === 'marketing' || accessType === 'ambos',
-        userAccessType: accessType,
+        isMarketing: papel === 'marketing',
+        userAccessType,
         createdAt: Date.now(),
       };
 
@@ -217,32 +221,33 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
             <h2>Seu perfil profissional</h2>
             <p className="auth-subtitle">Personaliza objeções, roteiros e notícias do seu mercado.</p>
 
-            <div className="auth-access-selector">
+            <div className="auth-access-selector auth-roles">
               <button
                 type="button"
-                className={`auth-access-option${accessType === 'vendas' ? ' active' : ''}`}
-                onClick={() => setAccessType('vendas')}
+                className={`auth-access-option${papel === 'executivo' ? ' active' : ''}`}
+                onClick={() => setPapel('executivo')}
               >
                 <TrendingUp size={18} />
-                <span>Vendas</span>
+                <span>Executivo de vendas</span>
               </button>
               <button
                 type="button"
-                className={`auth-access-option${accessType === 'marketing' ? ' active' : ''}`}
-                onClick={() => setAccessType('marketing')}
+                className={`auth-access-option${papel === 'gerente' ? ' active' : ''}`}
+                onClick={() => setPapel('gerente')}
+              >
+                <Users size={18} />
+                <span>Gerente de vendas</span>
+              </button>
+              <button
+                type="button"
+                className={`auth-access-option${papel === 'marketing' ? ' active' : ''}`}
+                onClick={() => setPapel('marketing')}
               >
                 <Megaphone size={18} />
-                <span>Marketing</span>
-              </button>
-              <button
-                type="button"
-                className={`auth-access-option${accessType === 'ambos' ? ' active' : ''}`}
-                onClick={() => setAccessType('ambos')}
-              >
-                <TrendingUp size={14} />+<Megaphone size={14} />
-                <span>Ambos</span>
+                <span>Responsável de marketing</span>
               </button>
             </div>
+            <p className="auth-role-note">Escolha o seu papel — isso define seu acesso e não muda depois.</p>
 
             <div className="auth-field">
               <Briefcase size={14} />

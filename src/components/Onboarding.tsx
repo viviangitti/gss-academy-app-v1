@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Sparkles, Target, Dumbbell, FileText,
   PenLine, BarChart2, BookOpen, Factory, ChevronRight, Zap, MessageSquare, ImageDown,
-  TrendingUp, Megaphone, LayoutGrid,
 } from 'lucide-react';
 import { saveData, loadData, KEYS } from '../services/storage';
 import type { Segment, UserProfile } from '../types';
@@ -30,28 +29,24 @@ interface Props {
   onComplete: () => void;
 }
 
-type AccessType = 'vendas' | 'marketing' | 'ambos';
-
 export default function Onboarding({ onComplete }: Props) {
   const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
   const [step, setStep] = useState(0);
 
-  // Pre-fill from profile (set during Auth signup step 2)
+  // Pre-fill from profile (segmento e papel já vêm do cadastro)
   const [segment, setSegment] = useState<Segment>(existing.segment || '');
-  const [accessType, setAccessType] = useState<AccessType>((existing.userAccessType as AccessType) || 'vendas');
 
-  // If profile already has both segment and accessType, skip steps 3 & 4
-  const alreadyConfigured = !!(existing.segment && existing.userAccessType);
+  // O papel é escolhido no cadastro (Auth). Se o segmento já veio de lá, pula a config.
+  const alreadyConfigured = !!existing.segment;
 
   // Total dots depend on whether config steps are needed
-  const TOTAL_STEPS = alreadyConfigured ? 3 : 5;
+  const TOTAL_STEPS = alreadyConfigured ? 3 : 4;
 
   const handleFinish = () => {
     const profile: UserProfile = {
       ...existing,
       segment: segment || existing.segment,
-      userAccessType: accessType,
     };
     saveData(KEYS.PROFILE, profile);
     localStorage.setItem('gss_onboarding_done', 'true');
@@ -190,63 +185,8 @@ export default function Onboarding({ onComplete }: Props) {
         </div>
       )}
 
-      {/* Step 3 — Escolha de perfil */}
+      {/* Step 3 — Segmento */}
       {step === 3 && (
-        <div className="onboarding-screen">
-          <div className="onboarding-icon">
-            <LayoutGrid size={44} />
-          </div>
-          <h2>Qual é o seu perfil?</h2>
-          <p>Vamos configurar o app para mostrar as ferramentas certas para você.</p>
-
-          <div className="onboarding-roles">
-            <button
-              className={`onboarding-role ${accessType === 'vendas' ? 'active' : ''}`}
-              onClick={() => setAccessType('vendas')}
-            >
-              <div className="onboarding-role-icon onboarding-ri-vendas">
-                <TrendingUp size={22} />
-              </div>
-              <strong>Vendas</strong>
-              <span>Treino, objeções, condições e coach de IA</span>
-            </button>
-
-            <button
-              className={`onboarding-role ${accessType === 'marketing' ? 'active' : ''}`}
-              onClick={() => setAccessType('marketing')}
-            >
-              <div className="onboarding-role-icon onboarding-ri-mkt">
-                <Megaphone size={22} />
-              </div>
-              <strong>Marketing</strong>
-              <span>Copy, análise de campanhas e guia de marca</span>
-            </button>
-
-            <button
-              className={`onboarding-role ${accessType === 'ambos' ? 'active' : ''}`}
-              onClick={() => setAccessType('ambos')}
-            >
-              <div className="onboarding-role-icon onboarding-ri-ambos">
-                <Sparkles size={22} />
-              </div>
-              <strong>Vendas & Marketing</strong>
-              <span>Acesso completo a todas as ferramentas</span>
-            </button>
-          </div>
-
-          <div className="onboarding-dots">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
-            ))}
-          </div>
-          <button className="onboarding-next" onClick={() => setStep(4)}>
-            Próximo <ChevronRight size={18} />
-          </button>
-        </div>
-      )}
-
-      {/* Step 4 — Segmento */}
-      {step === 4 && (
         <div className="onboarding-screen">
           <div className="onboarding-icon">
             <Factory size={44} />

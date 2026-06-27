@@ -119,7 +119,7 @@ export default function Profile() {
           <User size={36} />
         </div>
         <span className={`profile-role-badge ${(profile.isGestor || profile.isAdmin) ? 'is-gestor' : 'is-vendedor'}`}>
-          {(profile.isGestor || profile.isAdmin) ? 'Gestor' : 'Vendedor'}
+          {profile.isAdmin ? 'Admin' : profile.userAccessType === 'marketing' ? 'Marketing' : profile.isGestor ? 'Gerente de vendas' : 'Executivo de vendas'}
         </span>
       </div>
 
@@ -338,27 +338,45 @@ export default function Profile() {
         </div>
 
 
-        {/* Tipo de acesso */}
+        {/* Papel — escolhido no cadastro, não muda depois (só admin ajusta) */}
         <div className="form-group">
-          <label className="form-label">Tipo de acesso</label>
-          <div className="access-type-selector">
-            {(['vendas', 'marketing', 'ambos'] as const).map(type => (
-              <button
-                key={type}
-                type="button"
-                className={`access-type-option${(profile.userAccessType || 'vendas') === type ? ' active' : ''}`}
-                onClick={() => setProfile({
-                  ...profile,
-                  userAccessType: type,
-                  isMarketing: type === 'marketing' || type === 'ambos',
+          <label className="form-label">Papel</label>
+          {profile.isAdmin ? (
+            <>
+              <div className="access-type-selector">
+                {([
+                  { key: 'executivo', label: 'Executivo de vendas' },
+                  { key: 'gerente', label: 'Gerente de vendas' },
+                  { key: 'marketing', label: 'Responsável de marketing' },
+                ] as const).map(r => {
+                  const current = profile.userAccessType === 'marketing' ? 'marketing' : (profile.isGestor ? 'gerente' : 'executivo');
+                  return (
+                    <button
+                      key={r.key}
+                      type="button"
+                      className={`access-type-option${current === r.key ? ' active' : ''}`}
+                      onClick={() => setProfile({
+                        ...profile,
+                        userAccessType: r.key === 'marketing' ? 'marketing' : 'vendas',
+                        isGestor: r.key === 'gerente',
+                        isMarketing: r.key === 'marketing',
+                      })}
+                    >
+                      {r.label}
+                    </button>
+                  );
                 })}
-              >
-                {type === 'vendas' && 'Vendas'}
-                {type === 'marketing' && 'Marketing'}
-                {type === 'ambos' && 'Ambos'}
-              </button>
-            ))}
-          </div>
+              </div>
+              <span className="form-hint">Você é admin — pode corrigir o papel de exceção.</span>
+            </>
+          ) : (
+            <>
+              <div className="profile-role-locked">
+                {profile.userAccessType === 'marketing' ? 'Responsável de marketing' : (profile.isGestor ? 'Gerente de vendas' : 'Executivo de vendas')}
+              </div>
+              <span className="form-hint">Definido no cadastro e não pode ser alterado. Precisa corrigir? Fale com o suporte.</span>
+            </>
+          )}
         </div>
 
         {/* Faixa de atuação */}
