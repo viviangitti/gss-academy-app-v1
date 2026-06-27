@@ -22,7 +22,7 @@ const titles: Record<string, string> = {
   '/criar-conteudo': 'Criar conteúdo',
   '/rituais-gestor': 'Rotinas & rituais',
   '/boost': 'Cliente em atendimento',
-  '/rescue': 'Rescue',
+  '/rescue': 'Resgate',
   '/meu-raiox': 'Meu Raio-X',
   '/mapa': 'Mapa do app',
   '/pre-reuniao': 'Pré-reunião',

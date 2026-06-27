@@ -335,7 +335,7 @@ export default function Profile() {
       <div className="card" style={{ padding: '16px' }}>
         <h3 className="section-title" style={{ marginBottom: 6 }}><Sparkles size={15} /> Seu assistente</h3>
         <p className="profile-hint" style={{ marginTop: 0 }}>
-          Dê um nome e escolha o jeito dele falar com você — vale pro Coaching, voz, Boost e Rescue.
+          Dê um nome e escolha o jeito dele falar com você — vale pro Coaching, voz, Boost e Resgate.
         </p>
         <div className="form-group">
           <label className="profile-label">Nome do assistente</label>

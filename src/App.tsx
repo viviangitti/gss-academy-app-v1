@@ -291,7 +291,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/criar-conteudo':    'GSS — Criar conteúdo',
   '/rituais-gestor':    'GSS — Rotinas & rituais',
   '/raio-x':            'GSS — Raio X',
-  '/rescue':            'GSS — Rescue',
+  '/rescue':            'GSS — Resgate',
   '/meu-raiox':         'GSS — Meu Raio-X',
   '/mapa':              'GSS — Mapa do app',
   '/pre-reuniao':       'GSS — Pré-reunião',

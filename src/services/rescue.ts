@@ -10,6 +10,7 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 export interface RescueTarget {
   clientName?: string;    // se conhecido
   interest?: string;      // o que ele queria (carro/produto)
+  valoriza?: string[];    // o que é importante pra ele (espaço, segurança, consumo...)
   context: string;        // por que perdeu/esfriou (motivo, observações)
   daysSince?: number;     // dias desde o último contato
 }
@@ -31,6 +32,7 @@ Regras:
 - "timing": o melhor momento pra mandar e por quê (1 frase).
 - "hook": qual gancho foi usado e por quê funciona nesse caso (1 frase).
 - "fallback": plano B se não responder em 3 dias (1-2 frases).
+- Se houver "o que o cliente valoriza", conecte o gancho ao que importa PRA ELE (ex: espaço pra família, segurança, consumo) — defendendo valor, não desconto.
 - Se houver CASOS REAIS DA EQUIPE no contexto, aproveite o que já funcionou.
 - NUNCA invente desconto/condição que não esteja no contexto.`;
 
@@ -41,6 +43,7 @@ export async function getRescuePlan(target: RescueTarget): Promise<RescuePlan> {
     `CLIENTE A RESGATAR:`,
     target.clientName ? `- Nome: ${target.clientName}` : '',
     target.interest ? `- Interesse: ${target.interest}` : '',
+    target.valoriza?.length ? `- O que o cliente valoriza: ${target.valoriza.join(', ')}` : '',
     `- Situação: ${target.context}`,
     target.daysSince ? `- Sem contato há ${target.daysSince} dias` : '',
   ].filter(Boolean).join('\n');

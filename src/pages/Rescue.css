@@ -67,3 +67,15 @@
   border: 1px solid var(--border); border-radius: var(--radius);
   background: none; color: var(--text-soft); font-size: 14px; font-weight: 600; cursor: pointer;
 }
+
+/* O que o cliente valoriza — chips */
+.rescue-valoriza { display: flex; flex-direction: column; gap: 8px; }
+.rescue-valoriza-label { font-size: 13px; font-weight: 600; color: var(--text-light); }
+.rescue-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.rescue-chip {
+  padding: 7px 12px; border-radius: 999px;
+  border: 1px solid var(--border-strong, #d8d8d8);
+  background: var(--bg, #fff); color: var(--text);
+  font-size: 12.5px; cursor: pointer;
+}
+.rescue-chip.on { background: var(--accent); color: #1a1a1a; border-color: var(--accent); font-weight: 600; }

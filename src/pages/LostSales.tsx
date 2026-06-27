@@ -266,7 +266,7 @@ export default function LostSales() {
                         },
                       })}
                     >
-                      🎯 Rescue
+                      🎯 Resgate
                     </button>
                     {REASON_OBJECTION_LINK[sale.reason] && (
                       <button className="btn btn-outline btn-sm" onClick={() => navigate('/objecoes')}>

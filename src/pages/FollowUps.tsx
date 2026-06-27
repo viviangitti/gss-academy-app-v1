@@ -141,7 +141,7 @@ export default function FollowUps() {
                 daysSince: Math.max(1, Math.round((Date.now() - (f.lastTouchAt || f.updatedAt)) / 86400000)),
               },
             })}>
-              🎯 Rescue
+              🎯 Resgate
             </button>
           ) : (
             <button className="fu-btn fu-btn-lost" onClick={() => handleLost(f)}>

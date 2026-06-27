@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Target, Copy, Check, MessageCircle, Clock, Anchor, LifeBuoy, RotateCcw } from 'lucide-react';
 import { getRescuePlan } from '../services/rescue';
 import type { RescueTarget, RescuePlan } from '../services/rescue';
+import { VALORIZA_OPTIONS } from '../services/negotiationCoach';
 import { remember } from '../services/memory';
 import { addWin } from '../services/wins';
 import OfflineState from '../components/OfflineState';
@@ -15,7 +16,10 @@ export default function Rescue() {
   const location = useLocation();
   const target = (location.state || null) as RescueTarget | null;
 
-  const [manual, setManual] = useState({ clientName: '', interest: '', context: '' });
+  const [manual, setManual] = useState<{ clientName: string; interest: string; valoriza: string[]; context: string }>({ clientName: '', interest: '', valoriza: [], context: '' });
+
+  const toggleValoriza = (v: string) =>
+    setManual(m => ({ ...m, valoriza: m.valoriza.includes(v) ? m.valoriza.filter(x => x !== v) : [...m.valoriza, v] }));
   const [plan, setPlan] = useState<RescuePlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -53,7 +57,7 @@ export default function Rescue() {
     window.open(`https://wa.me/?text=${encodeURIComponent(plan.message)}`, '_blank');
   };
 
-  if (!isOnline) return <OfflineState feature="o Rescue" />;
+  if (!isOnline) return <OfflineState feature="o Resgate" />;
 
   return (
     <div className="rescue-page">
@@ -69,6 +73,21 @@ export default function Rescue() {
               onChange={e => setManual({ ...manual, clientName: e.target.value })} />
             <input type="text" placeholder="O que ele queria? Ex: XC60 usado" value={manual.interest}
               onChange={e => setManual({ ...manual, interest: e.target.value })} />
+            <div className="rescue-valoriza">
+              <span className="rescue-valoriza-label">O que é importante pra ele?</span>
+              <div className="rescue-chips">
+                {VALORIZA_OPTIONS.map(v => (
+                  <button
+                    type="button"
+                    key={v}
+                    className={`rescue-chip ${manual.valoriza.includes(v) ? 'on' : ''}`}
+                    onClick={() => toggleValoriza(v)}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
             <textarea rows={3} placeholder='Por que esfriou/desistiu? Ex: "achou caro e disse que ia pesquisar"'
               value={manual.context} onChange={e => setManual({ ...manual, context: e.target.value })} />
             <button className="rescue-fire" disabled={!manual.context.trim()}
