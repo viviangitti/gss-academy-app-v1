@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
@@ -54,19 +55,66 @@ const titles: Record<string, string> = {
   '/painel-gestor': 'Raio X do Time',
 };
 
-const LIBRARY_SUB_PAGES = [
-  '/objecoes', '/scripts', '/tecnicas', '/favoritos', '/historico',
-  '/condicoes', '/gatilhos', '/concorrencia', '/ofertas', '/playbook',
-  '/analise-campanha', '/follow-ups', '/meu-raiox', '/mapa',
-];
 // Abas principais (destinos da barra inferior) — sem botão "voltar"
 const TOP_TAB_PAGES = ['/negociacoes', '/maestria', '/raio-x', '/painel-gestor', '/ia-coach'];
-// Treino sub-pages go back to /treino-hub
-const TRAINING_SUB_PAGES = ['/treino', '/treino-voz', '/pre-reuniao', '/coach-mensagem', '/analise-reuniao', '/vendas-perdidas'];
-// Treino hub itself goes back to /biblioteca
-const TRAINING_HUB_PAGES = ['/treino-hub'];
-// Marketing Hub sub-pages go back to /marketing-hub
-const MARKETING_HUB_SUB_PAGES = ['/guia-marca', '/marketing-chat', '/gerador-copy'];
+
+// Pra onde o "voltar" leva cada tela de detalhe. Quando há mais de uma entrada
+// possível (array), volta pra ORIGEM real (de onde a pessoa veio); se a origem
+// não bate, usa a primeira (a aba principal daquela tela). Fonte: entry points
+// reais (cards que abrem cada página).
+const BACK: Record<string, string | string[]> = {
+  // Negociações
+  '/boost': '/negociacoes',
+  '/rescue': '/negociacoes',
+  '/pre-reuniao': ['/negociacoes', '/maestria'],
+  // Maestria
+  '/treino-hub': '/maestria',
+  '/treino': ['/maestria', '/treino-hub', '/ia-coach'],
+  '/treino-voz': ['/maestria', '/treino-hub', '/ia-coach', '/boost'],
+  '/objecoes': '/maestria',
+  '/scripts': '/maestria',
+  '/tecnicas': '/maestria',
+  '/gatilhos': '/maestria',
+  '/playbook': '/maestria',
+  '/criar-conteudo': '/maestria',
+  '/conteudo-dia': ['/maestria', '/biblioteca'],
+  '/rituais-gestor': '/maestria',
+  '/coach-mensagem': '/treino-hub',
+  '/analise-reuniao': '/treino-hub',
+  // Raio X
+  '/meu-raiox': '/raio-x',
+  '/historico': '/raio-x',
+  '/vendas-perdidas': ['/raio-x', '/negociacoes', '/follow-ups'],
+  // Coaching
+  '/coach-voz': '/ia-coach',
+  // Painel Controle
+  '/condicoes': ['/', '/biblioteca'],
+  '/concorrencia': ['/', '/biblioteca'],
+  '/noticias': '/',
+  '/follow-ups': '/',
+  '/vendas': '/',
+  '/feedback': '/',
+  // Marketing (central /biblioteca)
+  '/biblioteca': '/',
+  '/favoritos': ['/', '/biblioteca'],
+  '/ofertas': '/biblioteca',
+  '/guia-marca': ['/biblioteca', '/marketing-hub'],
+  '/gerador-copy': ['/biblioteca', '/marketing-hub'],
+  '/marketing-chat': ['/biblioteca', '/marketing-hub'],
+  '/analise-campanha': '/biblioteca',
+  '/marketing-hub': '/biblioteca',
+  '/condicoes-admin': '/biblioteca',
+  '/concorrencia-admin': '/biblioteca',
+  '/ofertas-admin': '/biblioteca',
+  '/pos-campanha': '/biblioteca',
+  '/revisar-copy': '/biblioteca',
+  '/pre-lancamento': '/biblioteca',
+  // Globais / configuração
+  '/perfil': '/',
+  '/instalar': '/perfil',
+  '/privacidade': '/perfil',
+  '/mapa': '/perfil',
+};
 
 export default function Header() {
   const location = useLocation();
@@ -75,21 +123,23 @@ export default function Header() {
   const isHome = location.pathname === '/';
   // Abas principais (destinos da barra inferior) — não mostram "voltar"
   const isTopTab = TOP_TAB_PAGES.includes(location.pathname);
-  const isLibrarySub = LIBRARY_SUB_PAGES.includes(location.pathname);
-  const isTrainingSub = TRAINING_SUB_PAGES.includes(location.pathname);
-  const isTrainingHub = TRAINING_HUB_PAGES.includes(location.pathname);
-  const isMarketingHubSub = MARKETING_HUB_SUB_PAGES.includes(location.pathname);
+
+  // De onde a pessoa veio (path do commit anterior) — pra desambiguar telas
+  // com mais de uma entrada possível.
+  const cameFromRef = useRef('/');
+  const cameFrom = cameFromRef.current;
+  useEffect(() => { cameFromRef.current = location.pathname; }, [location.pathname]);
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const accessType = profile.userAccessType || 'vendas';
   const subtitle = accessType === 'marketing' ? 'em Marketing' : accessType === 'ambos' ? 'em Vendas & Marketing' : 'em Vendas';
 
   const handleBack = () => {
-    if (isLibrarySub) navigate('/biblioteca');
-    else if (isMarketingHubSub) navigate('/marketing-hub');
-    else if (isTrainingSub) navigate('/treino-hub');
-    else if (isTrainingHub) navigate('/biblioteca');
-    else navigate(-1);
+    const cfg = BACK[location.pathname];
+    let target: string;
+    if (Array.isArray(cfg)) target = cfg.includes(cameFrom) ? cameFrom : cfg[0];
+    else target = cfg || '/';
+    navigate(target);
   };
 
   return (
