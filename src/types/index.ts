@@ -60,7 +60,8 @@ export interface ModelGoal {
 export interface UserProfile {
   name: string;
   role: string;
-  company: string;
+  brand?: string;        // marca (ex: Toyota)
+  company: string;       // concessionária (ex: Ramasa) — chave de agrupamento/isolamento
   segment: Segment;
   monthlyGoal?: number;             // meta principal: QUANTIDADE de vendas no mês (ex: carros)
   /** @deprecated use customGoals */

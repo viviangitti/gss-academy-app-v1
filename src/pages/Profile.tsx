@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell } from 'lucide-react';
+import { User, Building2, Briefcase, Save, ExternalLink, Factory, Moon, Sun, Target, Shield, Download, MessageCircle, LogOut, Megaphone, Plus, X, Sparkles, Trash2, Bell, Tag } from 'lucide-react';
 import CurrencyInput from '../components/CurrencyInput';
 import { Link } from 'react-router-dom';
 import { loadData, saveData, KEYS } from '../services/storage';
@@ -141,11 +141,19 @@ export default function Profile() {
           />
         </div>
         <div className="form-group">
-          <label><Building2 size={14} /> Empresa</label>
+          <label><Tag size={14} /> Marca</label>
+          <input
+            value={profile.brand || ''}
+            onChange={e => setProfile({ ...profile, brand: e.target.value })}
+            placeholder="Ex: Toyota"
+          />
+        </div>
+        <div className="form-group">
+          <label><Building2 size={14} /> Concessionária</label>
           <input
             value={profile.company}
             onChange={e => setProfile({ ...profile, company: e.target.value })}
-            placeholder="Nome da empresa"
+            placeholder="Ex: Ramasa"
           />
         </div>
         <div className="form-group">

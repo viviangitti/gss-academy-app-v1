@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone, Users } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone, Users, Tag } from 'lucide-react';
 import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, translateAuthError } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
 import { claimDealershipManager } from '../services/firestore/dealership';
@@ -31,6 +31,7 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
   // Perfil (passo 2)
   const [role, setRole] = useState('');
   const [company, setCompany] = useState('');
+  const [brand, setBrand] = useState('');
   const [segment, setSegment] = useState<Segment>('');
   // Papel escolhido no cadastro — define acesso e se é gestor. Travado depois (só admin ajusta).
   const [papel, setPapel] = useState<'executivo' | 'gerente' | 'marketing'>('executivo');
@@ -49,6 +50,7 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
     }
     // Pré-preenche passo 2 com dados locais se houver
     if (existing.role) setRole(existing.role);
+    if (existing.brand) setBrand(existing.brand);
     if (existing.company) setCompany(existing.company);
     if (existing.segment) setSegment(existing.segment);
     if (!name && existing.name) setName(existing.name);
@@ -72,6 +74,7 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
       const profile: UserProfile = {
         name,
         role: role.trim(),
+        brand: brand.trim(),
         company: company.trim(),
         segment,
         email: user.email || email,
@@ -259,10 +262,19 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
               />
             </div>
             <div className="auth-field">
+              <Tag size={14} />
+              <input
+                type="text"
+                placeholder="Marca (ex: Toyota)"
+                value={brand}
+                onChange={e => setBrand(e.target.value)}
+              />
+            </div>
+            <div className="auth-field">
               <Building2 size={14} />
               <input
                 type="text"
-                placeholder="Empresa"
+                placeholder="Concessionária (ex: Ramasa)"
                 value={company}
                 onChange={e => setCompany(e.target.value)}
               />
