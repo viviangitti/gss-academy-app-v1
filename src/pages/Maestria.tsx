@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Dumbbell, Share2, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import './Home.css';
@@ -41,22 +41,9 @@ export default function Maestria() {
         </button>
       </div>
 
-      {/* Treino */}
+      {/* Treino & simulação */}
       <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Treino</h3></div>
-        <button className="home-content-card card" onClick={() => navigate('/treino-hub')}>
-          <div className="home-content-icon mae-train-icon"><Dumbbell size={20} /></div>
-          <div className="home-content-text">
-            <strong>Central de treino</strong>
-            <span>Simulação, objeções, reuniões e mensagens num lugar só</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      </div>
-
-      {/* Simulação */}
-      <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Simulação</h3></div>
+        <div className="day-section-header"><h3 className="section-title">Treino & simulação</h3></div>
         <div className="home-dual-grid">
           <button className="home-dual-card card" onClick={() => navigate('/treino')}>
             <div className="home-dual-icon"><Swords size={18} /></div>
@@ -66,7 +53,17 @@ export default function Maestria() {
           <button className="home-dual-card card" onClick={() => navigate('/treino-voz')}>
             <div className="home-dual-icon"><Mic size={18} /></div>
             <strong>Treino falado</strong>
-            <span>Treine conversando por voz com o cliente difícil</span>
+            <span>Treine por voz com o cliente difícil</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/coach-mensagem')}>
+            <div className="home-dual-icon"><Wand2 size={18} /></div>
+            <strong>Revisar mensagem</strong>
+            <span>Cole seu WhatsApp e melhore antes de enviar</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/analise-reuniao')}>
+            <div className="home-dual-icon"><ClipboardCheck size={18} /></div>
+            <strong>Pós-atendimento</strong>
+            <span>Fale 1 min sobre como foi e receba o resumo</span>
           </button>
         </div>
       </div>

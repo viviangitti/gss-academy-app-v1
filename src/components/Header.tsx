@@ -84,8 +84,8 @@ const BACK: Record<string, string | string[]> = {
   '/criar-conteudo': '/maestria',
   '/conteudo-dia': ['/maestria', '/biblioteca'],
   '/rituais-gestor': '/maestria',
-  '/coach-mensagem': '/treino-hub',
-  '/analise-reuniao': '/treino-hub',
+  '/coach-mensagem': ['/maestria', '/treino-hub'],
+  '/analise-reuniao': ['/maestria', '/treino-hub'],
   // Raio X
   '/meu-raiox': '/raio-x',
   '/historico': '/raio-x',
