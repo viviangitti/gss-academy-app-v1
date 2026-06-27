@@ -47,8 +47,9 @@ export const SEGMENTS: { value: Segment; label: string }[] = [
 
 export interface GoalItem {
   label: string;   // ex: "Financiamento", "Acessórios", "Seguro"
-  target: number;  // valor mensal em R$
+  target: number;  // meta mensal (em R$ se unit='valor', em quantidade se unit='qtd')
   icon?: string;   // emoji opcional
+  unit?: 'valor' | 'qtd';  // como medir a meta (default: valor)
 }
 
 export interface ModelGoal {
@@ -131,21 +132,21 @@ export const PRICE_RANGES: PriceRangeConfig[] = [
 ];
 
 /** Sugestões de metas adicionais por segmento */
-export const SEGMENT_GOAL_PRESETS: Partial<Record<Segment, { label: string; icon: string }[]>> = {
+export const SEGMENT_GOAL_PRESETS: Partial<Record<Segment, { label: string; icon: string; unit?: 'valor' | 'qtd' }[]>> = {
   automotivo: [
     { label: 'Financiamento', icon: '💳' },
-    { label: 'Acessórios',    icon: '📦' },
-    { label: 'Seguro',        icon: '🛡️' },
+    { label: 'Acessórios',    icon: '📦', unit: 'valor' },
+    { label: 'Seguro',        icon: '🛡️', unit: 'qtd' },
     { label: 'Consórcio',     icon: '🤝' },
-    { label: 'Seminovos',     icon: '🔄' },
+    { label: 'Seminovos',     icon: '🔄', unit: 'qtd' },
     { label: 'Revisão/Peças', icon: '🔧' },
   ],
   automotivo_luxo: [
     { label: 'Financiamento', icon: '💳' },
-    { label: 'Acessórios',    icon: '📦' },
-    { label: 'Seguro',        icon: '🛡️' },
+    { label: 'Acessórios',    icon: '📦', unit: 'valor' },
+    { label: 'Seguro',        icon: '🛡️', unit: 'qtd' },
     { label: 'Consórcio',     icon: '🤝' },
-    { label: 'Blindagem',     icon: '🔒' },
+    { label: 'Blindagem',     icon: '🔒', unit: 'qtd' },
   ],
   farmaceutico: [
     { label: 'OTC / Genérico',    icon: '💊' },

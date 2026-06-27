@@ -255,14 +255,45 @@ export default function Profile() {
                 <X size={14} />
               </button>
             </div>
-            <CurrencyInput
-              value={cg.target || 0}
-              onChange={v => {
-                const updated = [...(profile.customGoals || [])];
-                updated[i] = { ...updated[i], target: v };
-                setProfile({ ...profile, customGoals: updated });
-              }}
-            />
+            <div className="custom-goal-unit">
+              {(['valor', 'qtd'] as const).map(u => (
+                <button
+                  key={u}
+                  type="button"
+                  className={`cg-unit-chip ${(cg.unit || 'valor') === u ? 'on' : ''}`}
+                  onClick={() => {
+                    const updated = [...(profile.customGoals || [])];
+                    updated[i] = { ...updated[i], unit: u };
+                    setProfile({ ...profile, customGoals: updated });
+                  }}
+                >
+                  {u === 'valor' ? 'R$' : 'Quantidade'}
+                </button>
+              ))}
+            </div>
+            {(cg.unit || 'valor') === 'qtd' ? (
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="Ex: 5"
+                value={cg.target || ''}
+                onChange={e => {
+                  const updated = [...(profile.customGoals || [])];
+                  updated[i] = { ...updated[i], target: Number(e.target.value) || 0 };
+                  setProfile({ ...profile, customGoals: updated });
+                }}
+              />
+            ) : (
+              <CurrencyInput
+                value={cg.target || 0}
+                onChange={v => {
+                  const updated = [...(profile.customGoals || [])];
+                  updated[i] = { ...updated[i], target: v };
+                  setProfile({ ...profile, customGoals: updated });
+                }}
+              />
+            )}
           </div>
         ))}
 
@@ -285,7 +316,7 @@ export default function Profile() {
                     className="goal-preset-chip"
                     onClick={() => setProfile({
                       ...profile,
-                      customGoals: [...(profile.customGoals || []), { label: s.label, icon: s.icon, target: 0 }],
+                      customGoals: [...(profile.customGoals || []), { label: s.label, icon: s.icon, target: 0, unit: s.unit || 'valor' }],
                     })}
                   >
                     {s.icon} {s.label}

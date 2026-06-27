@@ -318,7 +318,7 @@ export default function Home() {
                 <div key={i} className="goal-chip">
                   <span className="goal-chip-icon">{cg.icon || '🎯'}</span>
                   <span className="goal-chip-label">{cg.label}</span>
-                  <span className="goal-chip-value">{formatBRL(cg.target)}</span>
+                  <span className="goal-chip-value">{cg.unit === 'qtd' ? `${cg.target} un` : formatBRL(cg.target)}</span>
                 </div>
               ))}
             </div>

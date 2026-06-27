@@ -315,8 +315,8 @@ Se não encontrar condições claras, retorne [].`;
             <Upload size={22} />
           </div>
           <div className="cc-upload-text">
-            <span className="cc-upload-title">Envie as condições do mês</span>
-            <span className="cc-upload-hint">Foto ou PDF • A IA extrai tudo automaticamente</span>
+            <span className="cc-upload-title">Consultar um documento (só pra você)</span>
+            <span className="cc-upload-hint">Foto ou PDF — a IA resume pra você. Não publica pro time: quem publica é o Marketing.</span>
           </div>
           <div className="cc-upload-badges">
             <span className="cc-upload-badge"><Image size={11} /> Foto</span>
