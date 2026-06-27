@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, GraduationCap, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
+import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
 import type { UserProfile } from '../types';
 import './Home.css';
 import './Maestria.css';
@@ -9,9 +10,42 @@ export default function Maestria() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
+  const isSales = profile.userAccessType !== 'marketing';
+  const progress = getMaestriaProgress();
+  const treinoDoDia = getTreinoDoDia(profile.segment);
 
   return (
     <div className="home">
+
+      {/* Sua evolução — nível, ofensiva e treino do dia (só vendas) */}
+      {isSales && (
+        <div className="mae-evo card">
+          <div className="mae-evo-top">
+            <div className="mae-evo-level">
+              <div className="mae-evo-badge"><GraduationCap size={18} /></div>
+              <div>
+                <span className="mae-evo-label">Nível: {progress.levelLabel}</span>
+                <div className="mae-evo-bar"><i style={{ width: `${progress.pct}%` }} /></div>
+              </div>
+            </div>
+            <div className="mae-evo-streak" title="dias seguidos treinando">
+              <Flame size={15} /> {progress.streak}
+            </div>
+          </div>
+          {treinoDoDia && (
+            <button
+              className="mae-evo-today"
+              onClick={() => navigate('/treino', { state: { startObjection: treinoDoDia.objection } })}
+            >
+              <div className="mae-evo-today-text">
+                <strong>Treine isto hoje: {treinoDoDia.objection.objection.replace(/^"|"$/g, '')}</strong>
+                <span>{treinoDoDia.reason}</span>
+              </div>
+              <span className="mae-evo-today-cta">Treinar <ArrowRight size={15} /></span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Para o gestor — rotinas e rituais com o time */}
       {isGestor && (

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Swords, Send, RotateCcw, Star, ChevronDown, Sparkles } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getObjections } from '../services/content';
@@ -62,6 +63,8 @@ interface TrainingMessage {
 
 export default function RolePlay() {
   const isOnline = useOnline();
+  const location = useLocation();
+  const autoStartedRef = useRef(false);
   const [objections, setObjections] = useState<Objection[]>([]);
   const [selectedObjection, setSelectedObjection] = useState<Objection | null>(null);
   const [messages, setMessages] = useState<TrainingMessage[]>([]);
@@ -82,6 +85,16 @@ export default function RolePlay() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, evaluation]);
+
+  // Início direto vindo do "Treine isto hoje" (Maestria)
+  useEffect(() => {
+    const st = (location.state as { startObjection?: Objection } | null)?.startObjection;
+    if (st && !autoStartedRef.current) {
+      autoStartedRef.current = true;
+      startTraining(st);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const startTraining = async (obj: Objection) => {
     setSelectedObjection(obj);
