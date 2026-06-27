@@ -47,3 +47,13 @@
 .eval-header h4 { margin: 0; font-size: 16px; color: var(--text); }
 .eval-content { font-size: 14.5px; line-height: 1.6; color: var(--text); }
 .eval-content strong { color: var(--accent-deep); }
+
+/* Botão encerrar e ver análise */
+.rpv-finish {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  margin-top: 16px; padding: 11px 20px;
+  border-radius: 999px; border: none; cursor: pointer;
+  background: var(--accent); color: #1a1a1a;
+  font-size: 14px; font-weight: 700; font-family: inherit;
+}
+.rpv-finish:active { transform: scale(0.97); }

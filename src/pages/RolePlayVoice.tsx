@@ -22,20 +22,24 @@ const ROLEPLAY_PROMPT = `Você é um cliente DIFÍCIL em uma simulação de vend
 7. Não use asteriscos, emojis nem formatação — é fala.
 IMPORTANTE: Não dê dicas ao vendedor durante a simulação.`;
 
-const EVALUATOR_PROMPT = `Você é um avaliador de vendas da MAESTR.IA. Avalie a conversa de treino e dê:
-1. Uma NOTA de 1 a 10
-2. O que o vendedor fez BEM (2 pontos)
-3. O que MELHORAR (2 pontos)
-4. Uma RESPOSTA MODELO curta
-Formato:
+const EVALUATOR_PROMPT = `Você é um avaliador de vendas da MAESTR.IA. Analise a conversa de treino do vendedor (que tentou contornar a objeção do cliente) e devolva uma análise CLARA e ACIONÁVEL, em português brasileiro, EXATAMENTE neste formato (sem texto fora dele):
+
 **Nota: X/10**
+(1 frase dizendo o porquê da nota)
+
 **Você foi bem em:**
-• ...
-**Para melhorar:**
-• ...
-**Resposta modelo:**
-"..."
-Seja direto. Português brasileiro.`;
+• ... (2 pontos concretos, citando o que o vendedor realmente falou)
+
+**Onde dava pra ir melhor — e como:**
+• ... (2 pontos: aponte o MOMENTO da conversa e diga exatamente o que dizer/fazer no lugar)
+
+**A virada que faltou:**
+"..." (a melhor resposta pra essa objeção, pronta pra falar — defendendo valor, não desconto)
+
+**Próximo foco:**
+... (1 frase do que treinar na próxima)
+
+Seja específico e direto, baseado no que REALMENTE aconteceu na conversa — nada genérico.`;
 
 type OrbState = 'idle' | 'listening' | 'thinking' | 'speaking';
 const HINTS: Record<OrbState, string> = {
@@ -60,6 +64,7 @@ export default function RolePlayVoice() {
   const finalRef = useRef('');
   const transcriptRef = useRef<{ role: 'user' | 'client'; content: string }[]>([]);
   const exchangesRef = useRef(0);
+  const evaluatedRef = useRef(false);
 
   const setOrb = (s: OrbState) => setState(s);
 
@@ -95,6 +100,7 @@ export default function RolePlayVoice() {
     setHeard(''); setClientLine(''); setEvaluation(null);
     setExchanges(0); exchangesRef.current = 0;
     transcriptRef.current = [];
+    evaluatedRef.current = false;
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
     chatRef.current = model.startChat({
@@ -118,6 +124,10 @@ export default function RolePlayVoice() {
   };
 
   const evaluate = async () => {
+    if (evaluatedRef.current) return;       // evita avaliar 2x (auto + botão + fallback)
+    evaluatedRef.current = true;
+    try { recognitionRef.current?.stop(); } catch { /* */ }
+    window.speechSynthesis?.cancel();
     setOrb('thinking');
     setClientLine('');
     try {
@@ -154,9 +164,12 @@ export default function RolePlayVoice() {
       const line = r.response.text();
       transcriptRef.current.push({ role: 'client', content: line });
       if (n >= 4) {
-        // cliente dá a última fala, depois avalia
+        // cliente dá a última fala, depois avalia.
+        // Fallback: se o "fim da fala" (TTS) não disparar (comum no celular),
+        // a avaliação acontece mesmo assim em alguns segundos.
         setClientLine(line);
         speak(line, () => evaluate());
+        setTimeout(() => evaluate(), 12000);
       } else {
         setClientLine(line);
         speak(line);
@@ -203,6 +216,7 @@ export default function RolePlayVoice() {
     window.speechSynthesis?.cancel();
     setSelected(null); setEvaluation(null); setClientLine(''); setHeard('');
     setExchanges(0); exchangesRef.current = 0; chatRef.current = null;
+    evaluatedRef.current = false;
   };
 
   const fmt = (t: string) => t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>');
@@ -274,6 +288,12 @@ export default function RolePlayVoice() {
       <p className="cv-hint">{HINTS[state]}</p>
       {clientLine && state !== 'listening' && <p className="cv-heard">Cliente: "{clientLine}"</p>}
       {heard && state === 'listening' && <p className="cv-heard">Você: "{heard}"</p>}
+
+      {exchanges >= 1 && state !== 'thinking' && (
+        <button className="rpv-finish" onClick={evaluate}>
+          <Star size={15} /> Encerrar e ver análise
+        </button>
+      )}
 
       <button className="cv-text-btn" onClick={() => navigate('/treino')}>Prefiro treinar por texto</button>
     </div>
