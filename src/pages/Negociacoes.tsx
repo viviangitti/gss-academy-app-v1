@@ -21,7 +21,7 @@ export default function Negociacoes() {
         <button className="home-content-card card" onClick={() => navigate('/pre-reuniao')}>
           <div className="home-content-icon neg-prep-icon"><ClipboardList size={20} /></div>
           <div className="home-content-text">
-            <strong>Preparar a reunião</strong>
+            <strong>Prepare-se para falar com o cliente</strong>
             <span>Chegue pronto: pauta, perguntas e argumentos</span>
           </div>
           <ArrowRight size={16} className="home-train-arrow" />
