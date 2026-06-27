@@ -9,6 +9,22 @@ if (savedTheme === 'dark' || savedTheme === 'light') {
   document.documentElement.setAttribute('data-theme', savedTheme);
 }
 
+// Recupera de "chunk velho" após deploy: se o app ficou aberto e tenta carregar
+// um pedaço (lazy, ex: aba Maestria) que mudou de nome, recarrega 1x pra pegar o bundle novo.
+function recoverFromStaleChunk() {
+  if (sessionStorage.getItem('gss_chunk_reload')) return;
+  sessionStorage.setItem('gss_chunk_reload', '1');
+  window.location.reload();
+}
+window.addEventListener('vite:preloadError', (e) => { e.preventDefault(); recoverFromStaleChunk(); });
+window.addEventListener('unhandledrejection', (e) => {
+  const reason = (e as PromiseRejectionEvent).reason;
+  const msg = String((reason && (reason.message || reason)) || '');
+  if (/dynamically imported module|module script failed|importing a module|Failed to fetch/i.test(msg)) recoverFromStaleChunk();
+});
+// Libera o flag depois de carregar ok, pra futuros deploys também se recuperarem.
+window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem('gss_chunk_reload'), 5000));
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
