@@ -10,6 +10,7 @@ import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
 import QuickSaleSheet from '../components/QuickSaleSheet';
+import ConditionReminder from '../components/ConditionReminder';
 import type { FollowUp } from '../services/followups';
 import type { WeekStats } from '../services/history';
 import type { UserProfile } from '../types';
@@ -143,6 +144,9 @@ export default function Home() {
           {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </p>
       </div>
+
+      {/* Lembrete pro Marketing: subir a condição do mês (some ao publicar/dispensar) */}
+      <ConditionReminder />
 
       {/* Tarefas do dia — logo após a saudação */}
       <div className="day-section">
