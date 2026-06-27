@@ -117,7 +117,7 @@ export default function Maestria() {
             <div className="home-content-icon mae-case-icon"><Users size={20} /></div>
             <div className="home-content-text">
               <strong>Treinar um caso real da equipe</strong>
-              <span>{caseObj.objection.replace(/^"|"$/g, '')}</span>
+              <span>O cliente disse: "{caseObj.objection.replace(/^"|"$/g, '')}"</span>
             </div>
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
