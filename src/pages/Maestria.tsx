@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, GraduationCap, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, GraduationCap, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
 import type { UserProfile } from '../types';
@@ -88,6 +88,11 @@ export default function Maestria() {
             <div className="home-dual-icon"><Mic size={18} /></div>
             <strong>Treino falado</strong>
             <span>Treine por voz com o cliente difícil</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/treino-video')}>
+            <div className="home-dual-icon"><Video size={18} /></div>
+            <strong>Treino em vídeo</strong>
+            <span>Grave-se e receba feedback de entrega e mensagem</span>
           </button>
           <button className="home-dual-card card" onClick={() => navigate('/coach-mensagem')}>
             <div className="home-dual-icon"><Wand2 size={18} /></div>

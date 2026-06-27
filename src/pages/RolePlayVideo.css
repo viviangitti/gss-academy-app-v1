@@ -1,0 +1,31 @@
+.rpvid-page { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 8px 4px 80px; }
+.rpvid-hero.rpv-hero { background: linear-gradient(135deg, #7c3aed, #a855f7) !important; }
+.rpvid-obj {
+  font-size: 14px; font-weight: 700; text-align: center; color: var(--text);
+  background: rgba(124,58,237,0.1); padding: 10px 14px; border-radius: 12px; width: 100%;
+}
+.rpvid-frame {
+  position: relative; width: 100%; max-width: 480px; aspect-ratio: 3/4;
+  border-radius: 18px; overflow: hidden; background: #000;
+}
+.rpvid-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.rpvid-rec {
+  position: absolute; top: 12px; left: 12px;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.55); color: #fff; padding: 5px 11px; border-radius: 999px;
+  font-size: 13px; font-weight: 700;
+}
+.rpvid-dot { width: 9px; height: 9px; border-radius: 50%; background: #ef4444; animation: rpvid-pulse 1s infinite; }
+@keyframes rpvid-pulse { 50% { opacity: .3; } }
+.rpvid-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.55); color: #fff; font-size: 15px; font-weight: 600;
+}
+.rpvid-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; max-width: 480px; padding: 14px; border-radius: 14px; border: none;
+  font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; color: #fff;
+}
+.rpvid-btn-rec { background: #7c3aed; }
+.rpvid-btn-stop { background: #ef4444; }
+.rpvid-error { color: #dc2626; font-size: 13px; text-align: center; }

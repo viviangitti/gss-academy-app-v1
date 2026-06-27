@@ -16,6 +16,7 @@ const News = lazy(() => import('./pages/News'));
 const Favorites = lazy(() => import('./pages/Favorites'));
 const RolePlay = lazy(() => import('./pages/RolePlay'));
 const RolePlayVoice = lazy(() => import('./pages/RolePlayVoice'));
+const RolePlayVideo = lazy(() => import('./pages/RolePlayVideo'));
 const FollowUps = lazy(() => import('./pages/FollowUps'));
 const Boost = lazy(() => import('./pages/Boost'));
 const Negociacoes = lazy(() => import('./pages/Negociacoes'));
@@ -221,6 +222,7 @@ function AppContent() {
             <Route path="/treino-hub" element={<TrainingHub />} />
             <Route path="/treino" element={<RolePlay />} />
             <Route path="/treino-voz" element={<RolePlayVoice />} />
+            <Route path="/treino-video" element={<RolePlayVideo />} />
             <Route path="/follow-ups" element={<FollowUps />} />
             <Route path="/boost" element={<Boost />} />
             <Route path="/negociacoes" element={<Negociacoes />} />
@@ -284,6 +286,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/treino-hub':        'GSS — Treino',
   '/treino':            'GSS — Role-play',
   '/treino-voz':        'GSS — Treino falado',
+  '/treino-video':      'GSS — Treino em vídeo',
   '/follow-ups':        'GSS — Follow-ups',
   '/boost':             'GSS — Cliente em atendimento',
   '/negociacoes':       'GSS — Negociações',
