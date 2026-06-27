@@ -36,8 +36,8 @@ export default function Maestria() {
   return (
     <div className="home">
 
-      {/* Sua evolução — nível, ofensiva e treino do dia (só vendas) */}
-      {isSales && (
+      {/* Sua evolução — nível, ofensiva e treino do dia (vendedor; gestor tem hub próprio) */}
+      {isSales && !isGestor && (
         <div className="mae-evo card">
           <div className="mae-evo-top">
             <div className="mae-evo-level">
@@ -66,10 +66,10 @@ export default function Maestria() {
         </div>
       )}
 
-      {/* Para o gestor — rotinas e rituais com o time */}
+      {/* Gestor — hub de gestão comercial (rituais + aulas), sem os blocos de vendedor */}
       {isGestor && (
         <div className="day-section">
-          <div className="day-section-header"><h3 className="section-title">Para o gestor</h3></div>
+          <div className="day-section-header"><h3 className="section-title">Gestão comercial</h3></div>
           <button className="home-content-card card" onClick={() => navigate('/rituais-gestor')}>
             <div className="home-content-icon mae-gestor-icon"><Users size={20} /></div>
             <div className="home-content-text">
@@ -78,9 +78,19 @@ export default function Maestria() {
             </div>
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
+          <button className="home-content-card card" onClick={() => navigate('/gestao-comercial')}>
+            <div className="home-content-icon mae-gc-icon"><GraduationCap size={20} /></div>
+            <div className="home-content-text">
+              <strong>Aulas de gestão comercial</strong>
+              <span>Reunião, 1:1, indicadores, reconhecimento — direto ao ponto</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
         </div>
       )}
 
+      {/* Blocos de vendedor — escondidos pro gestor (que tem o hub acima) */}
+      {!isGestor && (<>
       {/* Treino & simulação */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">Treino & simulação</h3></div>
@@ -184,6 +194,7 @@ export default function Maestria() {
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
       </div>
+      </>)}
     </div>
   );
 }
