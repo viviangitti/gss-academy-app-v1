@@ -207,3 +207,7 @@
 }
 .cc-miss-btn.done { background: rgba(52,211,153,0.18); color: #10b981; display: inline-flex; align-items: center; gap: 5px; }
 .cc-miss-btn:disabled { cursor: default; }
+.cc-miss-proof { display: inline-flex; align-items: center; gap: 5px; }
+.cc-miss-proof.is-loading { opacity: .7; }
+.cc-miss-err { color: #dc2626; font-size: 12.5px; margin: 6px 0 0; }
+.cc-miss-foot { font-size: 12px; color: var(--text-soft); margin: 8px 2px 0; line-height: 1.4; }

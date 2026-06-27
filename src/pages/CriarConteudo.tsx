@@ -8,8 +8,14 @@ import {
 import { getPostFeedback } from '../services/postFeedback';
 import type { PostFeedback } from '../services/postFeedback';
 import {
-  getWeeklyMissions, getWeeklyMissionProgress, isMissionDone, completeMission, getContentStats,
+  getWeeklyMissions, getWeeklyMissionProgress, isMissionDone, completeMission,
+  getContentStats, getMonthlyStats, currentMonthKey, currentWeekKey,
 } from '../services/socialContent';
+import type { WeeklyMission } from '../services/socialContent';
+import { saveContentProof } from '../services/firestore/contentProofs';
+import { saveMyContentScore } from '../services/firestore/contentScores';
+import { loadData, KEYS } from '../services/storage';
+import type { UserProfile } from '../types';
 import './Home.css';
 import './CriarConteudo.css';
 
@@ -107,14 +113,47 @@ export default function CriarConteudo() {
   const [openFmt, setOpenFmt] = useState<string | null>('reels');
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Missões da semana (social selling pontuado)
-  const [tick, setTick] = useState(0);
+  // Missões da semana (social selling pontuado — mesmo fluxo de print/score do Conteúdo do Dia)
+  const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const [, setTick] = useState(0);
+  const [upMissionId, setUpMissionId] = useState<string | null>(null);
+  const [upPct, setUpPct] = useState(0);
+  const [missionError, setMissionError] = useState('');
   const missions = getWeeklyMissions();
   const prog = getWeeklyMissionProgress();
   const stats = getContentStats();
-  const doMission = (id: string) => {
-    const m = missions.find(x => x.id === id);
-    if (m && !isMissionDone(id)) { completeMission(m); setTick(tick + 1); }
+
+  // Sincroniza o placar do mês no Firestore (mesmo do Conteúdo do Dia → ranking + painel do gestor)
+  const syncMissionScore = () => {
+    if (!profile.uid) return;
+    const m = getMonthlyStats();
+    const s = getContentStats();
+    saveMyContentScore({
+      uid: profile.uid, name: profile.name || 'Vendedor', company: profile.company || '',
+      segment: profile.segment || '', teamId: profile.teamId ?? null, monthKey: currentMonthKey(),
+      points: m.points, shares: m.shares, streak: s.streak,
+    }).catch(() => {});
+  };
+
+  // Só pontua quando anexa o print (vira prova no painel do gestor)
+  const handleMissionProof = async (m: WeeklyMission, file: File) => {
+    if (!profile.uid) { setMissionError('Faça login para comprovar a missão.'); return; }
+    setMissionError(''); setUpMissionId(m.id); setUpPct(0);
+    try {
+      await saveContentProof({
+        uid: profile.uid, name: profile.name || 'Vendedor', company: profile.company || '',
+        segment: profile.segment || '', monthKey: currentMonthKey(),
+        contentId: `mission-${currentWeekKey()}-${m.id}`, caption: `[Missão] ${m.title}`,
+        file, onProgress: setUpPct,
+      });
+      completeMission(m);
+      syncMissionScore();
+      setTick(t => t + 1);
+    } catch {
+      setMissionError('Não consegui enviar o print. Tenta de novo.');
+    } finally {
+      setUpMissionId(null);
+    }
   };
 
   const [draft, setDraft] = useState('');
@@ -166,6 +205,7 @@ export default function CriarConteudo() {
         </div>
         {missions.map(m => {
           const done = isMissionDone(m.id);
+          const uploading = upMissionId === m.id;
           return (
             <div key={m.id} className={`cc-miss card ${done ? 'done' : ''}`}>
               <div className="cc-miss-emoji">{m.emoji}</div>
@@ -174,12 +214,20 @@ export default function CriarConteudo() {
                 <span>{m.how}</span>
                 <span className="cc-miss-tag">{m.pilar} · +{m.points} pts</span>
               </div>
-              <button className={`cc-miss-btn ${done ? 'done' : ''}`} onClick={() => doMission(m.id)} disabled={done}>
-                {done ? <><Check size={15} /> Feito</> : 'Marcar'}
-              </button>
+              {done ? (
+                <span className="cc-miss-btn done"><Check size={15} /> Feito</span>
+              ) : (
+                <label className={`cc-miss-btn cc-miss-proof ${uploading ? 'is-loading' : ''}`}>
+                  <Camera size={14} /> {uploading ? `${upPct}%` : 'Print'}
+                  <input type="file" accept="image/*" hidden disabled={upMissionId !== null}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleMissionProof(m, f); e.target.value = ''; }} />
+                </label>
+              )}
             </div>
           );
         })}
+        {missionError && <p className="cc-miss-err">{missionError}</p>}
+        <p className="cc-miss-foot">Anexe o <strong>print do post</strong> pra pontuar — só assim entra no ranking e no painel do gestor.</p>
       </div>
 
       {/* 1. O que postar — pilares */}
