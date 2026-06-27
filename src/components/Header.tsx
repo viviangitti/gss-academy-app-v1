@@ -58,6 +58,11 @@ const titles: Record<string, string> = {
 // Abas principais (destinos da barra inferior) — sem botão "voltar"
 const TOP_TAB_PAGES = ['/negociacoes', '/maestria', '/raio-x', '/painel-gestor', '/ia-coach'];
 
+// Subtítulo opcional no cabeçalho de cada aba principal
+const TAB_SUBTITLES: Record<string, string> = {
+  '/maestria': 'Treine e afie suas habilidades de venda',
+};
+
 // Pra onde o "voltar" leva cada tela de detalhe. Quando há mais de uma entrada
 // possível (array), volta pra ORIGEM real (de onde a pessoa veio); se a origem
 // não bate, usa a primeira (a aba principal daquela tela). Fonte: entry points
@@ -154,8 +159,11 @@ export default function Header() {
             </div>
           </div>
         ) : isTopTab ? (
-          <div className="header-nav">
+          <div className="header-nav header-nav-tab">
             <h1 className="header-title header-title-tab">{title}</h1>
+            {TAB_SUBTITLES[location.pathname] && (
+              <span className="header-tab-sub">{TAB_SUBTITLES[location.pathname]}</span>
+            )}
           </div>
         ) : (
           <div className="header-nav">

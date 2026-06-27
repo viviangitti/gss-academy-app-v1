@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Dumbbell, Share2, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Dumbbell, Share2, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
 import './Home.css';
@@ -12,14 +12,6 @@ export default function Maestria() {
 
   return (
     <div className="home">
-      {/* Hero */}
-      <div className="mae-hero card">
-        <div className="mae-hero-icon"><GraduationCap size={24} /></div>
-        <div>
-          <h2>Maestria</h2>
-          <p>Treine e afie suas habilidades de venda</p>
-        </div>
-      </div>
 
       {/* Para o gestor — rotinas e rituais com o time */}
       {isGestor && (
