@@ -359,3 +359,15 @@
 .gh-models { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 4px; border-top: 1px solid var(--border); }
 .gh-model { font-size: 12px; color: var(--text-light); }
 .gh-model strong { color: var(--text); }
+
+/* Ranking de modelos mais vendidos */
+.model-ranking.card { padding: 14px 16px; display: flex; flex-direction: column; gap: 11px; }
+.model-ranking h4 { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; margin: 0; color: var(--text-light); }
+.mr-row { display: flex; align-items: center; gap: 10px; }
+.mr-pos { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: rgba(201,168,76,0.18); color: var(--accent); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.mr-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.mr-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.mr-name { font-size: 13.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mr-count { font-size: 12px; color: var(--text-soft); flex-shrink: 0; }
+.mr-bar { height: 6px; border-radius: 99px; background: rgba(0,0,0,0.08); overflow: hidden; }
+.mr-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); }

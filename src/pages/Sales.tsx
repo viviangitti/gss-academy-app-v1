@@ -92,6 +92,19 @@ export default function Sales() {
 
   const history = getGoalHistory();
   const maxVal = Math.max(...chartData.map(d => d.value), monthlyGoal, 1);
+
+  // Ranking de modelos mais vendidos no período
+  const ranking = (() => {
+    const map = new Map<string, { model: string; count: number; total: number }>();
+    sales.forEach(s => {
+      const key = (s.model || '').trim() || 'Sem modelo';
+      const cur = map.get(key) || { model: key, count: 0, total: 0 };
+      cur.count++; cur.total += s.amount || 0;
+      map.set(key, cur);
+    });
+    return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 6);
+  })();
+  const rankMax = Math.max(...ranking.map(r => r.count), 1);
   const goalToShow = period === 'mes' ? monthlyGoal : 0;
   const progress = goalToShow > 0 ? Math.min((stats.count / goalToShow) * 100, 100) : 0;
 
@@ -188,6 +201,25 @@ export default function Sales() {
               <span key={i}>{d.label}</span>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Modelos mais vendidos */}
+      {ranking.length > 0 && (
+        <div className="model-ranking card">
+          <h4><BarChart3 size={14} /> Modelos mais vendidos</h4>
+          {ranking.map((r, i) => (
+            <div key={i} className="mr-row">
+              <span className="mr-pos">{i + 1}</span>
+              <div className="mr-body">
+                <div className="mr-head">
+                  <span className="mr-name">{r.model}</span>
+                  <span className="mr-count">{r.count}{r.total > 0 ? ` · ${formatBRL(r.total)}` : ''}</span>
+                </div>
+                <div className="mr-bar"><i style={{ width: `${(r.count / rankMax) * 100}%` }} /></div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
