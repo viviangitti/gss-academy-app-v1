@@ -110,3 +110,11 @@
   background: rgba(239, 68, 68, 0.13) !important;
   color: #ef4444 !important;
 }
+.mae-aspira-icon {
+  background: rgba(236, 72, 153, 0.14) !important;
+  color: #ec4899 !important;
+}
+.mae-aspira-card {
+  background: linear-gradient(135deg, rgba(236,72,153,0.10), rgba(244,63,94,0.03));
+  border: 0.5px solid rgba(236,72,153,0.28);
+}

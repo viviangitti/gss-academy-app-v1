@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, GraduationCap, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, Heart, GraduationCap, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
 import { getTeamCasesRaw } from '../services/memory';
@@ -81,19 +81,6 @@ export default function Maestria() {
         </div>
       )}
 
-      {/* Check-lists */}
-      <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Check-lists</h3></div>
-        <button className="home-content-card card" onClick={() => navigate('/pre-reuniao')}>
-          <div className="home-content-icon mae-check-icon"><ClipboardCheck size={20} /></div>
-          <div className="home-content-text">
-            <strong>Pré-atendimento / test-drive</strong>
-            <span>O que revisar antes de cada atendimento pra chegar pronto</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      </div>
-
       {/* Treino & simulação */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">Treino & simulação</h3></div>
@@ -137,7 +124,47 @@ export default function Maestria() {
         )}
       </div>
 
-      {/* Criar conteúdo */}
+      {/* Vender por valor — narrativa aspiracional + biblioteca */}
+      <div className="day-section">
+        <div className="day-section-header"><h3 className="section-title">Vender por valor</h3></div>
+        <button className="home-content-card card mae-aspira-card" onClick={() => navigate('/narrativa')}>
+          <div className="home-content-icon mae-aspira-icon"><Heart size={20} /></div>
+          <div className="home-content-text">
+            <strong>Narrativa aspiracional</strong>
+            <span>Venda o sonho, não o preço — a IA monta o pitch e defende valor</span>
+          </div>
+          <ArrowRight size={16} className="home-train-arrow" />
+        </button>
+        <div className="home-dual-grid" style={{ marginTop: 10 }}>
+          <button className="home-dual-card card" onClick={() => navigate('/objecoes')}>
+            <div className="home-dual-icon"><MessageCircle size={18} /></div>
+            <strong>Contornar objeções</strong>
+            <span>Respostas prontas pras mais comuns</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/tecnicas')}>
+            <div className="home-dual-icon"><Sparkles size={18} /></div>
+            <strong>Técnicas de venda</strong>
+            <span>Narrativa que inspira, menos desconto</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/scripts')}>
+            <div className="home-dual-icon"><BookOpen size={18} /></div>
+            <strong>Roteiros prontos</strong>
+            <span>Aberturas e fechamentos que convertem</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/gatilhos')}>
+            <div className="home-dual-icon"><Flame size={18} /></div>
+            <strong>Gatilhos de urgência</strong>
+            <span>Oportunidade sem apelar pro desconto</span>
+          </button>
+          <button className="home-dual-card card" onClick={() => navigate('/pre-reuniao')}>
+            <div className="home-dual-icon"><ClipboardCheck size={18} /></div>
+            <strong>Pré-atendimento</strong>
+            <span>Chegue pronto pro test-drive</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Criar conteúdo (creators) */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">Criar conteúdo</h3></div>
         <button className="home-content-card card" onClick={() => navigate('/criar-conteudo')}>
@@ -153,48 +180,6 @@ export default function Maestria() {
           <div className="home-content-text">
             <strong>Conteúdo do Dia</strong>
             <span>Poste nas suas redes e ganhe pontos</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      </div>
-
-      {/* Contornar objeções */}
-      <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Contornar objeções</h3></div>
-        <button className="home-content-card card" onClick={() => navigate('/objecoes')}>
-          <div className="home-content-icon mae-obj-icon"><MessageCircle size={20} /></div>
-          <div className="home-content-text">
-            <strong>Biblioteca de objeções</strong>
-            <span>Respostas prontas pras objeções mais comuns</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      </div>
-
-      {/* Narrativa & técnicas — vender por valor, menos desconto */}
-      <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Narrativa & técnicas</h3></div>
-        <button className="home-content-card card" onClick={() => navigate('/tecnicas')}>
-          <div className="home-content-icon mae-narr-icon"><Sparkles size={20} /></div>
-          <div className="home-content-text">
-            <strong>Técnicas de venda</strong>
-            <span>Narrativa que inspira, venda por valor — menos desconto</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-        <button className="home-content-card card" onClick={() => navigate('/scripts')}>
-          <div className="home-content-icon mae-script-icon"><BookOpen size={20} /></div>
-          <div className="home-content-text">
-            <strong>Roteiros prontos</strong>
-            <span>Aberturas, mensagens e fechamentos que convertem</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-        <button className="home-content-card card" onClick={() => navigate('/gatilhos')}>
-          <div className="home-content-icon mae-trigger-icon"><Flame size={20} /></div>
-          <div className="home-content-text">
-            <strong>Gatilhos de urgência</strong>
-            <span>Crie senso de oportunidade sem apelar pro desconto</span>
           </div>
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
