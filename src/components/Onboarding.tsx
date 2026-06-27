@@ -102,7 +102,7 @@ export default function Onboarding({ onComplete }: Props) {
               <div className="onboarding-feature-icon"><Dumbbell size={18} /></div>
               <div>
                 <strong>Treino com IA</strong>
-                <span>Role-play, pré-reunião e análise pós-venda</span>
+                <span>Simulação, pré-reunião e análise pós-venda</span>
               </div>
             </div>
             <div className="onboarding-feature">

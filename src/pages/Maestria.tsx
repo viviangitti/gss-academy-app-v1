@@ -56,19 +56,19 @@ export default function Maestria() {
           <div className="home-content-icon mae-train-icon"><Dumbbell size={20} /></div>
           <div className="home-content-text">
             <strong>Central de treino</strong>
-            <span>Role-play, objeções, reuniões e mensagens num lugar só</span>
+            <span>Simulação, objeções, reuniões e mensagens num lugar só</span>
           </div>
           <ArrowRight size={16} className="home-train-arrow" />
         </button>
       </div>
 
-      {/* Role-play / simulação */}
+      {/* Simulação */}
       <div className="day-section">
-        <div className="day-section-header"><h3 className="section-title">Role-play / simulação</h3></div>
+        <div className="day-section-header"><h3 className="section-title">Simulação</h3></div>
         <div className="home-dual-grid">
           <button className="home-dual-card card" onClick={() => navigate('/treino')}>
             <div className="home-dual-icon"><Swords size={18} /></div>
-            <strong>Role-play</strong>
+            <strong>Simular atendimento</strong>
             <span>Atendimento, financiamento e objeções — como cliente real</span>
           </button>
           <button className="home-dual-card card" onClick={() => navigate('/treino-voz')}>

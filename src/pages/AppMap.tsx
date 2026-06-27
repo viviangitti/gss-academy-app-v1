@@ -38,7 +38,7 @@ const SECTIONS: MapSection[] = [
       { label: 'Condição comercial do mês', desc: 'Tabelas e campanhas do mês', to: '/condicoes' },
       { label: 'Concorrência', desc: 'O que estão fazendo', to: '/concorrencia' },
       { label: 'Playbook · Objeções · Gatilhos', desc: 'Munição de venda', to: '/objecoes' },
-      { label: 'Treino', desc: 'Role-play, voz, pré/pós-reunião', to: '/treino-hub' },
+      { label: 'Treino', desc: 'Simulação, voz, pré/pós-reunião', to: '/treino-hub' },
       { label: 'Vendas perdidas', desc: 'Aprenda com cada perda', to: '/vendas-perdidas' },
       { label: 'Conteúdo do dia', desc: 'Poste e ganhe pontos', to: '/conteudo-dia' },
       { label: 'Histórico', desc: 'Tudo que você fez', to: '/historico' },

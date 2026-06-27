@@ -26,7 +26,7 @@ const RITUAIS: Ritual[] = [
     itens: [
       'Abra com o Resumo da semana do time.',
       'Revise o Mapa de gaps: qual o gap nº1? defina 1 treino pra ele.',
-      'Faça 1 role-play coletivo de uma objeção que está pegando.',
+      'Faça 1 simulação coletiva de uma objeção que está pegando.',
       'Combine o foco da próxima semana — claro e medível.',
     ],
     atalho: { label: 'Abrir Painel do Gestor', to: '/painel-gestor' },
