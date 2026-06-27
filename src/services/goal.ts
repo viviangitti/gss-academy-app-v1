@@ -128,6 +128,16 @@ export function getStats(goal: number): GoalStats {
   };
 }
 
+/** Modelo base: tira o sufixo de versão (XRE, SRX, XLS, GR…) mas mantém nomes
+ * compostos (ex: "Corolla Cross XRE" -> "Corolla Cross"; "Hilux SRX" -> "Hilux"). */
+export function baseModel(model?: string): string {
+  const words = (model || '').trim().split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return words.join(' ');
+  const last = words[words.length - 1];
+  const isTrim = /\d/.test(last) || last === last.toUpperCase() || last.length <= 4;
+  return (isTrim ? words.slice(0, -1) : words).join(' ');
+}
+
 export interface ModelGoalProgress { model: string; target: number; count: number }
 
 /** Progresso por modelo no mês: conta vendas cujo modelo casa (contém) o alvo. */

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Plus, Check, Trash2, Award, Calendar, BarChart3 } from 'lucide-react';
-import { addSale, removeSale, getPeriodStats, getSalesByPeriod, getMonthChartData, getYearChartData, getWeekChartData } from '../services/goal';
+import { addSale, removeSale, getPeriodStats, getSalesByPeriod, getMonthChartData, getYearChartData, getWeekChartData, baseModel } from '../services/goal';
 import { getGoalHistory, formatMonthLabel } from '../services/goalHistory';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
@@ -93,11 +93,12 @@ export default function Sales() {
   const history = getGoalHistory();
   const maxVal = Math.max(...chartData.map(d => d.value), monthlyGoal, 1);
 
-  // Ranking de modelos mais vendidos no período
+  // Ranking de modelos mais vendidos no período (agrupado por modelo base —
+  // ex: "Corolla Cross XRE" e "Corolla Cross XRX" contam como "Corolla Cross")
   const ranking = (() => {
     const map = new Map<string, { model: string; count: number; total: number }>();
     sales.forEach(s => {
-      const key = (s.model || '').trim() || 'Sem modelo';
+      const key = baseModel(s.model) || 'Sem modelo';
       const cur = map.get(key) || { model: key, count: 0, total: 0 };
       cur.count++; cur.total += s.amount || 0;
       map.set(key, cur);
