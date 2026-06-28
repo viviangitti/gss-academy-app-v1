@@ -121,28 +121,46 @@ export default function Maestria() {
         </div>
       )}
 
-      {/* Marketing — hub de performance marketing (sem treino de vendas) */}
-      {isMarketing && (
+      {/* Marketing — hub pra aprender e fazer marketing (sem nada de vendas) */}
+      {isMarketing && (<>
         <div className="day-section">
-          <div className="day-section-header"><h3 className="section-title">Performance marketing</h3></div>
-          <button className="home-content-card card" onClick={() => navigate('/guia-marketing')}>
+          <div className="day-section-header"><h3 className="section-title">Aprender</h3></div>
+          <button className="home-content-card card mae-aspira-card" onClick={() => navigate('/guia-marketing')}>
             <div className="home-content-icon mae-guia-icon"><Megaphone size={20} /></div>
             <div className="home-content-text">
               <strong>Guia de Marketing</strong>
-              <span>Vire expert: o passo a passo que guia suas ações e as ferramentas</span>
-            </div>
-            <ArrowRight size={16} className="home-train-arrow" />
-          </button>
-          <button className="home-content-card card" onClick={() => navigate('/criar-conteudo')}>
-            <div className="home-content-icon mae-content-icon"><PenSquare size={20} /></div>
-            <div className="home-content-text">
-              <strong>Criar conteúdo</strong>
-              <span>Pilares, formatos e feedback da IA pra postar melhor</span>
+              <span>Vire expert em performance: o passo a passo que guia suas ações</span>
             </div>
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
         </div>
-      )}
+
+        <div className="day-section">
+          <div className="day-section-header"><h3 className="section-title">Criar & conferir</h3></div>
+          <div className="home-dual-grid">
+            <button className="home-dual-card card" onClick={() => navigate('/gerador-copy')}>
+              <div className="home-dual-icon"><Wand2 size={18} /></div>
+              <strong>Gerador de Copy</strong>
+              <span>3 versões prontas com IA — post, stories, WhatsApp</span>
+            </button>
+            <button className="home-dual-card card" onClick={() => navigate('/marketing-chat')}>
+              <div className="home-dual-icon"><MessageCircle size={18} /></div>
+              <strong>Conferir peças & ações</strong>
+              <span>Confere a peça e sugere ações: mídia, eventos, redes, CRM, e-mail</span>
+            </button>
+            <button className="home-dual-card card" onClick={() => navigate('/criar-conteudo')}>
+              <div className="home-dual-icon"><PenSquare size={18} /></div>
+              <strong>Criar conteúdo</strong>
+              <span>Pilares, formatos e feedback da IA</span>
+            </button>
+            <button className="home-dual-card card" onClick={() => navigate('/guia-marca')}>
+              <div className="home-dual-icon"><BookOpen size={18} /></div>
+              <strong>Guia de Marca</strong>
+              <span>Tom de voz e identidade sempre à mão</span>
+            </button>
+          </div>
+        </div>
+      </>)}
 
       {/* Blocos de vendedor — escondidos pro gestor e marketing (que têm hubs próprios) */}
       {!isGestor && !isMarketing && (<>

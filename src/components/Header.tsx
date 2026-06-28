@@ -175,9 +175,12 @@ export default function Header() {
         ) : isTopTab ? (
           <div className="header-nav header-nav-tab">
             <h1 className="header-title header-title-tab">{title}</h1>
-            {TAB_SUBTITLES[location.pathname] && (
-              <span className="header-tab-sub">{TAB_SUBTITLES[location.pathname]}</span>
-            )}
+            {(() => {
+              const sub = location.pathname === '/maestria' && accessType === 'marketing'
+                ? 'Aprenda e faça marketing de verdade'
+                : TAB_SUBTITLES[location.pathname];
+              return sub ? <span className="header-tab-sub">{sub}</span> : null;
+            })()}
           </div>
         ) : (
           <div className="header-nav">

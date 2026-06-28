@@ -93,14 +93,10 @@ const AULAS: Aula[] = [
   },
 ];
 
-// Ferramentas de marketing — o "e tudo mais" pra executar
+// Ferramentas operacionais (as de criar/conferir ficam na Maestria)
 const TOOLS = [
-  { label: 'Gerador de Copy', desc: '3 versões prontas com IA', to: '/gerador-copy' },
-  { label: 'Guia de Marca', desc: 'Tom de voz e identidade', to: '/guia-marca' },
-  { label: 'Análise de Campanhas', desc: 'Print → insights da IA', to: '/analise-campanha' },
-  { label: 'Copiloto de Marketing', desc: 'Conferir peças e diagnosticar', to: '/marketing-chat' },
   { label: 'Concorrência', desc: 'O que estão fazendo agora', to: '/concorrencia' },
-  { label: 'Campanhas e Condições', desc: 'Publicar pro time', to: '/condicoes-admin' },
+  { label: 'Campanhas e Condições', desc: 'Publicar oferta/condição pro time', to: '/condicoes-admin' },
 ];
 
 export default function GuiaMarketing() {
