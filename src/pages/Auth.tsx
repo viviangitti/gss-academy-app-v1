@@ -249,7 +249,9 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
             <div className="auth-field">
               <Factory size={14} />
               <select value={segment} onChange={e => setSegment(e.target.value as Segment)}>
-                {SEGMENTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                {SEGMENTS
+                  .filter(s => s.value === '' || s.value === 'automotivo' || s.value === 'automotivo_luxo')
+                  .map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
             {error && <div className="auth-error">{error}</div>}
