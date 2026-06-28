@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import {
-  Sparkles, Target, Dumbbell, FileText,
-  PenLine, BarChart2, BookOpen, Factory, ChevronRight, Zap, MessageSquare,
-  Users, Handshake, CalendarCheck, Megaphone, Wand2,
+  Sparkles, Target, Dumbbell,
+  PenLine, BarChart2, BookOpen, Factory, ChevronRight, MessageSquare,
+  Users, Handshake, CalendarCheck, Megaphone, Wand2, Newspaper, Swords,
 } from 'lucide-react';
 import { saveData, loadData, KEYS } from '../services/storage';
 import type { Segment, UserProfile } from '../types';
@@ -33,13 +33,12 @@ type Feature = { icon: typeof Target; title: string; desc: string };
 const ROLE_SLIDE: Record<Role, { icon: typeof Target; iconClass: string; title: string; subtitle: string; features: Feature[] }> = {
   vendedor: {
     icon: Target, iconClass: 'onboarding-icon-vendas',
-    title: 'Ferramentas para vender mais',
-    subtitle: 'Tudo que um vendedor de alta performance precisa, na palma da mão.',
+    title: 'Tudo pra vender mais',
+    subtitle: 'Chegue na frente do cliente sabendo mais que ele.',
     features: [
-      { icon: Dumbbell, title: 'Treino com IA', desc: 'Simulação, pré-atendimento e análise pós-venda' },
-      { icon: MessageSquare, title: 'Objeções & Roteiros', desc: 'Respostas prontas para cada situação' },
-      { icon: FileText, title: 'Condições Comerciais', desc: 'Ofertas do mês com card visual para compartilhar' },
-      { icon: Zap, title: 'IA Coach & Gatilhos', desc: 'Coaching pessoal e gatilhos de fechamento' },
+      { icon: Newspaper, title: 'Notícias do setor', desc: 'Fique à frente: o que move o mercado, todo dia' },
+      { icon: Swords, title: 'Ofertas dos concorrentes', desc: 'Saiba o que a concorrência está oferecendo agora' },
+      { icon: MessageSquare, title: 'Destrave nas objeções', desc: 'Resposta pronta pra cada "tá caro" e "vou pensar"' },
     ],
   },
   gerente: {
