@@ -10,11 +10,6 @@ const MAESTRIA_PATHS = [
   '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo', '/rituais-gestor', '/gestao-comercial', '/treino-lideranca', '/guia-marketing', '/conteudo-dia', '/narrativa',
 ];
 const RAIOX_PATHS = ['/raio-x', '/meu-raiox', '/vendas-perdidas', '/historico'];
-const LIBRARY_PATHS = [
-  '/biblioteca', '/favoritos', '/condicoes', '/concorrencia', '/ofertas',
-  '/guia-marca', '/analise-campanha', '/gerador-copy', '/pos-campanha', '/revisar-copy',
-  '/pre-lancamento', '/marketing-chat',
-];
 
 export default function BottomNav() {
   const location = useLocation();
@@ -50,12 +45,12 @@ export default function BottomNav() {
         if (path === '/maestria') isActive = MAESTRIA_PATHS.includes(location.pathname);
         if (path === '/raio-x') isActive = RAIOX_PATHS.includes(location.pathname);
         if (path === '/painel-gestor') isActive = location.pathname === '/painel-gestor' || RAIOX_PATHS.includes(location.pathname);
-        if (path === '/biblioteca') isActive = LIBRARY_PATHS.includes(location.pathname);
+        if (path === '/raio-x-marketing') isActive = location.pathname === '/raio-x-marketing';
 
         return (
           <button
             key={path}
-            data-tour={path === '/negociacoes' ? 'nav-negociacoes' : path === '/biblioteca' ? 'nav-painel' : path === '/ia-coach' ? 'nav-coaching' : undefined}
+            data-tour={path === '/negociacoes' ? 'nav-negociacoes' : path === '/ia-coach' ? 'nav-coaching' : undefined}
             className={`nav-item ${isActive ? 'active' : ''}`}
             onClick={() => navigate(path)}
           >

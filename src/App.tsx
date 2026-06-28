@@ -7,7 +7,6 @@ import AppTour from './components/AppTour';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 // Demais páginas carregadas sob demanda (code-splitting) — acelera a 1ª abertura.
-const Library = lazy(() => import('./pages/Library'));
 const TrainingHub = lazy(() => import('./pages/TrainingHub'));
 const Objections = lazy(() => import('./pages/Objections'));
 const Scripts = lazy(() => import('./pages/Scripts'));
@@ -220,7 +219,7 @@ function AppContent() {
           <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/biblioteca" element={<Library />} />
+            <Route path="/biblioteca" element={<Navigate to="/maestria" replace />} />
             <Route path="/objecoes" element={<Objections />} />
             <Route path="/scripts" element={<Scripts />} />
             <Route path="/tecnicas" element={<Techniques />} />
@@ -266,7 +265,7 @@ function AppContent() {
             <Route path="/condicoes" element={<CommercialConditions />} />
             <Route path="/condicoes-admin" element={<RequireAdmin allowMarketing><CommercialConditionsAdmin /></RequireAdmin>} />
             <Route path="/playbook" element={<Playbook />} />
-            <Route path="/marketing-hub" element={<Navigate to="/biblioteca" replace />} />
+            <Route path="/marketing-hub" element={<Navigate to="/maestria" replace />} />
             <Route path="/marketing-chat" element={<MarketingChat />} />
             <Route path="/guia-marca" element={<BrandGuide />} />
             <Route path="/analise-campanha" element={<CampaignAnalysis />} />

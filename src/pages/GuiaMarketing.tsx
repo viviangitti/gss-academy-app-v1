@@ -96,6 +96,7 @@ const AULAS: Aula[] = [
 // Ferramentas operacionais (as de criar/conferir ficam na Maestria)
 const TOOLS = [
   { label: 'Concorrência', desc: 'O que estão fazendo agora', to: '/concorrencia' },
+  { label: 'Gerenciar Concorrência', desc: 'Cadastrar/atualizar concorrentes', to: '/concorrencia-admin' },
   { label: 'Campanhas e Condições', desc: 'Publicar oferta/condição pro time', to: '/condicoes-admin' },
 ];
 
