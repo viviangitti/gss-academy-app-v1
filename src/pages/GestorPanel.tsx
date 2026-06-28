@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Share2, Trophy, Medal, Flame, TrendingUp, Crosshair, RefreshCw, Camera, Radio } from 'lucide-react';
+import { Users, Medal, Flame, TrendingUp, Crosshair, RefreshCw, Camera, Radar, BarChart3, CheckCircle2, XCircle } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getTeamSummary } from '../services/firestore/contentScores';
 import { getTeamProofs } from '../services/firestore/contentProofs';
-import { getTeamLiveStatus } from '../services/firestore/liveStatus';
-import type { LiveMember } from '../services/firestore/liveStatus';
+import { fetchRecentCases } from '../services/firestore/salesCases';
+import type { SalesCase } from '../services/firestore/salesCases';
 import type { TeamProof } from '../services/firestore/contentProofs';
 import { getTeamGapReport } from '../services/gapReport';
 import RadarChart from '../components/RadarChart';
@@ -17,29 +17,29 @@ import type { UserProfile } from '../types';
 import './GestorPanel.css';
 
 const GAP_BADGES: Record<string, string> = {
-  produto: '📦 Produto',
-  processo: '⚙️ Processo',
-  abordagem: '🤝 Abordagem',
-  'follow-up': '📞 Follow-up',
+  produto: '📦 Produto', processo: '⚙️ Processo', abordagem: '🤝 Abordagem', 'follow-up': '📞 Follow-up',
 };
 
-function monthKey() {
-  return new Date().toISOString().slice(0, 7);
+function monthKey() { return new Date().toISOString().slice(0, 7); }
+function msOf(c: SalesCase): number {
+  const ts = c.createdAt as { toMillis?: () => number; seconds?: number } | undefined;
+  return ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0);
 }
-
-function minsAgo(d?: Date): string {
-  if (!d) return '';
-  const m = Math.max(0, Math.round((Date.now() - d.getTime()) / 60000));
-  return m < 1 ? 'agora' : m < 60 ? `há ${m} min` : `há ${Math.round(m / 60)}h`;
+function determinante(c: SalesCase): string {
+  const a = (c.approach || '').replace(/^Determinante pra venda:\s*/i, '').replace(/^Follow-up:.*/i, '').trim();
+  return a || 'Não informado';
 }
 
 export default function GestorPanel() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
+  const isGestor = profile.isGestor === true || profile.isAdmin === true;
+
   const [summary, setSummary] = useState<TeamSummary>({ totalPosts: 0, totalPoints: 0, activeMembers: 0, members: [] });
   const [proofs, setProofs] = useState<TeamProof[]>([]);
-  const [live, setLive] = useState<LiveMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [cases, setCases] = useState<SalesCase[]>([]);
+  const [perfPeriod, setPerfPeriod] = useState<7 | 30>(30);
+
   const [gaps, setGaps] = useState<TeamReport | null>(null);
   const [gapsLoading, setGapsLoading] = useState(false);
   const [gapsError, setGapsError] = useState('');
@@ -49,61 +49,38 @@ export default function GestorPanel() {
   const [weeklyError, setWeeklyError] = useState('');
   const [copiedWeekly, setCopiedWeekly] = useState(false);
 
+  useEffect(() => {
+    if (!isGestor) return;
+    getTeamSummary(profile.company || '', profile.segment || '', monthKey()).then(setSummary).catch(() => {});
+    getTeamProofs(profile.company || '', monthKey()).then(setProofs).catch(() => {});
+    fetchRecentCases(profile.company || '', 200).then(setCases).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const generateGaps = async () => {
+    setGapsLoading(true); setGapsError('');
+    try { setGaps(await getTeamGapReport()); }
+    catch { setGapsError('Ainda não há casos suficientes registrados pela equipe. O diagnóstico aparece conforme o time registra vendas e perdas.'); }
+    setGapsLoading(false);
+  };
+
   const generateWeekly = async () => {
-    setWeeklyLoading(true);
-    setWeeklyError('');
-    try {
-      setWeekly(await getWeeklyReport());
-    } catch {
-      setWeeklyError('Ainda não há atividade registrada pela equipe esta semana.');
-    }
+    setWeeklyLoading(true); setWeeklyError('');
+    try { setWeekly(await getWeeklyReport()); }
+    catch { setWeeklyError('Ainda não há atividade registrada pela equipe esta semana.'); }
     setWeeklyLoading(false);
   };
 
   const copyWeekly = async () => {
     if (!weekly) return;
-    try {
-      await navigator.clipboard.writeText(weekly.mensagemGrupo);
-      setCopiedWeekly(true);
-      setTimeout(() => setCopiedWeekly(false), 1500);
-    } catch { /* */ }
+    try { await navigator.clipboard.writeText(weekly.mensagemGrupo); setCopiedWeekly(true); setTimeout(() => setCopiedWeekly(false), 1500); } catch { /* */ }
   };
-
-  const generateGaps = async () => {
-    setGapsLoading(true);
-    setGapsError('');
-    try {
-      setGaps(await getTeamGapReport());
-    } catch {
-      setGapsError('Ainda não há casos registrados pela equipe (vendas/perdas). Os dados aparecem conforme o time usa o app.');
-    }
-    setGapsLoading(false);
-  };
-
-  const isGestor = profile.isGestor === true || profile.isAdmin === true;
-
-  const refreshLive = () => {
-    getTeamLiveStatus(profile.company || '').then(setLive).catch(() => {});
-  };
-
-  useEffect(() => {
-    if (!isGestor) return;
-    getTeamSummary(profile.company || '', profile.segment || '', monthKey())
-      .then(setSummary)
-      .finally(() => setLoading(false));
-    getTeamProofs(profile.company || '', monthKey())
-      .then(setProofs)
-      .catch(() => {});
-    refreshLive();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (!isGestor) {
     return (
       <div className="gp-page">
         <div className="gp-restricted card">
-          <Users size={40} />
-          <h3>Acesso restrito</h3>
+          <Users size={40} /><h3>Acesso restrito</h3>
           <p>Esta área é exclusiva para gestores de equipe.</p>
           <button onClick={() => navigate('/')}>Voltar ao início</button>
         </div>
@@ -114,114 +91,139 @@ export default function GestorPanel() {
   const mes = new Date().toLocaleDateString('pt-BR', { month: 'long' });
   const inativos = summary.members.filter(m => (m.shares || 0) === 0);
 
+  // Competências: pontos fortes e gaps a partir do radar
+  const comps = gaps?.competencias || [];
+  const sortedComps = [...comps].sort((a, b) => b.nota - a.nota);
+  const fortes = sortedComps.slice(0, 2);
+  const fracos = sortedComps.slice(-2).reverse();
+
+  // Performance: ganhos/perdas no período
+  const cut = Date.now() - perfPeriod * 86400000;
+  const pc = cases.filter(c => msOf(c) >= cut);
+  const won = pc.filter(c => c.kind === 'won');
+  const lost = pc.filter(c => c.kind === 'lost');
+  const totConc = won.length + lost.length;
+  const taxaSucesso = totConc ? Math.round((won.length / totConc) * 100) : 0;
+  const taxaInsucesso = totConc ? 100 - taxaSucesso : 0;
+  const agg = (arr: SalesCase[], keyer: (c: SalesCase) => string) => {
+    const m = new Map<string, number>();
+    arr.forEach(c => { const k = keyer(c); m.set(k, (m.get(k) || 0) + 1); });
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  };
+  const motivosSucesso = agg(won, determinante);
+  const motivosPerda = agg(lost, c => (c.reason || 'Não informado').trim());
+
   return (
     <div className="gp-page">
       <div className="gp-hero card">
         <Users size={22} />
         <div>
           <h2>Raio X do Time</h2>
-          <p>Diagnóstico e engajamento da equipe — {mes}</p>
+          <p>Perfil e performance da equipe — {mes}</p>
         </div>
       </div>
 
-      {/* Em atendimento agora — time ao vivo */}
-      <div className="gp-live card">
-        <div className="gp-live-head">
-          <span className="gp-live-title">
-            <Radio size={15} /> Em atendimento agora
-            <span className={`gp-live-count ${live.length ? 'on' : ''}`}>{live.length}</span>
-          </span>
-          <button className="gp-live-refresh" onClick={refreshLive} aria-label="Atualizar">
-            <RefreshCw size={14} />
-          </button>
-        </div>
-        {live.length === 0 ? (
-          <p className="gp-live-empty">Ninguém do time marcou atendimento agora.</p>
-        ) : (
-          <div className="gp-live-list">
-            {live.map(m => (
-              <div key={m.uid} className="gp-live-row">
-                <span className="gp-live-pulse" />
-                <span className="gp-live-name">{m.name}</span>
-                {m.clientHint && <span className="gp-live-client">{m.clientHint}</span>}
-                <span className="gp-live-since">{minsAgo(m.since)}</span>
-              </div>
-            ))}
+      {/* 1. COMPETÊNCIAS — gráfico aranha (time × Executivo com Maestria) */}
+      <div className="gp-section card">
+        <div className="gp-rank-head"><Radar size={16} /> Competências</div>
+        <p className="gp-sec-sub">Time × Executivo com Maestria em Vendas</p>
+        {!gaps && !gapsLoading && (
+          <>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={generateGaps}>Gerar diagnóstico do time</button>
+            {gapsError && <p className="gp-gaps-error">{gapsError}</p>}
+          </>
+        )}
+        {gapsLoading && <p className="gp-gaps-desc">Analisando os casos da equipe…</p>}
+        {gaps && comps.length >= 3 && (
+          <div className="gp-team-radar">
+            <RadarChart items={comps.map(c => ({ label: c.nome, value: c.nota }))} benchmark={85} />
+            <div className="gp-radar-legend">
+              <span><span className="gp-rl-swatch gp-rl-team" /> Seu time</span>
+              <span><span className="gp-rl-swatch gp-rl-bench" /> Executivo com Maestria</span>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Resumo */}
-      <div className="gp-stats">
-        <div className="gp-stat card">
-          <Share2 size={18} />
-          <span className="gp-stat-val">{summary.totalPosts}</span>
-          <span className="gp-stat-lbl">posts no mês</span>
-        </div>
-        <div className="gp-stat card">
-          <Users size={18} />
-          <span className="gp-stat-val">{summary.activeMembers}</span>
-          <span className="gp-stat-lbl">ativos</span>
-        </div>
-        <div className="gp-stat card">
-          <Trophy size={18} />
-          <span className="gp-stat-val">{summary.totalPoints}</span>
-          <span className="gp-stat-lbl">pontos</span>
-        </div>
-      </div>
-
-      {loading && <div className="gp-empty card">Carregando…</div>}
-
-      {!loading && summary.members.length === 0 && (
-        <div className="gp-empty card">
-          <TrendingUp size={28} />
-          <p>Ninguém da equipe postou conteúdo este mês ainda.</p>
-          <span>Incentive o time a usar o "Conteúdo do Dia" 🚀</span>
-        </div>
-      )}
-
-      {/* Ranking completo */}
-      {summary.members.length > 0 && (
-        <div className="gp-rank card">
-          <div className="gp-rank-head"><Medal size={16} /> Ranking da equipe</div>
-          {summary.members.map((m, i) => (
-            <div key={m.uid} className="gp-rank-row">
-              <span className={`gp-pos gp-pos--${i < 3 ? i + 1 : 'n'}`}>
-                {i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}
-              </span>
-              <span className="gp-name">{m.name}</span>
-              {m.streak > 0 && <span className="gp-streak"><Flame size={11} /> {m.streak}</span>}
-              <span className="gp-posts">{m.shares} posts</span>
-              <span className="gp-pts">{m.points} pts</span>
+      {/* 2. GAPS & PONTOS FORTES */}
+      {gaps && (
+        <div className="gp-section card">
+          <div className="gp-rank-head"><Crosshair size={16} /> Principais GAPs e Pontos Fortes</div>
+          <p className="gp-gaps-resumo">{gaps.resumoEquipe}</p>
+          {comps.length >= 3 && (
+            <div className="gp-sf-grid">
+              <div className="gp-sf gp-sf-strong">
+                <span className="gp-sf-title">💪 Pontos fortes</span>
+                {fortes.map(c => <span key={c.nome} className="gp-sf-item">{c.nome} <b>{c.nota}</b></span>)}
+              </div>
+              <div className="gp-sf gp-sf-gap">
+                <span className="gp-sf-title">🎯 Principais GAPs</span>
+                {fracos.map(c => <span key={c.nome} className="gp-sf-item">{c.nome} <b>{c.nota}</b></span>)}
+              </div>
+            </div>
+          )}
+          {gaps.porVendedor.map((s, i) => (
+            <div key={i} className="gp-gap-row">
+              <div className="gp-gap-top">
+                <strong>{s.nome}</strong>
+                <span className="gp-gap-badge">{GAP_BADGES[s.gap] || s.gap}</span>
+              </div>
+              <p className="gp-gap-resumo">{s.resumo}</p>
+              <p className="gp-gap-rec">→ {s.recomendacao}</p>
             </div>
           ))}
+          <button className="btn btn-outline btn-sm" style={{ width: '100%', marginTop: 8 }} onClick={generateGaps}>
+            <RefreshCw size={13} /> Atualizar diagnóstico
+          </button>
         </div>
       )}
 
-      {/* Comprovação de posts — prints que a equipe anexou */}
-      {proofs.length > 0 && (
-        <div className="gp-proofs card">
-          <div className="gp-rank-head"><Camera size={16} /> Comprovação de posts ({proofs.length})</div>
-          <div className="gp-proofs-grid">
-            {proofs.map(p => (
-              <a key={p.id} href={p.imageUrl} target="_blank" rel="noopener noreferrer" className="gp-proof-item" title={`${p.name} — toque pra ampliar`}>
-                <img src={p.imageUrl} alt={`Post de ${p.name}`} loading="lazy" />
-                <span className="gp-proof-name">{p.name}</span>
-              </a>
-            ))}
-          </div>
+      {/* 3. PERFORMANCE — vendeu/perdeu + taxas + motivos */}
+      <div className="gp-section card">
+        <div className="gp-rank-head"><BarChart3 size={16} /> Performance</div>
+        <div className="gp-period">
+          <button className={perfPeriod === 7 ? 'on' : ''} onClick={() => setPerfPeriod(7)}>7 dias</button>
+          <button className={perfPeriod === 30 ? 'on' : ''} onClick={() => setPerfPeriod(30)}>30 dias</button>
         </div>
-      )}
+        {totConc === 0 ? (
+          <p className="gp-gaps-desc">Nenhuma venda/perda registrada nesse período. As taxas aparecem conforme o time registra os fechamentos.</p>
+        ) : (
+          <>
+            <div className="gp-perf-rates">
+              <div className="gp-perf-rate success">
+                <CheckCircle2 size={16} />
+                <span className="gp-perf-pct">{taxaSucesso}%</span>
+                <span className="gp-perf-lbl">sucesso · {won.length} vendeu</span>
+              </div>
+              <div className="gp-perf-rate fail">
+                <XCircle size={16} />
+                <span className="gp-perf-pct">{taxaInsucesso}%</span>
+                <span className="gp-perf-lbl">insucesso · {lost.length} perdeu</span>
+              </div>
+            </div>
+            <div className="gp-perf-motivos">
+              <span className="gp-perf-mtitle">✅ Por que venderam</span>
+              {motivosSucesso.length ? motivosSucesso.map(([r, n]) => (
+                <div key={r} className="gp-perf-row"><span>{r}</span><b>{n}</b></div>
+              )) : <p className="gp-perf-none">Registre o determinante de cada venda pra ver os motivos.</p>}
+            </div>
+            <div className="gp-perf-motivos">
+              <span className="gp-perf-mtitle">❌ Por que perderam</span>
+              {motivosPerda.length ? motivosPerda.map(([r, n]) => (
+                <div key={r} className="gp-perf-row"><span>{r}</span><b>{n}</b></div>
+              )) : <p className="gp-perf-none">Sem motivos de perda registrados.</p>}
+            </div>
+          </>
+        )}
+      </div>
 
-      {/* Relatório de segunda — pronto pra colar no grupo */}
-      <div className="gp-gaps card">
-        <div className="gp-rank-head"><TrendingUp size={16} /> Resumo da semana</div>
+      {/* 4. RESUMO GERAL DA SEMANA */}
+      <div className="gp-section card">
+        <div className="gp-rank-head"><TrendingUp size={16} /> Resumo geral da semana</div>
         {!weekly && !weeklyLoading && (
           <>
-            <p className="gp-gaps-desc">A IA monta o resumo da semana da equipe — pronto pra colar no grupo — com destaque da semana e elogio pronto.</p>
-            <button className="btn btn-primary" style={{ width: '100%' }} onClick={generateWeekly}>
-              Gerar resumo da semana
-            </button>
+            <p className="gp-gaps-desc">A IA monta o resumo da semana — pronto pra colar no grupo — com destaque e elogio.</p>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={generateWeekly}>Gerar resumo da semana</button>
             {weeklyError && <p className="gp-gaps-error">{weeklyError}</p>}
           </>
         )}
@@ -233,67 +235,43 @@ export default function GestorPanel() {
               {copiedWeekly ? '✓ Copiado!' : 'Copiar mensagem pro grupo'}
             </button>
             <div className="gp-gap-row">
-              <div className="gp-gap-top">
-                <strong>🏆 Destaque: {weekly.destaque}</strong>
-              </div>
+              <div className="gp-gap-top"><strong>🏆 Destaque: {weekly.destaque}</strong></div>
               <p className="gp-gap-resumo">Elogio pronto (manda no privado): "{weekly.elogio}"</p>
             </div>
-            <div className="gp-gap-row">
-              <p className="gp-gap-rec">🎯 Foco da semana: {weekly.focoSemana}</p>
+            <div className="gp-gap-row"><p className="gp-gap-rec">🎯 Foco da semana: {weekly.focoSemana}</p></div>
+          </>
+        )}
+      </div>
+
+      {/* Engajamento em conteúdo (secundário) */}
+      {summary.members.length > 0 && (
+        <div className="gp-section card">
+          <div className="gp-rank-head"><Medal size={16} /> Engajamento em conteúdo</div>
+          {summary.members.map((m, i) => (
+            <div key={m.uid} className="gp-rank-row">
+              <span className={`gp-pos gp-pos--${i < 3 ? i + 1 : 'n'}`}>{i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span>
+              <span className="gp-name">{m.name}</span>
+              {m.streak > 0 && <span className="gp-streak"><Flame size={11} /> {m.streak}</span>}
+              <span className="gp-posts">{m.shares} posts</span>
+              <span className="gp-pts">{m.points} pts</span>
             </div>
-          </>
-        )}
-      </div>
+          ))}
+          {inativos.length > 0 && (
+            <p className="gp-inactive-inline">⚠️ Sem postar este mês: {inativos.map(m => m.name).join(', ')}</p>
+          )}
+        </div>
+      )}
 
-      {/* Mapa de gaps — por que cada vendedor ganha/perde */}
-      <div className="gp-gaps card">
-        <div className="gp-rank-head"><Crosshair size={16} /> Mapa de gaps da equipe</div>
-        {!gaps && !gapsLoading && (
-          <>
-            <p className="gp-gaps-desc">A IA cruza as vendas e perdas registradas pela equipe e mostra o gap de cada vendedor: produto, processo, abordagem ou follow-up.</p>
-            <button className="btn btn-primary" style={{ width: '100%' }} onClick={generateGaps}>
-              Gerar análise da equipe
-            </button>
-            {gapsError && <p className="gp-gaps-error">{gapsError}</p>}
-          </>
-        )}
-        {gapsLoading && <p className="gp-gaps-desc">Analisando os casos da equipe…</p>}
-        {gaps && (
-          <>
-            <p className="gp-gaps-resumo">{gaps.resumoEquipe}</p>
-            {gaps.competencias?.length >= 3 && (
-              <div className="gp-team-radar">
-                <div className="gp-radar-title"><Crosshair size={14} /> Raio X do time</div>
-                <RadarChart items={gaps.competencias.map(c => ({ label: c.nome, value: c.nota }))} benchmark={80} />
-                <div className="gp-radar-legend">
-                  <span><span className="gp-rl-swatch gp-rl-team" /> Seu time</span>
-                  <span><span className="gp-rl-swatch gp-rl-bench" /> Time com Maestria</span>
-                </div>
-              </div>
-            )}
-            {gaps.porVendedor.map((s, i) => (
-              <div key={i} className="gp-gap-row">
-                <div className="gp-gap-top">
-                  <strong>{s.nome}</strong>
-                  <span className="gp-gap-badge">{GAP_BADGES[s.gap] || s.gap}</span>
-                </div>
-                <p className="gp-gap-resumo">{s.resumo}</p>
-                <p className="gp-gap-rec">→ {s.recomendacao}</p>
-              </div>
+      {proofs.length > 0 && (
+        <div className="gp-section card">
+          <div className="gp-rank-head"><Camera size={16} /> Comprovação de posts ({proofs.length})</div>
+          <div className="gp-proofs-grid">
+            {proofs.map(p => (
+              <a key={p.id} href={p.imageUrl} target="_blank" rel="noopener noreferrer" className="gp-proof-item" title={`${p.name} — toque pra ampliar`}>
+                <img src={p.imageUrl} alt={`Post de ${p.name}`} loading="lazy" />
+                <span className="gp-proof-name">{p.name}</span>
+              </a>
             ))}
-            <button className="btn btn-outline btn-sm" style={{ width: '100%', marginTop: 8 }} onClick={generateGaps}>
-              <RefreshCw size={13} /> Atualizar análise
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* Inativos — pra cobrar */}
-      {inativos.length > 0 && (
-        <div className="gp-inactive card">
-          <div className="gp-inactive-head">⚠️ Sem postar este mês ({inativos.length})</div>
-          <div className="gp-inactive-list">
-            {inativos.map(m => <span key={m.uid} className="gp-inactive-name">{m.name}</span>)}
           </div>
         </div>
       )}
