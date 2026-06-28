@@ -112,7 +112,7 @@ export default function Maestria() {
           <button className="home-content-card card" onClick={() => navigate('/gestao-comercial')}>
             <div className="home-content-icon mae-gc-icon"><GraduationCap size={20} /></div>
             <div className="home-content-text">
-              <strong>Aulas de gestão comercial</strong>
+              <strong>Práticas de gestão comercial</strong>
               <span>Reunião, 1:1, indicadores, reconhecimento — direto ao ponto</span>
             </div>
             <ArrowRight size={16} className="home-train-arrow" />
