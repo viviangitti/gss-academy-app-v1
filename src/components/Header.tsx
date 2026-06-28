@@ -60,15 +60,17 @@ const titles: Record<string, string> = {
   '/gerador-copy': 'Gerador de Copy',
   '/conteudo-dia': 'Conteúdo do Dia',
   '/painel-gestor': 'Raio X do Time',
+  '/raio-x-marketing': 'Raio X do Marketing',
 };
 
 // Abas principais (destinos da barra inferior) — sem botão "voltar"
-const TOP_TAB_PAGES = ['/negociacoes', '/negociacoes-gestor', '/maestria', '/raio-x', '/painel-gestor', '/ia-coach'];
+const TOP_TAB_PAGES = ['/negociacoes', '/negociacoes-gestor', '/maestria', '/raio-x', '/painel-gestor', '/raio-x-marketing', '/ia-coach'];
 
 // Subtítulo opcional no cabeçalho de cada aba principal
 const TAB_SUBTITLES: Record<string, string> = {
   '/maestria': 'Treine e afie suas habilidades de venda',
   '/painel-gestor': 'Perfil e performance da equipe',
+  '/raio-x-marketing': 'Performance das campanhas',
 };
 
 // Pra onde o "voltar" leva cada tela de detalhe. Quando há mais de uma entrada

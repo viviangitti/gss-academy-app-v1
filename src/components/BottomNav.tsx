@@ -34,11 +34,11 @@ export default function BottomNav() {
           ? { path: '/negociacoes-gestor', icon: Handshake, label: 'Negociações' }
           : { path: '/negociacoes', icon: Handshake, label: 'Negociações' }]),
     { path: '/maestria', icon: GraduationCap, label: 'Maestria' },
-    ...(isMarketing
-      ? []
-      : [isGestor
-          ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }
-          : { path: '/raio-x', icon: Activity, label: 'Raio X' }]),
+    isMarketing
+      ? { path: '/raio-x-marketing', icon: Activity, label: 'Raio X' }
+      : isGestor
+        ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }
+        : { path: '/raio-x', icon: Activity, label: 'Raio X' },
     { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
   ];
 
