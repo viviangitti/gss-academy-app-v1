@@ -10,10 +10,17 @@ if (savedTheme === 'dark' || savedTheme === 'light') {
 }
 
 // Recupera de "chunk velho" após deploy: se o app ficou aberto e tenta carregar
-// um pedaço (lazy, ex: aba Maestria) que mudou de nome, recarrega 1x pra pegar o bundle novo.
-function recoverFromStaleChunk() {
+// um pedaço (lazy, ex: aba Maestria) que mudou de nome, limpa cache + SW e
+// recarrega 1x pra pegar o bundle novo (evita o app "travar" num bundle velho).
+async function recoverFromStaleChunk() {
   if (sessionStorage.getItem('gss_chunk_reload')) return;
   sessionStorage.setItem('gss_chunk_reload', '1');
+  try {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+    const regs = await navigator.serviceWorker?.getRegistrations?.() || [];
+    await Promise.all(regs.map(r => r.unregister()));
+  } catch { /* segue pro reload mesmo assim */ }
   window.location.reload();
 }
 window.addEventListener('vite:preloadError', (e) => { e.preventDefault(); recoverFromStaleChunk(); });
