@@ -119,7 +119,7 @@ export default function Onboarding({ onComplete }: Props) {
             <Sparkles size={44} />
           </div>
           <h2>Bem-vindo ao<br />MAESTR.IA</h2>
-          <p>Seu copiloto de IA para {role === 'marketing' ? <strong>Marketing</strong> : <strong>Vendas</strong>}. Vamos te mostrar o essencial pra começar.</p>
+          <p><strong>Um assistente na palma da mão</strong>. Vamos te mostrar o essencial pra começar.</p>
           <Dots />
           <button className="onboarding-next" onClick={() => setStep(1)}>
             Próximo <ChevronRight size={18} />
