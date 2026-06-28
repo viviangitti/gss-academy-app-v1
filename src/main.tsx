@@ -23,14 +23,16 @@ async function recoverFromStaleChunk() {
   } catch { /* segue pro reload mesmo assim */ }
   window.location.reload();
 }
+// SÓ erro real de carregamento de chunk (não confundir com falha de API/fetch comum).
+const CHUNK_ERR = /dynamically imported module|module script failed|importing a module script/i;
 window.addEventListener('vite:preloadError', (e) => { e.preventDefault(); recoverFromStaleChunk(); });
 window.addEventListener('unhandledrejection', (e) => {
   const reason = (e as PromiseRejectionEvent).reason;
   const msg = String((reason && (reason.message || reason)) || '');
-  if (/dynamically imported module|module script failed|importing a module|Failed to fetch/i.test(msg)) recoverFromStaleChunk();
+  if (CHUNK_ERR.test(msg)) recoverFromStaleChunk();
 });
-// Libera o flag depois de carregar ok, pra futuros deploys também se recuperarem.
-window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem('gss_chunk_reload'), 5000));
+// Sem auto-limpar o flag: recarrega no MÁXIMO 1x por sessão — nunca entra em loop.
+// (Um novo acesso/sessão reseta sozinho, então deploys futuros ainda se recuperam.)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
