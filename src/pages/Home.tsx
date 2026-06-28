@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Megaphone, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -425,20 +425,6 @@ export default function Home() {
         </div>
       )}
 
-
-      {/* ── Central de Marketing (marketing/ambos/admin) — entrada pras ferramentas de mkt ── */}
-      {(profile.userAccessType === 'marketing' || profile.userAccessType === 'ambos' || profile.isAdmin) && (
-        <button className="home-content-card card" onClick={() => navigate('/biblioteca')}>
-          <div className="home-content-icon" style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed' }}>
-            <Megaphone size={20} />
-          </div>
-          <div className="home-content-text">
-            <strong>Marketing</strong>
-            <span>Copy, guia de marca, análise e publicar campanhas</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      )}
 
       {favs.length > 0 && (
         <div className="home-favs">
