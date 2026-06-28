@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Briefcase, Building2, Factory, Eye, EyeOff, ArrowRight, Globe, TrendingUp, Megaphone, Users, Tag } from 'lucide-react';
-import { signUpWithEmail, signInWithEmail, signInWithGoogle, resetPassword, translateAuthError } from '../services/auth';
+import { Mail, Lock, User as UserIcon, Building2, Factory, Eye, EyeOff, ArrowRight, TrendingUp, Megaphone, Users, Tag } from 'lucide-react';
+import { signUpWithEmail, signInWithEmail, resetPassword, translateAuthError } from '../services/auth';
 import { saveRemoteProfile } from '../services/firestore/profile';
 import { claimDealershipManager } from '../services/firestore/dealership';
 import { saveData, loadData, KEYS } from '../services/storage';
@@ -29,7 +29,6 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
   const [name, setName] = useState('');
 
   // Perfil (passo 2)
-  const [role, setRole] = useState('');
   const [company, setCompany] = useState('');
   const [brand, setBrand] = useState('');
   const [segment, setSegment] = useState<Segment>('');
@@ -49,7 +48,6 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
       return;
     }
     // Pré-preenche passo 2 com dados locais se houver
-    if (existing.role) setRole(existing.role);
     if (existing.brand) setBrand(existing.brand);
     if (existing.company) setCompany(existing.company);
     if (existing.segment) setSegment(existing.segment);
@@ -59,8 +57,8 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
 
   const handleFinishSignup = async () => {
     setError('');
-    if (!role.trim() || !company.trim() || !segment) {
-      setError('Preencha cargo, empresa e segmento.');
+    if (!company.trim() || !segment) {
+      setError('Preencha concessionária e segmento.');
       return;
     }
     setLoading(true);
@@ -69,11 +67,13 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
       // Papel é escolhido no cadastro (não muda depois)
       const isGestor = papel === 'gerente';
       const userAccessType: 'vendas' | 'marketing' = papel === 'marketing' ? 'marketing' : 'vendas';
+      // Cargo deriva do papel (campo removido do cadastro)
+      const role = papel === 'gerente' ? 'Gerente de vendas' : papel === 'marketing' ? 'Responsável de marketing' : 'Executivo de vendas';
       // Gerente também é registrado como gestor da concessionária (best-effort)
       if (isGestor) { try { await claimDealershipManager(company.trim(), user.uid, name); } catch { /* ignora */ } }
       const profile: UserProfile = {
         name,
-        role: role.trim(),
+        role,
         brand: brand.trim(),
         company: company.trim(),
         segment,
@@ -106,22 +106,6 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
     try {
       await signInWithEmail(email, password);
       // AuthContext vai detectar e o App vai mudar de tela
-    } catch (e) {
-      const code = (e as { code?: string })?.code || '';
-      setError(translateAuthError(code));
-      setLoading(false);
-    }
-  };
-
-  const handleGoogle = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      const user = await signInWithGoogle();
-      // No celular vai por redirect: user vem null e a página navega — o AuthContext
-      // conclui o login e cria o perfil mínimo no retorno. Mantém o loading.
-      if (!user) return;
-      // Desktop (popup): o AuthContext já cria/sincroniza o perfil no onAuthChange.
     } catch (e) {
       const code = (e as { code?: string })?.code || '';
       setError(translateAuthError(code));
@@ -166,12 +150,6 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
           <>
             <h2>Criar conta</h2>
             <p className="auth-subtitle">Seu copiloto de vendas no bolso.</p>
-
-            <button className="btn btn-google" onClick={handleGoogle} disabled={loading}>
-              <Globe size={18} /> Entrar com Google
-            </button>
-
-            <div className="auth-divider"><span>ou</span></div>
 
             <div className="auth-field">
               <UserIcon size={14} />
@@ -253,15 +231,6 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
             <p className="auth-role-note">Escolha o seu papel — isso define seu acesso e não muda depois.</p>
 
             <div className="auth-field">
-              <Briefcase size={14} />
-              <input
-                type="text"
-                placeholder="Cargo (ex: Líder Comercial)"
-                value={role}
-                onChange={e => setRole(e.target.value)}
-              />
-            </div>
-            <div className="auth-field">
               <Tag size={14} />
               <select value={brand} onChange={e => setBrand(e.target.value)}>
                 <option value="">Marca (ex: Toyota)</option>
@@ -299,12 +268,6 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
           <>
             <h2>Entrar</h2>
             <p className="auth-subtitle">Acesse seus dados sincronizados.</p>
-
-            <button className="btn btn-google" onClick={handleGoogle} disabled={loading}>
-              <Globe size={18} /> Entrar com Google
-            </button>
-
-            <div className="auth-divider"><span>ou</span></div>
 
             <div className="auth-field">
               <Mail size={14} />
