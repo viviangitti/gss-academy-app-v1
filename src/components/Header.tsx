@@ -21,6 +21,7 @@ const titles: Record<string, string> = {
   '/prospeccao': 'Prospecção',
   '/follow-ups': 'Follow-ups',
   '/negociacoes': 'Negociações',
+  '/negociacoes-gestor': 'Negociações',
   '/maestria': 'Maestria',
   '/raio-x': 'Raio X',
   '/criar-conteudo': 'Criar conteúdo',
@@ -61,7 +62,7 @@ const titles: Record<string, string> = {
 };
 
 // Abas principais (destinos da barra inferior) — sem botão "voltar"
-const TOP_TAB_PAGES = ['/negociacoes', '/maestria', '/raio-x', '/painel-gestor', '/ia-coach'];
+const TOP_TAB_PAGES = ['/negociacoes', '/negociacoes-gestor', '/maestria', '/raio-x', '/painel-gestor', '/ia-coach'];
 
 // Subtítulo opcional no cabeçalho de cada aba principal
 const TAB_SUBTITLES: Record<string, string> = {

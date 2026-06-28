@@ -23,10 +23,12 @@ export default function BottomNav() {
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
 
-  // Gestor: aba de Raio X aponta pro time e não mostra "Negociações" (foco em gestão).
+  // Gestor: aba de Raio X aponta pro time e Negociações tem visão de gestão própria.
   const tabs = [
     { path: '/', icon: Home, label: 'Painel Controle' },
-    ...(!isGestor ? [{ path: '/negociacoes', icon: Handshake, label: 'Negociações' }] : []),
+    isGestor
+      ? { path: '/negociacoes-gestor', icon: Handshake, label: 'Negociações' }
+      : { path: '/negociacoes', icon: Handshake, label: 'Negociações' },
     { path: '/maestria', icon: GraduationCap, label: 'Maestria' },
     isGestor
       ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }

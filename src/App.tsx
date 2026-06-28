@@ -22,6 +22,7 @@ const Prospeccao = lazy(() => import('./pages/Prospeccao'));
 const FollowUps = lazy(() => import('./pages/FollowUps'));
 const Boost = lazy(() => import('./pages/Boost'));
 const Negociacoes = lazy(() => import('./pages/Negociacoes'));
+const GestorNegociacoes = lazy(() => import('./pages/GestorNegociacoes'));
 const Maestria = lazy(() => import('./pages/Maestria'));
 const CriarConteudo = lazy(() => import('./pages/CriarConteudo'));
 const RotinasGestor = lazy(() => import('./pages/RotinasGestor'));
@@ -232,6 +233,7 @@ function AppContent() {
             <Route path="/follow-ups" element={<FollowUps />} />
             <Route path="/boost" element={<Boost />} />
             <Route path="/negociacoes" element={<Negociacoes />} />
+            <Route path="/negociacoes-gestor" element={<GestorNegociacoes />} />
             <Route path="/maestria" element={<Maestria />} />
             <Route path="/criar-conteudo" element={<CriarConteudo />} />
             <Route path="/rituais-gestor" element={<RotinasGestor />} />
@@ -300,6 +302,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/follow-ups':        'GSS — Follow-ups',
   '/boost':             'GSS — Cliente em atendimento',
   '/negociacoes':       'GSS — Negociações',
+  '/negociacoes-gestor': 'GSS — Negociações',
   '/maestria':          'GSS — Maestria',
   '/criar-conteudo':    'GSS — Criar conteúdo',
   '/rituais-gestor':    'GSS — Rotinas & rituais',
