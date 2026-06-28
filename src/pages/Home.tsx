@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Megaphone, Users, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, Megaphone, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -425,18 +425,6 @@ export default function Home() {
         </div>
       )}
 
-
-      {/* ── Painel do Gestor (só gerente/admin — independe do tipo de acesso) ── */}
-      {(profile.isGestor || profile.isAdmin) && (
-        <button className="home-content-card home-gestor-card card" onClick={() => navigate('/painel-gestor')}>
-          <div className="home-content-icon home-gestor-icon"><Users size={20} /></div>
-          <div className="home-content-text">
-            <strong>Painel do Gestor</strong>
-            <span>Veja o engajamento da equipe em conteúdo</span>
-          </div>
-          <ArrowRight size={16} className="home-train-arrow" />
-        </button>
-      )}
 
       {/* ── Central de Marketing (marketing/ambos/admin) — entrada pras ferramentas de mkt ── */}
       {(profile.userAccessType === 'marketing' || profile.userAccessType === 'ambos' || profile.isAdmin) && (
