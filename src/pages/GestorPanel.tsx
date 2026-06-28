@@ -88,7 +88,6 @@ export default function GestorPanel() {
     );
   }
 
-  const mes = new Date().toLocaleDateString('pt-BR', { month: 'long' });
   const inativos = summary.members.filter(m => (m.shares || 0) === 0);
 
   // Competências: pontos fortes e gaps a partir do radar
@@ -115,14 +114,6 @@ export default function GestorPanel() {
 
   return (
     <div className="gp-page">
-      <div className="gp-hero card">
-        <Users size={22} />
-        <div>
-          <h2>Raio X do Time</h2>
-          <p>Perfil e performance da equipe — {mes}</p>
-        </div>
-      </div>
-
       {/* 1. COMPETÊNCIAS — gráfico aranha (time × Executivo com Maestria) */}
       <div className="gp-section card">
         <div className="gp-rank-head"><Radar size={16} /> Competências</div>

@@ -67,6 +67,7 @@ const TOP_TAB_PAGES = ['/negociacoes', '/negociacoes-gestor', '/maestria', '/rai
 // Subtítulo opcional no cabeçalho de cada aba principal
 const TAB_SUBTITLES: Record<string, string> = {
   '/maestria': 'Treine e afie suas habilidades de venda',
+  '/painel-gestor': 'Perfil e performance da equipe',
 };
 
 // Pra onde o "voltar" leva cada tela de detalhe. Quando há mais de uma entrada
