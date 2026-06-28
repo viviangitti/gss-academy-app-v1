@@ -79,8 +79,10 @@ export default function LeadershipTraining() {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, evaluation]);
 
+  const REGRAS = 'Regras: fale em português brasileiro, natural, 1-3 frases curtas, como uma pessoa real falaria. NUNCA use colchetes nem placeholders como [Nome] — você não sabe o nome do gestor, então fale direto sem citar nome. NUNCA quebre o personagem nem dê dicas ao gestor. Você é o vendedor, não um assistente.';
+
   const turnPrompt = (sc: Scenario, convo: Msg[]) =>
-    `${sc.persona}\n\nRegras: fale em português brasileiro, natural, 1-3 frases curtas, como uma pessoa real falaria. NUNCA quebre o personagem nem dê dicas ao gestor. Você é o vendedor, não um assistente.\n\nConversa até agora:\n${convo.map(m => `${m.role === 'user' ? 'Gestor' : 'Vendedor'}: ${m.content}`).join('\n')}\n\nResponda como o Vendedor:`;
+    `${sc.persona}\n\n${REGRAS}\n\nConversa até agora:\n${convo.map(m => `${m.role === 'user' ? 'Gestor' : 'Vendedor'}: ${m.content}`).join('\n')}\n\nResponda como o Vendedor:`;
 
   const start = async (sc: Scenario) => {
     setScenario(sc);
@@ -89,7 +91,7 @@ export default function LeadershipTraining() {
     setExchanges(0);
     setLoading(true);
     try {
-      const opening = (await generateText(API_KEY, `${sc.persona}\n\nComece a conversa com o gestor com UMA fala curta e natural (português brasileiro), no espírito desta situação: ${sc.desc}. Só a fala, sem aspas.`, { retries: 1 })).trim();
+      const opening = (await generateText(API_KEY, `${sc.persona}\n\nComece a conversa com o gestor com UMA fala curta e natural (português brasileiro), no espírito desta situação: ${sc.desc}. Só a fala, sem aspas. NÃO use colchetes nem placeholders como [Nome] — fale direto, sem citar o nome do gestor.`, { retries: 1 })).trim();
       setMessages([{ role: 'vendedor', content: opening || sc.opening }]);
     } catch {
       setMessages([{ role: 'vendedor', content: sc.opening }]);
