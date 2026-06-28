@@ -12,7 +12,7 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { sel: null, title: 'Bem-vindo{name}! 👋', body: 'Esse é o seu copiloto de vendas. Em 30 segundos eu te mostro onde fica cada coisa.' },
+  { sel: null, title: 'Bem-vindo{name}! 👋', body: 'Esse é o seu assistente na palma da mão. Em 30 segundos eu te mostro onde fica cada coisa.' },
   { sel: '[data-tour="nav-negociacoes"]', title: 'Negociações', body: 'Cliente em atendimento e travou numa objeção? Aqui você recebe caminhos prontos pra destravar.' },
   { sel: '[data-tour="news"]', title: 'Notícias do setor', body: 'Munição na mão: notícias do seu mercado, lançamentos e ofertas dos concorrentes.' },
   { sel: '[data-tour="nav-painel"]', title: 'Painel', body: 'Follow-ups, treino, playbook e o seu Raio-X de competências ficam aqui.' },

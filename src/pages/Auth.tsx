@@ -149,7 +149,7 @@ export default function Auth({ sessionExpired = false }: AuthProps) {
         {mode === 'signup' && step === 1 && (
           <>
             <h2>Criar conta</h2>
-            <p className="auth-subtitle">Seu copiloto de vendas no bolso.</p>
+            <p className="auth-subtitle">Seu assistente na palma da mão.</p>
 
             <div className="auth-field">
               <UserIcon size={14} />
