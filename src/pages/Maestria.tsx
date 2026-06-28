@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, Heart, Trophy, GraduationCap, ArrowRight } from 'lucide-react';
+import { Swords, Mic, MessageCircle, Sparkles, BookOpen, Flame, PenSquare, ClipboardCheck, Users, Wand2, Share2, Video, Heart, Trophy, Megaphone, GraduationCap, ArrowRight } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
 import { getContentStats } from '../services/socialContent';
@@ -29,6 +29,7 @@ export default function Maestria() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
+  const isMarketing = profile.userAccessType === 'marketing';
   const isSales = profile.userAccessType !== 'marketing';
   const progress = getMaestriaProgress();
   const content = getContentStats();
@@ -120,8 +121,31 @@ export default function Maestria() {
         </div>
       )}
 
-      {/* Blocos de vendedor — escondidos pro gestor (que tem o hub acima) */}
-      {!isGestor && (<>
+      {/* Marketing — hub de performance marketing (sem treino de vendas) */}
+      {isMarketing && (
+        <div className="day-section">
+          <div className="day-section-header"><h3 className="section-title">Performance marketing</h3></div>
+          <button className="home-content-card card" onClick={() => navigate('/guia-marketing')}>
+            <div className="home-content-icon mae-guia-icon"><Megaphone size={20} /></div>
+            <div className="home-content-text">
+              <strong>Guia de Marketing</strong>
+              <span>Vire expert: o passo a passo que guia suas ações e as ferramentas</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
+          <button className="home-content-card card" onClick={() => navigate('/criar-conteudo')}>
+            <div className="home-content-icon mae-content-icon"><PenSquare size={20} /></div>
+            <div className="home-content-text">
+              <strong>Criar conteúdo</strong>
+              <span>Pilares, formatos e feedback da IA pra postar melhor</span>
+            </div>
+            <ArrowRight size={16} className="home-train-arrow" />
+          </button>
+        </div>
+      )}
+
+      {/* Blocos de vendedor — escondidos pro gestor e marketing (que têm hubs próprios) */}
+      {!isGestor && !isMarketing && (<>
       {/* Treino & simulação */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">Treino & simulação</h3></div>

@@ -28,6 +28,7 @@ const CriarConteudo = lazy(() => import('./pages/CriarConteudo'));
 const RotinasGestor = lazy(() => import('./pages/RotinasGestor'));
 const GestaoComercial = lazy(() => import('./pages/GestaoComercial'));
 const LeadershipTraining = lazy(() => import('./pages/LeadershipTraining'));
+const GuiaMarketing = lazy(() => import('./pages/GuiaMarketing'));
 const RaioX = lazy(() => import('./pages/RaioX'));
 const Rescue = lazy(() => import('./pages/Rescue'));
 const MyReport = lazy(() => import('./pages/MyReport'));
@@ -239,6 +240,7 @@ function AppContent() {
             <Route path="/rituais-gestor" element={<RotinasGestor />} />
             <Route path="/gestao-comercial" element={<GestaoComercial />} />
             <Route path="/treino-lideranca" element={<LeadershipTraining />} />
+            <Route path="/guia-marketing" element={<GuiaMarketing />} />
             <Route path="/raio-x" element={<RaioX />} />
             <Route path="/rescue" element={<Rescue />} />
             <Route path="/meu-raiox" element={<MyReport />} />
@@ -308,6 +310,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/rituais-gestor':    'GSS — Rotinas & rituais',
   '/gestao-comercial':  'GSS — Gestão comercial',
   '/treino-lideranca':  'GSS — Treino de liderança',
+  '/guia-marketing':    'GSS — Guia de Marketing',
   '/raio-x':            'GSS — Raio X',
   '/rescue':            'GSS — Resgate',
   '/meu-raiox':         'GSS — Meu Raio-X',

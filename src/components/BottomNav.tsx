@@ -7,7 +7,7 @@ import './BottomNav.css';
 const NEGOTIATION_PATHS = ['/negociacoes', '/boost', '/rescue', '/pre-reuniao', '/prospeccao'];
 const MAESTRIA_PATHS = [
   '/maestria', '/treino', '/treino-voz', '/treino-video', '/treino-hub', '/objecoes', '/scripts',
-  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo', '/rituais-gestor', '/gestao-comercial', '/treino-lideranca', '/conteudo-dia', '/narrativa',
+  '/tecnicas', '/playbook', '/gatilhos', '/coach-mensagem', '/analise-reuniao', '/criar-conteudo', '/rituais-gestor', '/gestao-comercial', '/treino-lideranca', '/guia-marketing', '/conteudo-dia', '/narrativa',
 ];
 const RAIOX_PATHS = ['/raio-x', '/meu-raiox', '/vendas-perdidas', '/historico'];
 const LIBRARY_PATHS = [
@@ -22,17 +22,23 @@ export default function BottomNav() {
 
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const isGestor = profile.isGestor === true || profile.isAdmin === true;
+  const isMarketing = profile.userAccessType === 'marketing';
 
-  // Gestor: aba de Raio X aponta pro time e Negociações tem visão de gestão própria.
+  // Marketing: sem Negociações nem Raio X de vendas (foco em marketing).
+  // Gestor: Negociações e Raio X têm visão de gestão própria.
   const tabs = [
     { path: '/', icon: Home, label: 'Painel Controle' },
-    isGestor
-      ? { path: '/negociacoes-gestor', icon: Handshake, label: 'Negociações' }
-      : { path: '/negociacoes', icon: Handshake, label: 'Negociações' },
+    ...(isMarketing
+      ? []
+      : [isGestor
+          ? { path: '/negociacoes-gestor', icon: Handshake, label: 'Negociações' }
+          : { path: '/negociacoes', icon: Handshake, label: 'Negociações' }]),
     { path: '/maestria', icon: GraduationCap, label: 'Maestria' },
-    isGestor
-      ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }
-      : { path: '/raio-x', icon: Activity, label: 'Raio X' },
+    ...(isMarketing
+      ? []
+      : [isGestor
+          ? { path: '/painel-gestor', icon: Activity, label: 'Raio X do Time' }
+          : { path: '/raio-x', icon: Activity, label: 'Raio X' }]),
     { path: '/ia-coach', icon: Sparkles, label: 'Coaching' },
   ];
 
