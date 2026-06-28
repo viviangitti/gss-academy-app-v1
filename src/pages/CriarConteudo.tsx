@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { getPostFeedback } from '../services/postFeedback';
 import type { PostFeedback } from '../services/postFeedback';
+import { hasBrandGuide } from '../services/brandGuide';
 import {
   getWeeklyMissions, getWeeklyMissionProgress, isMissionDone, completeMission,
   getContentStats, getMonthlyStats, currentMonthKey, currentWeekKey,
@@ -109,6 +110,7 @@ const FORMATOS: Formato[] = [
 
 export default function CriarConteudo() {
   const navigate = useNavigate();
+  const brandGuideOn = hasBrandGuide();
   const [openPilar, setOpenPilar] = useState<string | null>(null);
   const [openFmt, setOpenFmt] = useState<string | null>('reels');
   const [copied, setCopied] = useState<string | null>(null);
@@ -293,6 +295,9 @@ export default function CriarConteudo() {
       {/* 3. Feedback da IA no seu post */}
       <div className="day-section">
         <div className="day-section-header"><h3 className="section-title">3. Já escreveu? Peça feedback</h3></div>
+        {brandGuideOn
+          ? <p className="cc-guide-note cc-guide-on">✓ Seguindo o seu Guia de Marca (tom e identidade)</p>
+          : <button className="cc-guide-note cc-guide-off" onClick={() => navigate('/guia-marca')}>＋ Cadastre seu Guia de Marca pra alinhar tom, cores e identidade</button>}
         <div className="cc-fb-form card">
           <div className="cc-fb-plats">
             {['Reels', 'Carrossel', 'Stories', 'LinkedIn'].map(p => (

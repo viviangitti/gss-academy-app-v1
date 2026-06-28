@@ -1,5 +1,6 @@
 // Feedback de IA sobre um rascunho de post do vendedor (social selling).
 import { generateText } from './ai';
+import { getBrandGuide, brandGuidePromptBlock } from './brandGuide';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
@@ -27,7 +28,18 @@ Regras:
 - "versaoMelhorada": o post reescrito, pronto pra postar, no tom da plataforma, em português BR — mantendo a ideia original do vendedor.`;
 
 export async function getPostFeedback(draft: string, plataforma = ''): Promise<PostFeedback> {
-  const text = (await generateText(API_KEY, PROMPT(draft, plataforma))).trim()
+  // Guia de Marca direciona o feedback (tom, identidade). Texto vira bloco; arquivo vai anexado.
+  const guide = getBrandGuide();
+  let request: Parameters<typeof generateText>[1];
+  if (guide?.type === 'file' && guide.mimeType) {
+    request = [
+      { inlineData: { data: guide.content, mimeType: guide.mimeType } },
+      { text: PROMPT(draft, plataforma) + '\n\nUse o Guia de Marca anexado como fonte da verdade (tom, cores, identidade) na versão melhorada.' },
+    ];
+  } else {
+    request = PROMPT(draft, plataforma) + brandGuidePromptBlock();
+  }
+  const text = (await generateText(API_KEY, request)).trim()
     .replace(/^```json?\s*/i, '').replace(/```\s*$/, '');
   const parsed = JSON.parse(text) as PostFeedback;
   if (!parsed || typeof parsed.versaoMelhorada !== 'string') throw new Error('resposta inválida');
