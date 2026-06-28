@@ -8,13 +8,18 @@ import {
   getAllCompetitorOffers, createCompetitorOffer,
   updateCompetitorOffer, deleteCompetitorOffer,
 } from '../services/firestore/competitorOffers';
-import { extractOffersFromUrl, searchCompetitorOffers, TOYOTA_COMPETITORS } from '../services/competitorScraper';
+import { extractOffersFromUrl, searchCompetitorOffers } from '../services/competitorScraper';
 import type { ScrapedOffer } from '../services/competitorScraper';
-import { SEGMENTS, PRICE_RANGES } from '../types';
+import { SEGMENTS, PRICE_RANGES, VEHICLE_BRANDS } from '../types';
 import type { CompetitorOffer, Segment, PriceRange } from '../types';
 import './CompetitorAdmin.css';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+
+// Mesma lista de marcas do perfil (menos "Outra") — qualquer marca pode ser concorrente.
+const BRAND_CHIPS = VEHICLE_BRANDS.filter(b => b !== 'Outra').map(b => ({ id: b, label: b }));
+// Marcas de massa pré-selecionadas (atalho — o resto fica a 1 clique).
+const DEFAULT_COMPETITORS = ['Honda', 'Volkswagen', 'Fiat', 'Chevrolet', 'Hyundai', 'Nissan', 'Jeep', 'Renault', 'Mitsubishi', 'Caoa Chery'];
 
 function formatDate(iso: string) {
   if (!iso) return '';
@@ -68,9 +73,7 @@ export default function CompetitorAdmin() {
     error: string;
     done: boolean;
   }
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    TOYOTA_COMPETITORS.map(c => c.id),
-  );
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(DEFAULT_COMPETITORS);
   // Marcas personalizadas adicionadas pelo usuário (ex: BMW, Mercedes, Porsche) — persistidas
   const [customBrands, setCustomBrands] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('gss_custom_competitors') || '[]'); } catch { return []; }
@@ -129,7 +132,7 @@ export default function CompetitorAdmin() {
     const name = newBrand.trim();
     if (!name) return;
     // evita duplicar (case-insensitive) com fixas ou já adicionadas
-    const exists = [...TOYOTA_COMPETITORS.map(c => c.label), ...customBrands]
+    const exists = [...BRAND_CHIPS.map(c => c.label), ...customBrands]
       .some(b => b.toLowerCase() === name.toLowerCase());
     if (!exists) {
       persistCustom([...customBrands, name]);
@@ -149,7 +152,7 @@ export default function CompetitorAdmin() {
     setScanResults([]);
     setScanDone(false);
 
-    const fixedLabels = TOYOTA_COMPETITORS
+    const fixedLabels = BRAND_CHIPS
       .filter(c => selectedBrands.includes(c.id))
       .map(c => c.label);
     const customLabels = customBrands.filter(b => selectedBrands.includes('custom:' + b));
@@ -359,7 +362,7 @@ export default function CompetitorAdmin() {
           Selecione as marcas e a IA pesquisa as ofertas atuais no Google — sem precisar de URL.
         </p>
         <div className="ca-brand-chips">
-          {TOYOTA_COMPETITORS.map(c => (
+          {BRAND_CHIPS.map(c => (
             <button
               key={c.id}
               type="button"
