@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import {
   Sparkles, Target, Dumbbell, FileText,
-  PenLine, BarChart2, BookOpen, Factory, ChevronRight, Zap, MessageSquare, ImageDown,
+  PenLine, BarChart2, BookOpen, Factory, ChevronRight, Zap, MessageSquare,
+  Users, Handshake, CalendarCheck, Megaphone, Wand2,
 } from 'lucide-react';
 import { saveData, loadData, KEYS } from '../services/storage';
 import type { Segment, UserProfile } from '../types';
@@ -25,6 +26,46 @@ const SEGMENT_OPTIONS: { value: Segment; emoji: string; label: string }[] = [
   { value: 'bebidas_alcoolicas_vinho', emoji: '🍷', label: 'Vinhos' },
 ];
 
+type Role = 'vendedor' | 'gerente' | 'marketing';
+type Feature = { icon: typeof Target; title: string; desc: string };
+
+// Slide do tour por papel — só aparece o que faz sentido pro acesso escolhido.
+const ROLE_SLIDE: Record<Role, { icon: typeof Target; iconClass: string; title: string; subtitle: string; features: Feature[] }> = {
+  vendedor: {
+    icon: Target, iconClass: 'onboarding-icon-vendas',
+    title: 'Ferramentas para vender mais',
+    subtitle: 'Tudo que um vendedor de alta performance precisa, na palma da mão.',
+    features: [
+      { icon: Dumbbell, title: 'Treino com IA', desc: 'Simulação, pré-atendimento e análise pós-venda' },
+      { icon: MessageSquare, title: 'Objeções & Roteiros', desc: 'Respostas prontas para cada situação' },
+      { icon: FileText, title: 'Condições Comerciais', desc: 'Ofertas do mês com card visual para compartilhar' },
+      { icon: Zap, title: 'IA Coach & Gatilhos', desc: 'Coaching pessoal e gatilhos de fechamento' },
+    ],
+  },
+  gerente: {
+    icon: Users, iconClass: 'onboarding-icon-vendas',
+    title: 'Gestão do time com IA',
+    subtitle: 'Acompanhe a equipe, atue nos gaps e lidere com método.',
+    features: [
+      { icon: BarChart2, title: 'Raio X do Time', desc: 'Performance, gaps e pontos fortes da equipe' },
+      { icon: Handshake, title: 'Negociações do time', desc: 'Quem está em atendimento e o que foi concluído' },
+      { icon: Dumbbell, title: 'Treino de liderança', desc: 'Pratique conversas difíceis com a IA' },
+      { icon: CalendarCheck, title: 'Plano da semana', desc: 'Rotinas, rituais e foco da equipe' },
+    ],
+  },
+  marketing: {
+    icon: Megaphone, iconClass: 'onboarding-icon-mkt',
+    title: 'Marketing com IA integrada',
+    subtitle: 'Crie, confira e meça suas campanhas — sempre dentro da marca.',
+    features: [
+      { icon: BookOpen, title: 'Guia de Marca', desc: 'Cores, fontes e tom guiam todas as criações' },
+      { icon: PenLine, title: 'Gerador de Copy', desc: 'Versões prontas para posts, Stories e WhatsApp' },
+      { icon: Wand2, title: 'Copiloto de Marketing', desc: 'Confira peças e ações dentro do guia' },
+      { icon: BarChart2, title: 'Raio X do Marketing', desc: 'Envie um print — IA gera insights e realocação de verba' },
+    ],
+  },
+};
+
 interface Props {
   onComplete: () => void;
 }
@@ -32,22 +73,20 @@ interface Props {
 export default function Onboarding({ onComplete }: Props) {
   const existing = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
-  const [step, setStep] = useState(0);
+  // Papel escolhido no cadastro (Auth) — define qual slide o tour mostra.
+  const role: Role = existing.isGestor ? 'gerente' : existing.userAccessType === 'marketing' ? 'marketing' : 'vendedor';
+  const slide = ROLE_SLIDE[role];
+  const RoleIcon = slide.icon;
 
-  // Pre-fill from profile (segmento e papel já vêm do cadastro)
+  const [step, setStep] = useState(0);
   const [segment, setSegment] = useState<Segment>(existing.segment || '');
 
-  // O papel é escolhido no cadastro (Auth). Se o segmento já veio de lá, pula a config.
-  const alreadyConfigured = !!existing.segment;
-
-  // Total dots depend on whether config steps are needed
-  const TOTAL_STEPS = alreadyConfigured ? 3 : 4;
+  // O segmento já vem do cadastro. Só pede aqui se faltar (fallback).
+  const needSegment = !existing.segment;
+  const TOTAL_STEPS = needSegment ? 3 : 2;
 
   const handleFinish = () => {
-    const profile: UserProfile = {
-      ...existing,
-      segment: segment || existing.segment,
-    };
+    const profile: UserProfile = { ...existing, segment: segment || existing.segment };
     saveData(KEYS.PROFILE, profile);
     localStorage.setItem('gss_onboarding_done', 'true');
     onComplete();
@@ -57,6 +96,14 @@ export default function Onboarding({ onComplete }: Props) {
     localStorage.setItem('gss_onboarding_done', 'true');
     onComplete();
   };
+
+  const Dots = () => (
+    <div className="onboarding-dots">
+      {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+        <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="onboarding-overlay">
@@ -72,128 +119,54 @@ export default function Onboarding({ onComplete }: Props) {
             <Sparkles size={44} />
           </div>
           <h2>Bem-vindo ao<br />MAESTR.IA</h2>
-          <p>Seu copiloto de IA para <strong>Vendas</strong> e <strong>Marketing</strong>. Tudo que você precisa para vender mais e comunicar melhor.</p>
-          <div className="onboarding-dots">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
-            ))}
-          </div>
+          <p>Seu copiloto de IA para {role === 'marketing' ? <strong>Marketing</strong> : <strong>Vendas</strong>}. Vamos te mostrar o essencial pra começar.</p>
+          <Dots />
           <button className="onboarding-next" onClick={() => setStep(1)}>
             Próximo <ChevronRight size={18} />
           </button>
         </div>
       )}
 
-      {/* Step 1 — Vendas */}
+      {/* Step 1 — Slide do papel */}
       {step === 1 && (
         <div className="onboarding-screen">
-          <div className="onboarding-icon onboarding-icon-vendas">
-            <Target size={44} />
+          <div className={`onboarding-icon ${slide.iconClass}`}>
+            <RoleIcon size={44} />
           </div>
-          <h2>Ferramentas para vender mais</h2>
-          <p>Tudo que um vendedor de alta performance precisa, na palma da mão.</p>
+          <h2>{slide.title}</h2>
+          <p>{slide.subtitle}</p>
           <div className="onboarding-features">
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon"><Dumbbell size={18} /></div>
-              <div>
-                <strong>Treino com IA</strong>
-                <span>Simulação, pré-reunião e análise pós-venda</span>
-              </div>
-            </div>
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon"><MessageSquare size={18} /></div>
-              <div>
-                <strong>Objeções & Roteiros</strong>
-                <span>Respostas prontas para cada situação</span>
-              </div>
-            </div>
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon"><FileText size={18} /></div>
-              <div>
-                <strong>Condições Comerciais</strong>
-                <span>Ofertas do mês com card visual para compartilhar</span>
-              </div>
-            </div>
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon"><Zap size={18} /></div>
-              <div>
-                <strong>IA Coach & Gatilhos</strong>
-                <span>Coaching pessoal e gatilhos de fechamento</span>
-              </div>
-            </div>
+            {slide.features.map((f, i) => {
+              const FIcon = f.icon;
+              return (
+                <div className="onboarding-feature" key={i}>
+                  <div className={`onboarding-feature-icon ${role === 'marketing' ? 'onboarding-fi-mkt' : ''}`}><FIcon size={18} /></div>
+                  <div>
+                    <strong>{f.title}</strong>
+                    <span>{f.desc}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="onboarding-dots">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
-            ))}
-          </div>
-          <button className="onboarding-next" onClick={() => setStep(2)}>
-            Próximo <ChevronRight size={18} />
-          </button>
-        </div>
-      )}
-
-      {/* Step 2 — Marketing */}
-      {step === 2 && (
-        <div className="onboarding-screen">
-          <div className="onboarding-icon onboarding-icon-mkt">
-            <PenLine size={44} />
-          </div>
-          <h2>Marketing com IA integrada</h2>
-          <p>Crie, analise e refine suas campanhas em segundos com inteligência artificial.</p>
-          <div className="onboarding-features">
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon onboarding-fi-mkt"><PenLine size={18} /></div>
-              <div>
-                <strong>Gerador de Copy</strong>
-                <span>3 versões prontas para posts, Stories e WhatsApp</span>
-              </div>
-            </div>
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon onboarding-fi-mkt"><BarChart2 size={18} /></div>
-              <div>
-                <strong>Análise de Campanhas</strong>
-                <span>Envie um print — IA gera insights e recomendações</span>
-              </div>
-            </div>
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon onboarding-fi-mkt"><BookOpen size={18} /></div>
-              <div>
-                <strong>Guia de Marca</strong>
-                <span>Tom de voz e identidade sempre acessíveis</span>
-              </div>
-            </div>
-            <div className="onboarding-feature">
-              <div className="onboarding-feature-icon onboarding-fi-mkt"><ImageDown size={18} /></div>
-              <div>
-                <strong>Cards Visuais</strong>
-                <span>Gere e compartilhe cards de ofertas no WhatsApp</span>
-              </div>
-            </div>
-          </div>
-          <div className="onboarding-dots">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
-            ))}
-          </div>
+          <Dots />
           <button
-            className={`onboarding-next ${alreadyConfigured ? 'onboarding-finish' : ''}`}
-            onClick={() => alreadyConfigured ? handleFinish() : setStep(3)}
+            className={`onboarding-next ${needSegment ? '' : 'onboarding-finish'}`}
+            onClick={() => needSegment ? setStep(2) : handleFinish()}
           >
-            {alreadyConfigured ? <>Começar <Sparkles size={16} /></> : <>Próximo <ChevronRight size={18} /></>}
+            {needSegment ? <>Próximo <ChevronRight size={18} /></> : <>Começar <Sparkles size={16} /></>}
           </button>
         </div>
       )}
 
-      {/* Step 3 — Segmento */}
-      {step === 3 && (
+      {/* Step 2 — Segmento (fallback, só se não veio do cadastro) */}
+      {step === 2 && needSegment && (
         <div className="onboarding-screen">
           <div className="onboarding-icon">
             <Factory size={44} />
           </div>
           <h2>Qual é o seu segmento?</h2>
           <p>Vamos personalizar objeções, roteiros e notícias para o seu mercado.</p>
-
           <div className="onboarding-segments">
             {SEGMENT_OPTIONS.map(s => (
               <button
@@ -206,13 +179,7 @@ export default function Onboarding({ onComplete }: Props) {
               </button>
             ))}
           </div>
-
-          <div className="onboarding-dots">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <span key={i} className={`dot ${i === step ? 'active' : ''}`} />
-            ))}
-          </div>
-
+          <Dots />
           <button className="onboarding-next onboarding-finish" onClick={handleFinish}>
             Começar <Sparkles size={16} />
           </button>
