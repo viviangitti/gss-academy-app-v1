@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getBrandGuide } from '../services/brandGuide';
 import {
   Send, Upload, FileText, Sparkles, RotateCcw, X,
   AlertCircle, ImagePlus, Download, BookMarked, ChevronDown, ChevronUp, Trash2,
@@ -182,6 +183,17 @@ export default function MarketingChat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  // Guia de Marca do /guia-marca é a fonte única: se houver um arquivo cadastrado lá,
+  // ele já entra como guia ativo do Copiloto (sem precisar subir de novo aqui).
+  useEffect(() => {
+    if (activeGuide) return;
+    const g = getBrandGuide();
+    if (g && g.type === 'file' && g.mimeType) {
+      setActiveGuide({ base64: g.content, mimeType: g.mimeType, name: g.name || 'Guia de Marca' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ─── Chat init ─────────────────────────────────────────────────
   const initChat = (guide: ActiveGuide | null) => {
