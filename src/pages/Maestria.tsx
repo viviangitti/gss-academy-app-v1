@@ -4,6 +4,7 @@ import { loadData, KEYS } from '../services/storage';
 import { getMaestriaProgress, getTreinoDoDia } from '../services/maestriaProgress';
 import { getContentStats } from '../services/socialContent';
 import { getTeamCasesRaw } from '../services/memory';
+import GestorWeekPlan from '../components/GestorWeekPlan';
 import type { Objection } from '../services/content';
 import type { UserProfile } from '../types';
 
@@ -92,6 +93,8 @@ export default function Maestria() {
 
       {/* Gestor — hub de gestão comercial (rituais + aulas), sem os blocos de vendedor */}
       {isGestor && (
+        <>
+        <GestorWeekPlan />
         <div className="day-section">
           <div className="day-section-header"><h3 className="section-title">Gestão comercial</h3></div>
           <button className="home-content-card card" onClick={() => navigate('/rituais-gestor')}>
@@ -119,6 +122,7 @@ export default function Maestria() {
             <ArrowRight size={16} className="home-train-arrow" />
           </button>
         </div>
+        </>
       )}
 
       {/* Marketing — hub pra aprender e fazer marketing (sem nada de vendas) */}

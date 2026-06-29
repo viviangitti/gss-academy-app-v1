@@ -21,19 +21,23 @@ const BASE: PlanItem[] = [
   { id: 'gap', text: 'Aja no gap nº1 do time', detail: 'Veja o Raio X e defina 1 treino', link: '/painel-gestor' },
 ];
 
-/** Monta o plano da semana, enriquecido com dados reais do time quando houver. */
-export function buildPlan(summary?: TeamSummary | null): PlanItem[] {
+/** Monta o plano da semana, enriquecido com dados reais do time quando houver.
+ *  `selfName` (o próprio gestor) é SEMPRE excluído — nunca aparece no plano. */
+export function buildPlan(summary?: TeamSummary | null, selfName?: string): PlanItem[] {
   const plan: PlanItem[] = BASE.map(p => ({ ...p }));
+  const me = (selfName || '').trim().toLowerCase();
+  const isMe = (n?: string) => !!me && (n || '').trim().toLowerCase() === me;
 
   if (summary && summary.members.length) {
-    // Destaque do mês → personaliza o reconhecimento
-    const top = summary.members.find(m => (m.points || 0) > 0);
+    const others = summary.members.filter(m => !isMe(m.name));
+    // Destaque do mês → personaliza o reconhecimento (nunca o próprio gestor)
+    const top = others.find(m => (m.points || 0) > 0);
     if (top) {
       const r = plan.find(p => p.id === 'reconhecer');
       if (r) { r.text = `Reconheça publicamente ${top.name}`; r.detail = `Destaque do mês — ${top.points} pts`; }
     }
     // Quem está parado (sem atividade no mês) → ação concreta no topo
-    const parados = summary.members.filter(m => (m.shares || 0) === 0).map(m => m.name).filter(Boolean);
+    const parados = others.filter(m => (m.shares || 0) === 0).map(m => m.name).filter(Boolean);
     if (parados.length) {
       plan.unshift({
         id: 'parados',

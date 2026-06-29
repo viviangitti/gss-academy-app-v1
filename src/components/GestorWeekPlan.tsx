@@ -13,12 +13,12 @@ import './GestorWeekPlan.css';
 export default function GestorWeekPlan() {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
-  const [plan, setPlan] = useState<PlanItem[]>(() => buildPlan(null));
+  const [plan, setPlan] = useState<PlanItem[]>(() => buildPlan(null, profile.name));
   const [done, setDone] = useState<string[]>(() => getDonePlan());
 
   useEffect(() => {
     getTeamSummary(profile.company || '', profile.segment || '', currentMonthKey())
-      .then(s => setPlan(buildPlan(s)))
+      .then(s => setPlan(buildPlan(s, profile.name)))
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
