@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Competitors per segment for offer scanning
 export const SEGMENT_COMPETITORS: Record<string, string[]> = {
-  automotivo:               ['Fiat', 'Volkswagen', 'Chevrolet', 'Toyota', 'Renault', 'Honda', 'Hyundai', 'Jeep', 'Nissan', 'Kia'],
+  automotivo:               ['Fiat', 'Volkswagen', 'Chevrolet', 'Toyota', 'Renault', 'Honda', 'Hyundai', 'Jeep', 'Nissan', 'Kia', 'Ford', 'Mitsubishi', 'Peugeot', 'Citroën', 'Suzuki'],
   automotivo_china:         ['BYD', 'GWM', 'Caoa Chery', 'MG Motor', 'Changan', 'GAC Motor', 'Jaecoo'],
   automotivo_luxo:          ['Porsche', 'BMW', 'Mercedes-Benz', 'Audi', 'Land Rover', 'Volvo'],
   farmaceutico:             ['Raia Drogasil', 'Ultrafarma', 'Nissei', 'Farmácia Pacheco', 'iHerb Brasil'],
@@ -590,20 +590,23 @@ export async function searchSegmentOffers(
   const isAuto = segment === 'automotivo';
 
   if (isAuto) {
-    // Parallel searches — rate limit is not an issue with 2 concurrent grounding calls
-    const traditional = competitors.slice(0, 5).join(', ');
+    // 3 buscas paralelas — cobre mainstream + premium + chinesas (Toyota incluída).
+    const traditional = ['Fiat', 'Volkswagen', 'Chevrolet', 'Toyota', 'Renault', 'Honda', 'Hyundai', 'Jeep', 'Nissan', 'Kia', 'Ford', 'Mitsubishi', 'Peugeot', 'Citroën', 'Suzuki'].join(', ');
+    const premiumBrands = ['BMW', 'Mercedes-Benz', 'Audi', 'Volvo', 'Land Rover', 'Porsche', 'Lexus'];
     const chineseBrands = ['BYD', 'GWM', 'Caoa Chery', 'MG Motor'];
     const chineseContext = `Foque nestas montadoras chinesas com presença no Brasil em ${monthYear}:\n- BYD: elétricos/híbridos (King, Dolphin, Seal, Tan, Yuan). Site: byd.com.br\n- GWM: Haval H6, H2, ORA 03. Site: gwmbrasil.com.br\n- Caoa Chery: Tiggo 5x, 7 Pro, 8 Pro. Site: caoa-chery.com.br\n- MG Motor: MG ZS, ZS EV, MG5, MG4. Site: mgbrasil.com.br\n- Changan: Uni-T, Uni-K, CS55 Plus. Site: changandobrasil.com.br\n- GAC Motor: GS3, GS4, GS8. Site: gac-motor.com.br\n- Jaecoo: J7, J8. Site: omodajaecoo.com.br\nRetorne apenas ofertas com fonte confirmada via Google Search.`;
 
-    const [tradResult, chineseResult] = await Promise.allSettled([
+    const [tradResult, premiumResult, chineseResult] = await Promise.allSettled([
       runGroundedSearch(buildOffersPrompt(traditional, today, endOfMonth, monthYear), genAI),
+      runGroundedSearch(buildOffersPrompt(premiumBrands.join(', '), today, endOfMonth, monthYear), genAI),
       runGroundedSearch(buildOffersPrompt(chineseBrands.join(', '), today, endOfMonth, monthYear, chineseContext), genAI),
     ]);
 
     const tradOffers = tradResult.status === 'fulfilled' ? tradResult.value : [];
+    const premiumOffers = premiumResult.status === 'fulfilled' ? premiumResult.value : [];
     const chineseOffers = chineseResult.status === 'fulfilled' ? chineseResult.value : [];
 
-    const all = [...tradOffers, ...chineseOffers];
+    const all = [...tradOffers, ...premiumOffers, ...chineseOffers];
     if (all.length === 0) throw new Error('Nenhuma oferta encontrada. Tente novamente.');
     return validateOfferUrls(all);
   }
