@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Car, Plus, Trash2, Edit3, Save, X, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Car, Plus, Trash2, Edit3, Save, X, RefreshCw, ToggleLeft, ToggleRight, Sparkles, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { loadData, KEYS } from '../services/storage';
 import type { UserProfile } from '../types';
@@ -7,7 +7,17 @@ import {
   getAllStock, createStockVehicle, updateStockVehicle, deleteStockVehicle,
 } from '../services/firestore/stock';
 import type { StockVehicle, StockCategory } from '../services/firestore/stock';
+import { extractVehicleFromFile } from '../services/stockExtract';
 import './StockAdmin.css';
+
+function readFileAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 type Form = Omit<StockVehicle, 'id'>;
 
@@ -30,6 +40,9 @@ export default function StockAdmin() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [extracting, setExtracting] = useState(false);
+  const [extracted, setExtracted] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,7 +52,32 @@ export default function StockAdmin() {
 
   useEffect(() => { load(); }, [load]);
 
-  const handleNew = () => { setForm(EMPTY); setEditingId(null); setError(''); setShowForm(true); };
+  const handleNew = () => { setForm(EMPTY); setEditingId(null); setError(''); setExtracted(false); setShowForm(true); };
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) e.target.value = ''; // permite reenviar o mesmo arquivo
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) { setError('Arquivo muito grande (máx. 8MB).'); return; }
+    setExtracting(true); setError(''); setExtracted(false);
+    if (!showForm) { setForm(EMPTY); setEditingId(null); setShowForm(true); }
+    try {
+      const base64 = await readFileAsBase64(file);
+      const v = await extractVehicleFromFile(base64, file.type || 'image/jpeg');
+      setForm(f => ({
+        ...f,
+        model: v.model || f.model,
+        year: v.year || f.year,
+        color: v.color || f.color,
+        price: v.price || f.price,
+        note: v.note || f.note,
+      }));
+      setExtracted(true);
+    } catch {
+      setError('Não consegui ler o arquivo. Preencha manualmente ou tente outra foto.');
+    }
+    setExtracting(false);
+  };
   const handleEdit = (v: StockVehicle) => {
     setForm({ model: v.model, year: v.year || '', color: v.color || '', price: v.price || '', note: v.note || '', category: v.category || 'antigo', company: v.company || company, active: v.active });
     setEditingId(v.id); setError(''); setShowForm(true);
@@ -84,6 +122,16 @@ export default function StockAdmin() {
             <h3>{editingId ? 'Editar veículo' : 'Novo veículo'}</h3>
             <button className="sa-close" onClick={handleCancel}><X size={16} /></button>
           </div>
+
+          {/* Ler de foto/PDF com IA — preenche os campos pro gestor conferir */}
+          <button className="sa-ai-btn" onClick={() => fileRef.current?.click()} disabled={extracting}>
+            {extracting
+              ? <><RefreshCw size={15} className="sa-spin" /> Lendo o arquivo…</>
+              : <><Sparkles size={15} /> Ler de foto ou PDF</>}
+          </button>
+          {extracted && !extracting && (
+            <p className="sa-ai-hint"><Camera size={13} /> Li o arquivo e preenchi abaixo — confira e ajuste antes de salvar.</p>
+          )}
 
           <div className="sa-field">
             <label>Categoria</label>
@@ -135,10 +183,24 @@ export default function StockAdmin() {
         </div>
       )}
 
+      {/* input escondido — usado pelo botão de IA */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*,application/pdf"
+        style={{ display: 'none' }}
+        onChange={handleFile}
+      />
+
       {!showForm && (
-        <button className="btn btn-primary sa-new-btn" onClick={handleNew}>
-          <Plus size={15} /> Cadastrar veículo
-        </button>
+        <div className="sa-new-actions">
+          <button className="btn btn-primary sa-new-btn" onClick={handleNew}>
+            <Plus size={15} /> Cadastrar veículo
+          </button>
+          <button className="btn btn-outline sa-new-btn" onClick={() => fileRef.current?.click()} disabled={extracting}>
+            {extracting ? <><RefreshCw size={15} className="sa-spin" /> Lendo…</> : <><Sparkles size={15} /> Ler de foto/PDF</>}
+          </button>
+        </div>
       )}
 
       <div className="sa-list-title"><strong>Veículos cadastrados</strong></div>
