@@ -6,14 +6,12 @@ import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
 import { getStats, addSale, getDailyAccumulation, getModelProgress } from '../services/goal';
 import { archiveIfNeeded } from '../services/goalHistory';
-import { getWeekStats } from '../services/history';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
 import QuickSaleSheet from '../components/QuickSaleSheet';
 import ConditionReminder from '../components/ConditionReminder';
 import GestorWeekPlan from '../components/GestorWeekPlan';
 import type { FollowUp } from '../services/followups';
-import type { WeekStats } from '../services/history';
 import type { UserProfile } from '../types';
 import type { Favorite } from '../services/favorites';
 import type { DayData } from '../services/day';
@@ -35,7 +33,6 @@ export default function Home() {
   const [newTask, setNewTask] = useState('');
   const [goal, setGoal] = useState(0);
   const [stats, setStats] = useState<GoalStats | null>(null);
-  const [weekStats, setWeekStats] = useState<WeekStats | null>(null);
   const [welcomeBack, setWelcomeBack] = useState<string | null>(null);
   const [showAddSale, setShowAddSale] = useState(false);   // inline form (Meta do mês)
   const [showQuickSale, setShowQuickSale] = useState(false); // FAB modal
@@ -65,9 +62,6 @@ export default function Home() {
     const due = getDueFollowUps();
     setDueToday(due.today);
     setDueOverdue(due.overdue);
-
-    const ws = getWeekStats();
-    if (ws.totalInteractions > 0) setWeekStats(ws);
 
     setWelcomeBack(getWelcomeBackMessage());
     markActive();
@@ -396,33 +390,6 @@ export default function Home() {
           </div>
           <ArrowRight size={18} />
         </button>
-      )}
-
-
-      {/* Progresso semanal */}
-      {weekStats && (
-        <div className="day-section">
-          <div className="day-section-header">
-            <h3 className="section-title">Essa semana</h3>
-            <button className="btn btn-outline btn-sm" onClick={() => navigate('/historico')}>Ver histórico</button>
-          </div>
-          <div className="week-stats card">
-            <div className="week-stat">
-              <span className="week-stat-value">{weekStats.messages}</span>
-              <span className="week-stat-label">Mensagens</span>
-            </div>
-            <div className="week-stat">
-              <span className="week-stat-value">{weekStats.simulations}</span>
-              <span className="week-stat-label">Treinos</span>
-            </div>
-            <div className="week-stat">
-              <span className="week-stat-value">
-                {weekStats.averageSimScore !== null ? weekStats.averageSimScore.toFixed(1) : '—'}
-              </span>
-              <span className="week-stat-label">Nota média</span>
-            </div>
-          </div>
-        </div>
       )}
 
 
