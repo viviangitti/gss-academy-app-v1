@@ -16,6 +16,7 @@ export interface StockVehicle {
   price?: string;       // texto livre, ex: "R$ 159.900"
   note?: string;        // ex: "Único, parado há 90 dias" / "Premiação: R$ 2 mil pro vendedor"
   category?: StockCategory; // 'antigo' (padrão) ou 'premiacao'. Ausente = 'antigo' (retrocompat).
+  isExample?: boolean;  // placeholder de demonstração — some quando há veículo real na categoria
   company?: string;     // concessionária dona (isolamento por loja)
   active: boolean;
   createdAt?: unknown;

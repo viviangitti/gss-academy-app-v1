@@ -122,9 +122,14 @@ export default function Home() {
     navigate('/feedback');
   };
 
-  // Veículos destacados (gestor cadastra, time vê) — dividido por categoria
-  const antigos = stock.filter(v => (v.category || 'antigo') !== 'premiacao');
-  const premiados = stock.filter(v => v.category === 'premiacao');
+  // Veículos destacados (gestor cadastra, time vê) — dividido por categoria.
+  // Exemplos (isExample) só aparecem enquanto não houver veículo real na categoria.
+  const realOrExample = (list: StockVehicle[]) => {
+    const real = list.filter(v => !v.isExample);
+    return real.length > 0 ? real : list;
+  };
+  const antigos = realOrExample(stock.filter(v => (v.category || 'antigo') !== 'premiacao'));
+  const premiados = realOrExample(stock.filter(v => v.category === 'premiacao'));
 
   const renderStockSection = (title: string, list: StockVehicle[], emptyTitle: string, emptySub: string) => {
     if (list.length === 0 && !isStockManager) return null;
