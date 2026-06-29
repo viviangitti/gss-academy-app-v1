@@ -49,7 +49,7 @@ const titles: Record<string, string> = {
   '/ofertas-admin': 'Painel Marketing',
   '/concorrencia': 'Concorrência',
   '/concorrencia-admin': 'Concorrência',
-  '/estoque-admin': 'Estoque parado',
+  '/estoque-admin': 'Veículos em destaque',
   '/gatilhos': 'Gatilhos',
   '/condicoes': 'Condições Comerciais',
   '/condicoes-admin': 'Campanhas e Condições',

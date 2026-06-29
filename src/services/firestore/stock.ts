@@ -4,14 +4,18 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
-// Veículo parado em estoque — o gestor cadastra, o time vê na tela inicial.
+// Categoria do veículo destacado na Home (o gestor cadastra ambos).
+export type StockCategory = 'antigo' | 'premiacao';
+
+// Veículo destacado — o gestor cadastra, o time vê na tela inicial.
 export interface StockVehicle {
   id: string;
   model: string;        // ex: "Corolla Cross XRE"
   year?: string;        // ex: "2024/2025"
   color?: string;       // ex: "Prata"
   price?: string;       // texto livre, ex: "R$ 159.900"
-  note?: string;        // ex: "Único, parado há 90 dias — prioridade"
+  note?: string;        // ex: "Único, parado há 90 dias" / "Premiação: R$ 2 mil pro vendedor"
+  category?: StockCategory; // 'antigo' (padrão) ou 'premiacao'. Ausente = 'antigo' (retrocompat).
   company?: string;     // concessionária dona (isolamento por loja)
   active: boolean;
   createdAt?: unknown;

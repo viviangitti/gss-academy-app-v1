@@ -6,17 +6,22 @@ import type { UserProfile } from '../types';
 import {
   getAllStock, createStockVehicle, updateStockVehicle, deleteStockVehicle,
 } from '../services/firestore/stock';
-import type { StockVehicle } from '../services/firestore/stock';
+import type { StockVehicle, StockCategory } from '../services/firestore/stock';
 import './StockAdmin.css';
 
 type Form = Omit<StockVehicle, 'id'>;
+
+const CATEGORIES: { value: StockCategory; label: string }[] = [
+  { value: 'antigo', label: 'Antigo em estoque' },
+  { value: 'premiacao', label: 'Com premiação' },
+];
 
 export default function StockAdmin() {
   const { user } = useAuth();
   const me = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
   const company = me.company || '';
 
-  const EMPTY: Form = { model: '', year: '', color: '', price: '', note: '', company, active: true };
+  const EMPTY: Form = { model: '', year: '', color: '', price: '', note: '', category: 'antigo', company, active: true };
 
   const [items, setItems] = useState<StockVehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +41,7 @@ export default function StockAdmin() {
 
   const handleNew = () => { setForm(EMPTY); setEditingId(null); setError(''); setShowForm(true); };
   const handleEdit = (v: StockVehicle) => {
-    setForm({ model: v.model, year: v.year || '', color: v.color || '', price: v.price || '', note: v.note || '', company: v.company || company, active: v.active });
+    setForm({ model: v.model, year: v.year || '', color: v.color || '', price: v.price || '', note: v.note || '', category: v.category || 'antigo', company: v.company || company, active: v.active });
     setEditingId(v.id); setError(''); setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -68,8 +73,8 @@ export default function StockAdmin() {
       <div className="sa-hero card">
         <Car size={22} />
         <div>
-          <h2>Estoque parado</h2>
-          <p>Cadastre os veículos antigos pro time priorizar a venda</p>
+          <h2>Veículos em destaque</h2>
+          <p>Cadastre os antigos em estoque e os com premiação pro time priorizar</p>
         </div>
       </div>
 
@@ -78,6 +83,22 @@ export default function StockAdmin() {
           <div className="sa-form-header">
             <h3>{editingId ? 'Editar veículo' : 'Novo veículo'}</h3>
             <button className="sa-close" onClick={handleCancel}><X size={16} /></button>
+          </div>
+
+          <div className="sa-field">
+            <label>Categoria</label>
+            <div className="sa-cat-chips">
+              {CATEGORIES.map(c => (
+                <button
+                  key={c.value}
+                  type="button"
+                  className={`sa-cat-chip ${(form.category || 'antigo') === c.value ? 'on' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, category: c.value }))}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="sa-field">
@@ -130,7 +151,12 @@ export default function StockAdmin() {
         items.map(v => (
           <div key={v.id} className={`sa-item card ${!v.active ? 'sa-inactive' : ''}`}>
             <div className="sa-item-info">
-              <strong>{v.model}</strong>
+              <div className="sa-item-top">
+                <strong>{v.model}</strong>
+                <span className={`sa-cat-badge ${v.category === 'premiacao' ? 'premiacao' : 'antigo'}`}>
+                  {v.category === 'premiacao' ? 'Premiação' : 'Antigo'}
+                </span>
+              </div>
               <span className="sa-item-meta">
                 {[v.year, v.color, v.price].filter(Boolean).join(' • ')}
               </span>

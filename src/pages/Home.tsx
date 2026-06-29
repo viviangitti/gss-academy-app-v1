@@ -122,6 +122,53 @@ export default function Home() {
     navigate('/feedback');
   };
 
+  // Veículos destacados (gestor cadastra, time vê) — dividido por categoria
+  const antigos = stock.filter(v => (v.category || 'antigo') !== 'premiacao');
+  const premiados = stock.filter(v => v.category === 'premiacao');
+
+  const renderStockSection = (title: string, list: StockVehicle[], emptyTitle: string, emptySub: string) => {
+    if (list.length === 0 && !isStockManager) return null;
+    return (
+      <div className="day-section">
+        <div className="day-section-header">
+          <h3 className="section-title">{title}</h3>
+          {isStockManager && (
+            <button className="btn btn-outline btn-sm" onClick={() => navigate('/estoque-admin')}>
+              {list.length > 0 ? 'Gerenciar' : 'Cadastrar'}
+            </button>
+          )}
+        </div>
+        {list.length === 0 ? (
+          isStockManager && (
+            <button className="home-content-card card" onClick={() => navigate('/estoque-admin')}>
+              <div className="home-content-icon"><Car size={20} /></div>
+              <div className="home-content-text">
+                <strong>{emptyTitle}</strong>
+                <span>{emptySub}</span>
+              </div>
+              <ArrowRight size={16} className="home-train-arrow" />
+            </button>
+          )
+        ) : (
+          <div className="stock-list">
+            {list.map(v => (
+              <div key={v.id} className="stock-card card">
+                <div className="stock-icon"><Car size={18} /></div>
+                <div className="stock-info">
+                  <strong>{v.model}</strong>
+                  {[v.year, v.color, v.price].filter(Boolean).length > 0 && (
+                    <span className="stock-meta">{[v.year, v.color, v.price].filter(Boolean).join(' • ')}</span>
+                  )}
+                  {v.note && <span className="stock-note">{v.note}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="home">
 
@@ -369,46 +416,9 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Estoque parado — gestor cadastra, time prioriza a venda */}
-      {(stock.length > 0 || isStockManager) && (
-        <div className="day-section">
-          <div className="day-section-header">
-            <h3 className="section-title">Estoque parado</h3>
-            {isStockManager && (
-              <button className="btn btn-outline btn-sm" onClick={() => navigate('/estoque-admin')}>
-                {stock.length > 0 ? 'Gerenciar' : 'Cadastrar'}
-              </button>
-            )}
-          </div>
-          {stock.length === 0 ? (
-            isStockManager && (
-              <button className="home-content-card card" onClick={() => navigate('/estoque-admin')}>
-                <div className="home-content-icon"><Car size={20} /></div>
-                <div className="home-content-text">
-                  <strong>Cadastre os veículos parados</strong>
-                  <span>O time vê aqui e prioriza a venda</span>
-                </div>
-                <ArrowRight size={16} className="home-train-arrow" />
-              </button>
-            )
-          ) : (
-            <div className="stock-list">
-              {stock.map(v => (
-                <div key={v.id} className="stock-card card">
-                  <div className="stock-icon"><Car size={18} /></div>
-                  <div className="stock-info">
-                    <strong>{v.model}</strong>
-                    {[v.year, v.color, v.price].filter(Boolean).length > 0 && (
-                      <span className="stock-meta">{[v.year, v.color, v.price].filter(Boolean).join(' • ')}</span>
-                    )}
-                    {v.note && <span className="stock-note">{v.note}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Veículos destacados — gestor cadastra, time prioriza a venda */}
+      {renderStockSection('Veículos antigos em estoque', antigos, 'Cadastre os veículos antigos', 'O time vê aqui e prioriza a venda')}
+      {renderStockSection('Veículos com premiação', premiados, 'Cadastre os veículos com premiação', 'Bônus extra pra quem vender')}
 
       {welcomeBack && (
         <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>
