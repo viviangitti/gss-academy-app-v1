@@ -152,6 +152,21 @@ service cloud.firestore {
       allow write: if isCampaignManager();
     }
 
+    // /stockVehicles — estoque parado (gestor cadastra, time vê).
+    // ISOLAMENTO POR LOJA: vendedor só lê globais '' ou da própria concessionária.
+    // Escrita: só gestor (isGestor) ou admin.
+    match /stockVehicles/{docId} {
+      allow read: if isSignedIn() && (
+        isConditionsManager() ||
+        resource.data.company == '' ||
+        resource.data.company == myCompany()
+      );
+      allow write: if isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isGestor == true
+      );
+    }
+
     // /contentScores — placar de social selling (ranking da equipe)
     // Leitura: qualquer usuário autenticado (pra ver o ranking)
     // Escrita: só o dono do próprio placar (id = {uid}_{mes})

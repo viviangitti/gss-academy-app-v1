@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, ChevronUp, ChevronDown, Tag, Swords, Newspaper } from 'lucide-react';
+import { ArrowRight, Plus, Check, X, TrendingUp, MessageCircle, ChevronUp, ChevronDown, Tag, Swords, Newspaper, Car } from 'lucide-react';
 import { loadData, KEYS } from '../services/storage';
 import { getFavorites } from '../services/favorites';
 import { getDay, addTask, toggleTask, removeTask, moveTask } from '../services/day';
@@ -8,6 +8,8 @@ import { getStats, addSale, getDailyAccumulation, getModelProgress } from '../se
 import { archiveIfNeeded } from '../services/goalHistory';
 import { markActive, getWelcomeBackMessage } from '../services/notifications';
 import { getDueFollowUps } from '../services/followups';
+import { getStockForCompany } from '../services/firestore/stock';
+import type { StockVehicle } from '../services/firestore/stock';
 import QuickSaleSheet from '../components/QuickSaleSheet';
 import ConditionReminder from '../components/ConditionReminder';
 import GestorWeekPlan from '../components/GestorWeekPlan';
@@ -34,6 +36,7 @@ export default function Home() {
   const [goal, setGoal] = useState(0);
   const [stats, setStats] = useState<GoalStats | null>(null);
   const [welcomeBack, setWelcomeBack] = useState<string | null>(null);
+  const [stock, setStock] = useState<StockVehicle[]>([]);
   const [showAddSale, setShowAddSale] = useState(false);   // inline form (Meta do mês)
   const [showQuickSale, setShowQuickSale] = useState(false); // FAB modal
   const [saleForm, setSaleForm] = useState({ amount: '', model: '', client: '' });
@@ -66,6 +69,9 @@ export default function Home() {
     setWelcomeBack(getWelcomeBackMessage());
     markActive();
 
+    // Estoque parado (gestor cadastra; time vê) — isolado por concessionária
+    getStockForCompany(profile.company).then(setStock).catch(() => { /* offline */ });
+
     // Lembrete diário de feedback — mostra se faz 1+ dia sem avaliar ou sem dispensar
     const DAY_MS = 24 * 60 * 60 * 1000;
     const lastAction = Number(localStorage.getItem('gss_feedback_last_action') || 0);
@@ -77,6 +83,7 @@ export default function Home() {
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '', monthlyGoal: 0 });
   const name = profile.name ? `, ${profile.name.split(' ')[0]}` : '';
   const goalUnit = (profile.segment || '').startsWith('automotivo') ? 'carros' : 'vendas';
+  const isStockManager = profile.isGestor === true || profile.isAdmin === true;
 
   const handleAddTask = () => {
     if (!newTask.trim()) return;
@@ -362,7 +369,46 @@ export default function Home() {
         </button>
       </div>
 
-
+      {/* Estoque parado — gestor cadastra, time prioriza a venda */}
+      {(stock.length > 0 || isStockManager) && (
+        <div className="day-section">
+          <div className="day-section-header">
+            <h3 className="section-title">Estoque parado</h3>
+            {isStockManager && (
+              <button className="btn btn-outline btn-sm" onClick={() => navigate('/estoque-admin')}>
+                {stock.length > 0 ? 'Gerenciar' : 'Cadastrar'}
+              </button>
+            )}
+          </div>
+          {stock.length === 0 ? (
+            isStockManager && (
+              <button className="home-content-card card" onClick={() => navigate('/estoque-admin')}>
+                <div className="home-content-icon"><Car size={20} /></div>
+                <div className="home-content-text">
+                  <strong>Cadastre os veículos parados</strong>
+                  <span>O time vê aqui e prioriza a venda</span>
+                </div>
+                <ArrowRight size={16} className="home-train-arrow" />
+              </button>
+            )
+          ) : (
+            <div className="stock-list">
+              {stock.map(v => (
+                <div key={v.id} className="stock-card card">
+                  <div className="stock-icon"><Car size={18} /></div>
+                  <div className="stock-info">
+                    <strong>{v.model}</strong>
+                    {[v.year, v.color, v.price].filter(Boolean).length > 0 && (
+                      <span className="stock-meta">{[v.year, v.color, v.price].filter(Boolean).join(' • ')}</span>
+                    )}
+                    {v.note && <span className="stock-note">{v.note}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {welcomeBack && (
         <div className="welcome-back card" onClick={() => setWelcomeBack(null)}>

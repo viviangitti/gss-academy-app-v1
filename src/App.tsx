@@ -48,6 +48,7 @@ const Offers = lazy(() => import('./pages/Offers'));
 const OffersAdmin = lazy(() => import('./pages/OffersAdmin'));
 const CompetitorIntel = lazy(() => import('./pages/CompetitorIntel'));
 const CompetitorAdmin = lazy(() => import('./pages/CompetitorAdmin'));
+const StockAdmin = lazy(() => import('./pages/StockAdmin'));
 const Urgency = lazy(() => import('./pages/Urgency'));
 const CommercialConditions = lazy(() => import('./pages/CommercialConditions'));
 const CommercialConditionsAdmin = lazy(() => import('./pages/CommercialConditionsAdmin'));
@@ -261,6 +262,7 @@ function AppContent() {
             <Route path="/ofertas-admin" element={<RequireAdmin allowMarketing><OffersAdmin /></RequireAdmin>} />
             <Route path="/concorrencia" element={<CompetitorIntel />} />
             <Route path="/concorrencia-admin" element={<RequireAdmin allowMarketing><CompetitorAdmin /></RequireAdmin>} />
+            <Route path="/estoque-admin" element={<RequireAdmin allowGestor><StockAdmin /></RequireAdmin>} />
             <Route path="/gatilhos" element={<Urgency />} />
             <Route path="/condicoes" element={<CommercialConditions />} />
             <Route path="/condicoes-admin" element={<RequireAdmin allowMarketing><CommercialConditionsAdmin /></RequireAdmin>} />

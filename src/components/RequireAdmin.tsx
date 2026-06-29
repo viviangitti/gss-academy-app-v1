@@ -12,6 +12,11 @@ interface Props {
    * Use para páginas de gestão de campanhas, condições e promoções.
    */
   allowMarketing?: boolean;
+  /**
+   * Se true, permite acesso ao GESTOR (isGestor) além do admin — mas NÃO ao
+   * vendedor comum. Use para páginas de gestão do time (ex: estoque parado).
+   */
+  allowGestor?: boolean;
 }
 
 function isCampaignManager(profile: UserProfile): boolean {
@@ -23,12 +28,13 @@ function isCampaignManager(profile: UserProfile): boolean {
   );
 }
 
-export default function RequireAdmin({ children, allowMarketing = false }: Props) {
+export default function RequireAdmin({ children, allowMarketing = false, allowGestor = false }: Props) {
   const navigate = useNavigate();
   const profile = loadData<UserProfile>(KEYS.PROFILE, { name: '', role: '', company: '', segment: '' });
 
   const hasAccess =
     profile.isAdmin === true ||
+    (allowGestor && profile.isGestor === true) ||
     (allowMarketing && isCampaignManager(profile));
 
   if (!hasAccess) {
