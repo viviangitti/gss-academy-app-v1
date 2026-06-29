@@ -278,8 +278,8 @@ export default function Sales() {
                 <span className="sale-date">{formatDate(sale.date)} • {formatTime(sale.date)}{sale.client && sale.model ? ` • ${sale.client}` : ''}</span>
               </div>
               {sale.amount ? (
-                <div className="sale-commission-box">
-                  <span className="sale-commission-label">valor</span>
+                <div className="sale-value-box">
+                  <span className="sale-value-label">valor</span>
                   <span className="sale-amount">{formatBRL(sale.amount)}</span>
                 </div>
               ) : null}

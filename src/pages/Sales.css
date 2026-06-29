@@ -246,7 +246,7 @@
   margin-top: 2px;
 }
 
-.sale-commission-box {
+.sale-value-box {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -254,7 +254,7 @@
   flex-shrink: 0;
 }
 
-.sale-commission-label {
+.sale-value-label {
   font-size: 10px;
   color: var(--success);
   font-weight: 700;

@@ -1,6 +1,6 @@
 // Briefing do Dia — a tela de 30 segundos que abre o dia do vendedor.
-// Meta em R$ (quanto falta, quanto por dia útil), follow-ups de hoje,
-// condição mais recente e a comissão em jogo na carteira.
+// Meta em quantidade de carros (quanto falta, quantos por dia útil), follow-ups
+// de hoje, condição mais recente e o valor em jogo na carteira.
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sun, Target, CalendarClock, Tag, Wallet, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
