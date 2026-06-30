@@ -105,7 +105,7 @@ export default function RolePlayVoice() {
     transcriptRef.current = [];
     evaluatedRef.current = false;
     const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     chatRef.current = model.startChat({
       history: [
         { role: 'user', parts: [{ text: ROLEPLAY_PROMPT + `\n\nA objeção que você deve simular é: ${obj.objection}\n\n${buildClientStyle(persona, difficulty)}` }] },
@@ -137,7 +137,7 @@ export default function RolePlayVoice() {
     setClientLine('');
     try {
       const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const conversation = transcriptRef.current
         .map(m => `${m.role === 'user' ? 'Vendedor' : 'Cliente'}: ${m.content}`).join('\n');
       const r = await model.generateContent(`${EVALUATOR_PROMPT}\n\nObjeção: ${selected?.objection}\n\nConversa:\n${conversation}`);

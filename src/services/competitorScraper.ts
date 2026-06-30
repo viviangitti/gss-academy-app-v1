@@ -110,7 +110,7 @@ export async function extractOffersFromUrl(
     .toISOString().split('T')[0];
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const prompt = `Você é um especialista em análise competitiva para o mercado brasileiro.
 
@@ -398,11 +398,11 @@ export function getStableOfferUrl(competitor: string): string | undefined {
 }
 
 // Models with Google Search grounding support.
-// flash-lite PRIMEIRO: ~8s e extrai 9-10 ofertas (vs ~41s do flash). 5x mais rápido,
-// mesma qualidade. O flash fica como fallback se o lite falhar.
+// flash PRIMEIRO (o lite anda congestionado — 503). O lite fica como fallback
+// rápido quando estiver disponível.
 const GROUNDING_MODELS = [
-  'gemini-2.5-flash-lite',
   'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
 ];
 
 function buildOffersPrompt(brands: string, today: string, endOfMonth: string, monthYear: string, extraContext = ''): string {

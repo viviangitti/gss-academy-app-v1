@@ -111,8 +111,8 @@ Além de tudo sobre vendas, você é também coach de GESTÃO DE EQUIPE comercia
 - Conduzir simulações/treinos coletivos e desenvolver cada pessoa do time.
 O gestor ainda vende, mas o foco dele é MULTIPLICAR resultado pelo time. Sempre que der, conecte o conselho de venda a COMO ele treina e aplica isso com a equipe.`;
 
-const PRIMARY_MODEL = 'gemini-2.5-flash-lite';   // rápido
-const FALLBACK_MODEL = 'gemini-2.5-flash';       // reserva quando o lite congestiona (503)
+const PRIMARY_MODEL = 'gemini-2.5-flash';        // estável (o lite anda congestionado — 503)
+const FALLBACK_MODEL = 'gemini-2.5-flash-lite';  // reserva
 let chat: ReturnType<ReturnType<GoogleGenerativeAI['getGenerativeModel']>['startChat']> | null = null;
 let currentChatMode: 'vendas' | 'marketing' | 'gestor' = 'vendas';
 let currentModel: string = PRIMARY_MODEL;

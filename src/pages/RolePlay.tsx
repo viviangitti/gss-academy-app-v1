@@ -107,7 +107,7 @@ export default function RolePlay() {
     setShowSelector(false);
 
     const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     chatRef.current = model.startChat({
       history: [
@@ -157,7 +157,7 @@ export default function RolePlay() {
     setLoading(true);
     try {
       const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       const conversation = allMessages
         .map(m => `${m.role === 'user' ? 'Vendedor' : 'Cliente'}: ${m.content}`)
