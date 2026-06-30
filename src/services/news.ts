@@ -11,34 +11,34 @@ export type NewsGeo = 'brasil' | 'mundo';
 
 const MARKETING_QUERIES_BR = [
   // 🎪 Eventos
-  'evento marketing automotivo ativação showroom fórum lançamento Brasil 2025',
+  'evento marketing automotivo ativação showroom fórum lançamento Brasil',
   'salão automotivo motorshow expo evento marca lançamento novidade Brasil',
-  'ativação ponto de venda PDV concessionária experiência marca luxury 2025',
+  'ativação ponto de venda PDV concessionária experiência marca luxury',
   // 📺 Mídia
-  'campanha mídia veiculação TV digital outdoor anúncio automóvel premium Brasil 2025',
+  'campanha mídia veiculação TV digital outdoor anúncio automóvel premium Brasil',
   'publicidade digital programática Google Meta TikTok marca automotiva premium Brasil',
   'mídia OOH outdoor DOOH campanha premium automotivo lançamento publicidade',
   // 🤝 Parcerias
-  'parceria patrocínio marca automotiva esporte cultural luxo collab Brasil 2025',
+  'parceria patrocínio marca automotiva esporte cultural luxo collab Brasil',
   'brand ambassador influencer parceria marca luxury automotive colaboração',
   'co-branding parceria premium lifestyle moda arte marca automotiva',
   // 📊 Tendências & Branding
-  'tendência marketing luxury brand premium experiência cliente CX 2025 Brasil',
+  'tendência marketing luxury brand premium experiência cliente CX Brasil',
   'storytelling branding campanha digital social media marca automotiva premium',
 ];
 
 const MARKETING_QUERIES_WORLD = [
   // Events
-  'luxury automotive marketing event activation launch summit 2025',
+  'luxury automotive marketing event activation launch summit',
   'brand activation experiential marketing luxury showroom global',
   // Media
-  'luxury brand advertising campaign media digital OOH 2025',
+  'luxury brand advertising campaign media digital OOH',
   'premium automotive programmatic digital marketing media buying',
   // Partnerships
-  'luxury brand partnership sponsorship collaboration sport art 2025',
+  'luxury brand partnership sponsorship collaboration sport art',
   'brand ambassador influencer luxury automotive partnership collaboration',
   // Trends
-  'luxury brand marketing strategy trend digital 2025',
+  'luxury brand marketing strategy trend digital',
   'luxury customer experience CX retail omnichannel innovation',
 ];
 
@@ -99,27 +99,27 @@ export async function fetchCompetitorMarketingNews(segment: string, geo: NewsGeo
 // Queries de marketing específicas por segmento — eventos, mídia e parcerias do setor
 const SEGMENT_MARKETING_QUERIES: Partial<Record<string, string[]>> = {
   automotivo: [
-    'evento automotivo ativação lançamento concessionária Brasil 2025',
+    'evento automotivo ativação lançamento concessionária Brasil',
     'campanha mídia TV digital veiculação carro anúncio Brasil',
     'parceria patrocínio marca carro esporte collab influencer Brasil',
     'marketing digital concessionária redes sociais lead geração',
     'tendência marketing automotivo experiência cliente showroom Brasil',
   ],
   automotivo_luxo: [
-    'evento ativação luxury car brand experiência showroom lançamento Brasil 2025',
+    'evento ativação luxury car brand experiência showroom lançamento Brasil',
     'campanha mídia veiculação TV digital luxury automotive premium Brasil',
     'parceria patrocínio marca luxo arte esporte collab influencer premium Brasil',
     'experiência cliente luxury CX concessionária premium premium brand',
     'marketing digital luxury brand social media content Land Rover BMW Porsche',
   ],
   varejo: [
-    'evento varejo feira consumidor lançamento Brasil 2025',
+    'evento varejo feira consumidor lançamento Brasil',
     'campanha mídia digital TV varejo publicidade anúncio',
     'parceria marca varejo co-branding patrocínio influencer Brasil',
     'tendência marketing varejo omnichannel digital experiência',
   ],
   financeiro: [
-    'evento fórum financeiro fintech congresso marketing 2025',
+    'evento fórum financeiro fintech congresso marketing',
     'campanha mídia seguro banco financeiro veiculação digital TV',
     'parceria patrocínio marca financeira collab influencer',
     'marketing digital financeiro redes sociais lead conversão',
@@ -167,7 +167,7 @@ export async function fetchMarketingNews(geo: NewsGeo = 'brasil', segment?: stri
 }
 
 // Cache local para não martelar API
-const CACHE_KEY = 'gss_news_cache_v10'; // v10: aba Concorrentes por marca (corrige vazio)
+const CACHE_KEY = 'gss_news_cache_v11'; // v11: remove ano fixo "2025" das queries (notícias atuais)
 const CACHE_TTL = 10 * 60 * 1000; // 10 min — notícias ao vivo
 
 interface CacheEntry {
@@ -262,7 +262,7 @@ const NOISE_BLOCK = /\b(copa do mundo|world cup|fifa|stadium|est[áa]dio|ingress
 const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCategory, string[]>>>> = {
   automotivo: {
     lancamentos: [
-      'BYD GWM "Caoa Chery" "MG Motor" Changan GAC Jaecoo lançamento novo modelo Brasil 2025',
+      'BYD GWM "Caoa Chery" "MG Motor" Changan GAC Jaecoo lançamento novo modelo Brasil',
       'Fiat Volkswagen Chevrolet Toyota Renault Honda Hyundai novo modelo lançamento Brasil',
       'elétrico híbrido lançamento preço concessionária Brasil',
       'SUV pickup sedan novo Brasil montadora',
@@ -270,7 +270,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
     ],
     mercado: [
       'BYD GWM "Caoa Chery" "MG Motor" Changan GAC Jaecoo chinês mercado automotivo Brasil emplacamentos crescimento',
-      'financiamento veículo Selic taxa juros impacto vendas 2025',
+      'financiamento veículo Selic taxa juros impacto vendas',
       'emplacamentos carros Brasil ranking marcas crescimento queda',
       'consumidor intenção compra carro pesquisa Brasil',
       'seminovos usados mercado preço tabela fipe',
@@ -279,7 +279,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
   },
   automotivo_luxo: {
     lancamentos: [
-      'BMW Mercedes Porsche Audi lançamento Brasil 2025',
+      'BMW Mercedes Porsche Audi lançamento Brasil',
       'importado luxo novo modelo preço Brasil',
       'SUV luxo estreia concessionária Brasil',
       'elétrico premium lançamento Tesla Volvo Land Rover',
@@ -287,13 +287,13 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
     mercado: [
       'câmbio dólar impacto carro importado',
       'alto padrão consumo luxo Brasil tendência',
-      'IPTU IPVA isenção carro elétrico 2025',
+      'IPTU IPVA isenção carro elétrico',
       'milionários Brasil consumo premium pesquisa',
     ],
   },
   farmaceutico: {
     lancamentos: [
-      'medicamento aprovado ANVISA 2025',
+      'medicamento aprovado ANVISA',
       'genérico similar lançamento laboratório Brasil',
       'produto farmacêutico OTC novo lançamento',
       'suplemento vitamina lançamento farmácia',
@@ -313,7 +313,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
       'ERP CRM novo sistema lançamento Brasil',
     ],
     mercado: [
-      'transformação digital PME investimento 2025',
+      'transformação digital PME investimento',
       'LGPD conformidade empresa software demanda',
       'inteligência artificial adoção empresa Brasil',
       'corte custo tecnologia empresa tendência',
@@ -329,7 +329,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
       'consumidor renda intenção compra índice',
       'crediário parcelamento juros varejo tendência',
       'e-commerce varejo físico omnichannel Brasil',
-      'Black Friday data 2025 varejo expectativa',
+      'Black Friday data varejo expectativa',
     ],
   },
   imobiliario: {
@@ -341,7 +341,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
     ],
     mercado: [
       'Selic queda alta impacto financiamento imóvel',
-      'FGTS regras compra imóvel 2025',
+      'FGTS regras compra imóvel',
       'aluguel preço alta baixa Brasil',
       'comprador imóvel perfil pesquisa tendência',
     ],
@@ -363,12 +363,12 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
   agro: {
     lancamentos: [
       'defensivo agrícola novo produto lançamento',
-      'semente tecnologia nova safra 2025',
+      'semente tecnologia nova safra',
       'máquina agrícola equipamento novo lançamento',
       'fertilizante biológico novo produto',
     ],
     mercado: [
-      'safra previsão produção grãos Brasil 2025',
+      'safra previsão produção grãos Brasil',
       'crédito rural Plano Safra condições',
       'cotação soja milho boi preço hoje',
       'insumo agro preço custo produção',
@@ -382,9 +382,9 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
       'inversor solar novo lançamento Brasil',
     ],
     mercado: [
-      'tarifa energia elétrica aumento 2025',
+      'tarifa energia elétrica aumento',
       'payback energia solar prazo retorno',
-      'financiamento BNDES solar condições 2025',
+      'financiamento BNDES solar condições',
       'desconto conta luz solar instalação',
     ],
   },
@@ -407,12 +407,12 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
       'curso novo lançamento escola faculdade EAD',
       'plataforma edtech novo produto Brasil',
       'programa educacional novo parceria',
-      'graduação pós-graduação novo curso 2025',
+      'graduação pós-graduação novo curso',
     ],
     mercado: [
       'matrícula evasão tendência ensino',
       'ENEM vestibular impacto inscrições',
-      'bolsa ProUni FIES condições 2025',
+      'bolsa ProUni FIES condições',
       'educação corporativa treinamento demanda empresa',
     ],
   },
@@ -423,7 +423,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
       'outsourcing serviço novo pacote empresa',
     ],
     mercado: [
-      'terceirização tendência empresa Brasil 2025',
+      'terceirização tendência empresa Brasil',
       'contrato serviço renovação empresa corte',
       'RH folha pagamento gestão demanda',
       'compliance auditoria empresa demanda crescimento',
@@ -452,7 +452,7 @@ const SEGMENT_CATEGORY_OVERRIDES: Partial<Record<string, Partial<Record<NewsCate
     mercado: [
       'bar restaurante consumo bebida tendência',
       'supermercado bebida alcoólica vendas volume',
-      'imposto bebida alcoólica tributação 2025',
+      'imposto bebida alcoólica tributação',
       'consumidor bebida alcoólica pesquisa hábito',
     ],
   },
@@ -483,7 +483,7 @@ const SEGMENT_RSS_FEEDS: Partial<Record<string, Partial<Record<NewsCategory, str
     lancamentos: [
       'https://www.panoramafarmaceutico.com.br/feed/',
       // Google News query via RSS — aprovações e novos produtos ANVISA
-      'https://news.google.com/rss/search?q=medicamento+aprovado+ANVISA+2025&hl=pt-BR&gl=BR&ceid=BR:pt-419',
+      'https://news.google.com/rss/search?q=medicamento+aprovado+ANVISA&hl=pt-BR&gl=BR&ceid=BR:pt-419',
       'https://news.google.com/rss/search?q=novo+medicamento+laborat%C3%B3rio+Brasil+lan%C3%A7a&hl=pt-BR&gl=BR&ceid=BR:pt-419',
     ],
     mercado: [
@@ -497,7 +497,7 @@ const SEGMENT_RSS_FEEDS: Partial<Record<string, Partial<Record<NewsCategory, str
 const CATEGORY_QUERIES: Record<NewsCategory, string[]> = {
   tudo: [''],
   lancamentos: [
-    'lançamento novo produto Brasil 2025',
+    'lançamento novo produto Brasil',
     'estreia novo modelo versão Brasil',
     'novidade produto mercado apresenta',
   ],
@@ -508,11 +508,11 @@ const CATEGORY_QUERIES: Record<NewsCategory, string[]> = {
   ],
   mercado: [
     'tendência consumidor compra comportamento',
-    'mercado crescimento queda demanda 2025',
+    'mercado crescimento queda demanda',
     'economia impacto vendas setor Brasil',
   ],
   marketing: [
-    'marketing digital tendência 2025 Brasil',
+    'marketing digital tendência Brasil',
     'branding campanha marca premium',
   ],
   concorrentes: [
