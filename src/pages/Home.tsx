@@ -122,16 +122,11 @@ export default function Home() {
   };
 
   // Veículos destacados (gestor cadastra, time vê) — dividido por categoria.
-  // Exemplos (isExample) só aparecem enquanto não houver veículo real na categoria.
-  const realOrExample = (list: StockVehicle[]) => {
-    const real = list.filter(v => !v.isExample);
-    return real.length > 0 ? real : list;
-  };
-  const antigos = realOrExample(stock.filter(v => (v.category || 'antigo') !== 'premiacao'));
-  const premiados = realOrExample(stock.filter(v => v.category === 'premiacao'));
+  // Só veículos REAIS aparecem; sem nenhum, o vendedor vê "aguardando seu gestor".
+  const antigos = stock.filter(v => !v.isExample && (v.category || 'antigo') !== 'premiacao');
+  const premiados = stock.filter(v => !v.isExample && v.category === 'premiacao');
 
   const renderStockSection = (title: string, list: StockVehicle[], emptyTitle: string, emptySub: string) => {
-    if (list.length === 0 && !isStockManager) return null;
     return (
       <div className="day-section">
         <div className="day-section-header">
@@ -143,7 +138,7 @@ export default function Home() {
           )}
         </div>
         {list.length === 0 ? (
-          isStockManager && (
+          isStockManager ? (
             <button className="home-content-card card" onClick={() => navigate('/estoque-admin')}>
               <div className="home-content-icon"><Car size={20} /></div>
               <div className="home-content-text">
@@ -152,6 +147,14 @@ export default function Home() {
               </div>
               <ArrowRight size={16} className="home-train-arrow" />
             </button>
+          ) : (
+            <div className="stock-empty card">
+              <div className="stock-icon"><Car size={18} /></div>
+              <div className="stock-info">
+                <strong>Aguardando seu gestor</strong>
+                <span className="stock-note">Em breve os veículos aparecem aqui</span>
+              </div>
+            </div>
           )
         ) : (
           <div className="stock-list">

@@ -1382,3 +1382,8 @@
 .stock-info strong { font-size: 14px; color: var(--text); }
 .stock-meta { font-size: 12px; color: var(--accent); font-weight: 600; }
 .stock-note { font-size: 12px; color: var(--text-muted); }
+
+/* Estoque — placeholder "aguardando gestor" (vendedor, sem veículos) */
+.stock-empty { display: flex; align-items: center; gap: 10px; padding: 14px; border: 1px dashed var(--border); opacity: 0.85; }
+.stock-empty .stock-icon { opacity: 0.7; }
+.stock-empty strong { font-size: 14px; color: var(--text-muted); }
